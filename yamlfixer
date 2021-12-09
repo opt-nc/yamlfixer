@@ -45,7 +45,9 @@ import sys
 import os
 import subprocess
 
-LINTERCOMMAND = "yamllint --format parsable --strict -"
+VERSION = '0.1'
+
+LINTERCOMMAND = 'yamllint --format parsable --strict -'
 
 FIX_PASSEDLINTER = 0
 FIX_MODIFIED = 1
@@ -377,6 +379,9 @@ def main(arguments):
 if __name__ == '__main__':
     if '--help' in sys.argv[1:]:
         print(__doc__)
+        sys.exit(0)
+    elif '--version' in sys.argv[1:]:
+        print(f"yamlfixer v{VERSION}")
         sys.exit(0)
     else:
         sys.exit(main(sys.argv[1:]))
