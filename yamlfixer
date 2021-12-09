@@ -12,7 +12,13 @@ yamllint.
 usage:
 
 ```
-$ yamlfixer *.yml - thisfile.yaml
+$ yamlfixer [--debug] [--verbose] *.yml - thisfile.yaml
+```
+
+or:
+
+```
+$ yamlfixer [--help] [--version]
 ```
 
 This will launch yamllint on each specified file name (`-` is _stdin_),
@@ -369,4 +375,8 @@ def main(arguments):
     return fixer.fixfiles()
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    if '--help' in sys.argv[1:]:
+        print(__doc__)
+        sys.exit(0)
+    else:
+        sys.exit(main(sys.argv[1:]))

@@ -9,7 +9,13 @@ yamllint.
 usage:
 
 ```
-$ yamlfixer *.yml - thisfile.yaml
+$ yamlfixer [--debug] [--verbose] *.yml - thisfile.yaml
+```
+
+or:
+
+```
+$ yamlfixer [--help] [--version]
 ```
 
 This will launch yamllint on each specified file name (`-` is _stdin_),
