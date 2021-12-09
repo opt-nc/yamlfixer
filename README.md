@@ -20,7 +20,7 @@ _stdout_. Other files will be overwritten if needed.
 
 Diagnostic information is sent to stderr.
 
-IMPORTANT: Not all problems are fixable by _yamlfixer_. Due to the way
+*IMPORTANT:* Not all problems are fixable by _yamlfixer_. Due to the way
 [yamllint](https://github.com/adrienverge/yamllint) works, it doesn't
 currenlty report all faulty lines, _yamlfixer_ might even introduce
 indentation problems under some circumstances. Use at your own risk,
