@@ -21,20 +21,169 @@ then parse its output and try to fix reported problems in that file.
 If input is read from _stdin_, the corrected output will be sent to
 _stdout_. Other files will be overwritten if needed.
 
-Diagnostic information is sent to stderr.
+Diagnostic information is sent to stderr in verbose or debug modes.
+
+This command exits with `0` if all input files pass
+[yamllint](https://github.com/adrienverge/yamllint) strict mode, else
+`-1`.
 
 **IMPORTANT:** Not all problems are fixable by _yamlfixer_. Due to the way
 [yamllint](https://github.com/adrienverge/yamllint) works, it doesn't
 currenlty report all faulty lines, _yamlfixer_ might even introduce
 indentation problems under some circumstances. Use at your own risk,
 you have been warned...
+
 """
 
 import sys
 import os
 import subprocess
 
-def fix(lines, offsets, position, message):
+LINTERCOMMAND = "yamllint --format parsable --strict -"
+
+FIX_PASSEDLINTER = 0
+FIX_MODIFIED = 1
+FIX_UNMODIFIED = 2
+FIX_SKIPPED = 3
+FIX_PERMERROR = 4
+
+class FileFixer:
+    """To hold file fixing logic."""
+    def __init__(self, filename):
+        """Initialize a file to fix."""
+        self.filename = filename
+        if filename == '-':
+            self.absfilename = '<stdin>'
+        else:
+            self.absfilename = os.path.abspath(filename)
+        self.loffset = self.coffset = 0
+        self.shebang = ""
+        self.incontents = None
+
+    def load(self):
+        """Loads the input file's contents."""
+        if self.filename == '-':
+            self.incontents = sys.stdin.read()
+        else:
+            try:
+                with open(self.filename, 'r') as yamlfile:
+                    self.incontents = yamlfile.read()
+            except FileNotFoundError as msg:
+                sys.stderr.write(f"{msg}\n")
+
+    def dump(self, outcontents):
+        """Dumps the new file's contents."""
+        if outcontents != self.incontents:
+            retcode = FIX_MODIFIED
+        else:
+            retcode = FIX_SKIPPED
+        if self.filename == '-':
+            sys.stdout.write(self.shebang + outcontents)
+            sys.stdout.flush()
+        elif retcode == FIX_MODIFIED: # Don't write unnecessarily
+            try:
+                with open(self.filename, 'w') as yamlfile:
+                    yamlfile.write(self.shebang + outcontents)
+            except PermissionError as msg:
+                sys.stderr.write(f"{msg}\n")
+                retcode = FIX_PERMERROR
+        return retcode
+
+    def lint(self):
+        """Launches the linter on a file's contents.
+
+           Returns the (linter's exitcode, linter's stdout) tuple.
+        """
+        linter = subprocess.run(LINTERCOMMAND,
+                                shell=True,
+                                capture_output=True,
+                                text=True,
+                                check=False,
+                                input=self.incontents,
+                                encoding='utf-8')
+        return (linter.returncode, linter.stdout)
+
+    def fixfile(self):
+        """Fix a file's contents."""
+        self.load()
+        if (self.incontents is None) or self.incontents.startswith('$ANSIBLE_VAULT;'):
+            return FIX_SKIPPED
+        (ltexitcode, ltstdout) = self.lint()
+        if not ltexitcode:
+            return FIX_PASSEDLINTER
+        return None # TODO
+
+class YAMLFixer:
+    """To hold files fixing logic."""
+    def __init__(self, arguments):
+        """Initialize the fixer for all files."""
+        for mode in ('verbose', 'debug'):
+            attribute = f"{mode}mode"
+            option = f"--{mode}"
+            if option in arguments:
+                setattr(self, attribute, True)
+                arguments.remove(option)
+            else:
+                setattr(self, attribute, False)
+        self.filenames = arguments
+        if not self.filenames:
+            self.filenames.append("-") # Add fake input from stdin
+        self.passed = self.modified = self.unmodified = self.skipped = self.permerrors = 0
+
+    def info(self, message):
+        """Output an informational message to stderr if verbose mode is active."""
+        if self.verbosemode: # pylint: disable=no-member
+            sys.stderr.write(f"{message}\n")
+
+    def debug(self, message):
+        """Output a debug message to stderr if debug mode is active."""
+        if self.debugmode: # pylint: disable=no-member
+            sys.stderr.write(f"DEBUG: {message}\n")
+
+    def error(self, message): # pylint: disable=no-self-use
+        """Output an error message to stderr."""
+        sys.stderr.write(f"ERROR: {message}\n")
+
+    def statistics(self):
+        """Output some statistics."""
+        self.info(f"Files to fix: {len(self.filenames)}")
+        self.info(f"{self.passed} files passed yamllint strict mode")
+        self.info(f"{self.modified} files were modified")
+        self.info(f"{self.unmodified} files were left unmodified")
+        self.info(f"{self.skipped} files were skipped")
+        self.info(f"{self.permerrors} files were not writeable")
+
+    def fixfiles(self):
+        """Fix all files."""
+        for filename in self.filenames:
+            filetofix = FileFixer(filename)
+            self.info(f"Fixing {filetofix.absfilename} ...")
+            status = filetofix.fixfile()
+            if status == FIX_PASSEDLINTER:
+                self.debug(f"{filetofix.absfilename} passed linter's strict mode.")
+                self.passed += 1
+            elif status == FIX_MODIFIED:
+                self.debug(f"{filetofix.absfilename} was modified.")
+                self.modified += 1
+            elif status == FIX_UNMODIFIED:
+                self.debug(f"{filetofix.absfilename} was left unmodified.")
+                self.unmodified += 1
+            elif status == FIX_SKIPPED:
+                # file was skipped (e.g. Ansible vault, or file not found
+                self.debug(f"{filetofix.absfilename} was skipped.")
+                self.skipped += 1
+            elif status == FIX_PERMERROR:
+                self.debug(f"{filetofix.absfilename} was not writeable.")
+                self.permerrors += 1
+            else:
+                self.error(f"Unknown status {status} for {filetofix.absfilename}")
+
+        self.statistics()
+        if (self.passed + self.skipped) == len(self.filenames):
+            return 0
+        return -1
+
+def oldfix(lines, offsets, position, message):
     """Tries to fix a yamllint problem."""
     (loffset, coffset) = offsets
     (linenum, colnum) = position
@@ -128,7 +277,7 @@ def fix(lines, offsets, position, message):
 
     return ((loffset, coffset), lines)
 
-def main(filenames):
+def oldmain(filenames):
     """Main function."""
     good = 0
     modified = 0
@@ -189,10 +338,10 @@ def main(filenames):
             coffset = 0
             for colnumber in sorted(linestofix[linenumber].keys()):
                 for problem in linestofix[linenumber][colnumber]:
-                    ((loffset, coffset), lines) = fix(lines,
-                                                      (loffset, coffset),
-                                                      (linenumber, colnumber),
-                                                      problem)
+                    ((loffset, coffset), lines) = oldfix(lines,
+                                                         (loffset, coffset),
+                                                         (linenumber, colnumber),
+                                                         problem)
 
         newcontents = '\n'.join(lines) + '\n'
         if newcontents != oldcontents:
@@ -214,7 +363,10 @@ def main(filenames):
 
     sys.stderr.write(f"Fixed {modified}/{len(filenames)-good} files\n")
 
+def main(arguments):
+    """Main function."""
+    fixer = YAMLFixer(arguments)
+    return fixer.fixfiles()
+
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        sys.argv.append('-') # Add fake input from stdin
-    main(sys.argv[1:])
+    sys.exit(main(sys.argv[1:]))
