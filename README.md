@@ -1,5 +1,6 @@
 # yamlfixer
-Automates the fixing of problems reported by _yamllint_ by parsing its
+Automates the fixing of problems reported by
+[yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
 This software automatically fixes some errors and warnings reported by
