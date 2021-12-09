@@ -18,7 +18,11 @@ then parse its output and try to fix reported problems in that file.
 If input is read from _stdin_, the corrected output will be sent to
 _stdout_. Other files will be overwritten if needed.
 
-Diagnostic information is sent to stderr.
+Diagnostic information is sent to stderr in verbose or debug modes.
+
+This command exits with `0` if all input files pass
+[yamllint](https://github.com/adrienverge/yamllint) strict mode, else
+`-1`.
 
 **IMPORTANT:** Not all problems are fixable by _yamlfixer_. Due to the way
 [yamllint](https://github.com/adrienverge/yamllint) works, it doesn't
