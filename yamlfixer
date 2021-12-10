@@ -125,6 +125,12 @@ class ProblemFixer:
         self.ffixer.lines.insert(0, '---')
         self.ffixer.loffset += 1
 
+    def fix_newlineateof(self, left, right): # pylint: disable=unused-argument,no-self-use
+        """Fix:
+             - no new line character at the end of file
+        """
+        # We simply ignore it, because we always add \n when dumping.
+
     def fix_truthy(self, left, right):
         """Fix:
              - truthy value should be one of [false, true] (truthy)
