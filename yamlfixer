@@ -13,7 +13,7 @@ _yamllint_.
 usage:
 
 ```
-$ yamlfixer [--debug] [--verbose] *.yml - thisfile.yaml
+$ yamlfixer [--debug] [--verbose] [--backup] *.yml - thisfile.yaml
 ```
 
 or:
@@ -26,7 +26,9 @@ This will launch _yamllint_ on each specified file name (`-` is _stdin_),
 then parse its output and try to fix the reported problems.
 
 If input is read from _stdin_, the corrected output will be sent to
-_stdout_. Other files will be overwritten if needed.
+_stdout_. Other files will be overwritten if needed. Original files
+can be preserved as _.orig_ if the _--backup_ command line option is
+used.
 
 Diagnostic information is sent to stderr in verbose or debug modes.
 
@@ -305,10 +307,15 @@ class FileFixer:
             sys.stdout.flush()
         elif retcode == FIX_MODIFIED: # Don't write unnecessarily
             try:
+                if self.yfixer.backupmode: # pylint: disable=no-member
+                    try:
+                        os.replace(self.filename, f"{self.filename}.orig")
+                    except PermissionError as msg:
+                        self.yfixer.error(f"impossible to create a backup : {msg}")
                 with open(self.filename, 'w') as yamlfile:
                     yamlfile.write(self.shebang + (outcontents or ''))
             except PermissionError as msg:
-                self.yfixer.error(f"{msg}")
+                self.yfixer.error(f"impossible to save fixed contents : {msg}")
                 retcode = FIX_PERMERROR
         return retcode
 
@@ -367,7 +374,7 @@ class YAMLFixer:
     """To hold files fixing logic."""
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
-        for mode in ('verbose', 'debug'):
+        for mode in ('verbose', 'debug', 'backup'):
             attribute = f"{mode}mode"
             option = f"--{mode}"
             if option in arguments:
