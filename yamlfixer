@@ -86,9 +86,9 @@ class ProblemFixer:
     fixers = {}
     def __init__(self, filefixer, linenum, colnum, problem):
         """Intializes a problem fixer."""
-        self.filefixer = filefixer
-        self.linenum = linenum + self.filefixer.loffset - 1
-        self.colnum = colnum + self.filefixer.coffset - 1
+        self.ffixer = filefixer
+        self.linenum = linenum + self.ffixer.loffset - 1
+        self.colnum = colnum + self.ffixer.coffset - 1
         self.problem = problem
         if not self.fixers:
             for methodname in [m for m in dir(self) if m.startswith('fix_')]:
@@ -102,41 +102,41 @@ class ProblemFixer:
         for (fixerkey, methodname) in self.fixers.items():
             if self.problem.startswith(fixerkey):
                 # pylint: disable=line-too-long
-                self.filefixer.parent.debug(f"Calling {methodname} because [{fixerkey}] matches [{self.problem}]")
+                self.ffixer.yfixer.debug(f"Calling {methodname} because [{fixerkey}] matches [{self.problem}]")
                 getattr(self, methodname)()
                 return FIXER_HANDLED
-        self.filefixer.parent.debug(f"No handler found for [{self.problem}]")
+        self.ffixer.yfixer.debug(f"No handler found for [{self.problem}]")
         return FIXER_UNHANDLED
 
     def get_indentation(self, offset):
         """Returns the indentation of the current (possibly offset) line."""
-        line = self.filefixer.lines[self.linenum + offset]
+        line = self.ffixer.lines[self.linenum + offset]
         return len(line) - len(line.lstrip())
 
     def fix_missing_docstart(self):
         """Fix:
              - missing document start
         """
-        self.filefixer.lines.insert(0, '---')
-        self.filefixer.loffset += 1
+        self.ffixer.lines.insert(0, '---')
+        self.ffixer.loffset += 1
 
     def fix_truthy(self):
         """Fix:
              - truthy value should be one of [false, true] (truthy)
         """
         for trueval in ('on', 'yes', 'true'):
-            if self.filefixer.lines[self.linenum][self.colnum:].lower().startswith(trueval):
+            if self.ffixer.lines[self.linenum][self.colnum:].lower().startswith(trueval):
                 # pylint: disable=line-too-long
-                self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
-                    + 'true' + self.filefixer.lines[self.linenum][self.colnum + len(trueval):]
-                self.filefixer.coffset += len('true') - len(trueval)
+                self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum][:self.colnum] \
+                    + 'true' + self.ffixer.lines[self.linenum][self.colnum + len(trueval):]
+                self.ffixer.coffset += len('true') - len(trueval)
                 return
         for falseval in ('off', 'no', 'false'):
-            if self.filefixer.lines[self.linenum][self.colnum:].lower().startswith(falseval):
+            if self.ffixer.lines[self.linenum][self.colnum:].lower().startswith(falseval):
                 # pylint: disable=line-too-long
-                self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
-                    + 'false' + self.filefixer.lines[self.linenum][self.colnum + len(falseval):]
-                self.filefixer.coffset += len('false') - len(falseval)
+                self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum][:self.colnum] \
+                    + 'false' + self.ffixer.lines[self.linenum][self.colnum + len(falseval):]
+                self.ffixer.coffset += len('false') - len(falseval)
                 return
 
     def fix_toofew_spacesbefore(self):
@@ -144,18 +144,18 @@ class ProblemFixer:
              - too few spaces before comment (comments)
         """
         spaces = ' '
-        if self.filefixer.lines[self.linenum][self.colnum - 1] != ' ':
+        if self.ffixer.lines[self.linenum][self.colnum - 1] != ' ':
             spaces += ' '
-        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
-            + spaces + self.filefixer.lines[self.linenum][self.colnum:]
-        self.filefixer.coffset += len(spaces)
+        self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum][:self.colnum] \
+            + spaces + self.ffixer.lines[self.linenum][self.colnum:]
+        self.ffixer.coffset += len(spaces)
 
     def fix_trailingspaces(self):
         """Fix:
              - trailing spaces (trailing-spaces)
         """
         # No need to adjust coffset because we are at EOL by definition
-        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum].rstrip()
+        self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum].rstrip()
 
     def fix_toomany_blanklines(self):
         """Fix:
@@ -165,8 +165,8 @@ class ProblemFixer:
         blanklines = int(parts[4][1:])
         maxblanklines = int(parts[6].split(')')[0])
         nblines = blanklines - maxblanklines
-        del self.filefixer.lines[self.linenum - nblines + 1:self.linenum + 1]
-        self.filefixer.loffset -= nblines
+        del self.ffixer.lines[self.linenum - nblines + 1:self.linenum + 1]
+        self.ffixer.loffset -= nblines
 
     def fix_syntax_tabchar(self):
         """Fix:
@@ -174,17 +174,17 @@ class ProblemFixer:
         """
         # TODO: We replace TAB with a single space for now
         # TODO: yamllint only reports the first one
-        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
-            + ' ' + self.filefixer.lines[self.linenum][self.colnum + 1:]
+        self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum][:self.colnum] \
+            + ' ' + self.ffixer.lines[self.linenum][self.colnum + 1:]
 
     def fix_missingspace(self):
         """Fix:
              - missing starting space in comment (comments)
              - too few spaces after comma (commas)
         """
-        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
-            + ' ' + self.filefixer.lines[self.linenum][self.colnum:]
-        self.filefixer.coffset += 1
+        self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum][:self.colnum] \
+            + ' ' + self.ffixer.lines[self.linenum][self.colnum:]
+        self.ffixer.coffset += 1
 
     def fix_toomany_spacesafter(self):
         """Fix:
@@ -193,11 +193,11 @@ class ProblemFixer:
              - too many spaces after hyphen (hyphens)
         """
         pos = self.colnum
-        while (pos > 0) and (self.filefixer.lines[self.linenum][pos - 1] == ' '):
+        while (pos > 0) and (self.ffixer.lines[self.linenum][pos - 1] == ' '):
             pos -= 1
-        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:pos] \
-            + self.filefixer.lines[self.linenum][self.colnum:]
-        self.filefixer.coffset -= (self.colnum - pos)
+        self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum][:pos] \
+            + self.ffixer.lines[self.linenum][self.colnum:]
+        self.ffixer.coffset -= (self.colnum - pos)
 
     def fix_toomany_spacesother(self):
         """Fix:
@@ -207,11 +207,11 @@ class ProblemFixer:
              - too many spaces before colon (colons)
         """
         pos = self.colnum
-        while (pos > 0) and (self.filefixer.lines[self.linenum][pos - 1] == ' '):
+        while (pos > 0) and (self.ffixer.lines[self.linenum][pos - 1] == ' '):
             pos -= 1
-        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:pos] \
-            + self.filefixer.lines[self.linenum][self.colnum + 1:]
-        self.filefixer.coffset -= (self.colnum - pos + 1)
+        self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum][:pos] \
+            + self.ffixer.lines[self.linenum][self.colnum + 1:]
+        self.ffixer.coffset -= (self.colnum - pos + 1)
 
     def fix_comment_notindentedlike(self):
         """Fix:
@@ -224,9 +224,9 @@ class ProblemFixer:
                 indentation = self.get_indentation(+1)
         else:
             indentation = self.get_indentation(+1)
-        self.filefixer.lines[self.linenum] = ' ' * indentation \
-            + self.filefixer.lines[self.linenum].lstrip()
-        self.filefixer.coffset += (indentation - self.colnum)
+        self.ffixer.lines[self.linenum] = ' ' * indentation \
+            + self.ffixer.lines[self.linenum].lstrip()
+        self.ffixer.coffset += (indentation - self.colnum)
 
     def fix_wrong_indentation(self):
         """Fix:
@@ -241,28 +241,28 @@ class ProblemFixer:
         found = int(parts[6])
         offset = expected - found
         if expected > found:
-            self.filefixer.lines[self.linenum] = (' ' * offset) \
-                + self.filefixer.lines[self.linenum]
+            self.ffixer.lines[self.linenum] = (' ' * offset) \
+                + self.ffixer.lines[self.linenum]
         else:
             # expected < found because we woudln't be there otherwise anyway
-            self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][-offset:]
-        self.filefixer.coffset += offset
+            self.ffixer.lines[self.linenum] = self.ffixer.lines[self.linenum][-offset:]
+        self.ffixer.coffset += offset
 
     def fix_linetoolong(self):
         """Fix:
              - line too long
         """
         # TODO: currently we fix this by disabling the error in yamllint, it's the easiest way
-        self.filefixer.lines.insert(self.linenum, ' ' * self.get_indentation(0) \
-                                    + '# yamllint disable-line rule:line-length')
-        self.filefixer.loffset += 1
+        self.ffixer.lines.insert(self.linenum, ' ' * self.get_indentation(0) \
+                             + '# yamllint disable-line rule:line-length')
+        self.ffixer.loffset += 1
 
 
 class FileFixer:
     """To hold file fixing logic."""
     def __init__(self, yamlfixer, filename):
         """Initialize a file to fix."""
-        self.parent = yamlfixer
+        self.yfixer = yamlfixer
         self.filename = filename
         self.loffset = self.coffset = 0
         self.shebang = ''
@@ -292,7 +292,7 @@ class FileFixer:
                 with open(self.filename, 'r') as yamlfile:
                     self.incontents = yamlfile.read()
             except FileNotFoundError as msg:
-                sys.stderr.write(f"{msg}\n")
+                self.yfixer.error(f"{msg}")
 
     def dump(self, outcontents):
         """Dumps the new file's contents."""
@@ -308,7 +308,7 @@ class FileFixer:
                 with open(self.filename, 'w') as yamlfile:
                     yamlfile.write(self.shebang + (outcontents or ''))
             except PermissionError as msg:
-                sys.stderr.write(f"{msg}\n")
+                self.yfixer.error(f"{msg}")
                 retcode = FIX_PERMERROR
         return retcode
 
@@ -359,7 +359,7 @@ class FileFixer:
                     debuginfo = f"({linenumber}, {colnumber})/({self.loffset}, {self.coffset}) => {problem}"
                     handled = ProblemFixer(self, linenumber, colnumber, problem)()
                     # pylint: disable=line-too-long
-                    self.parent.debug(f"{((handled == FIXER_HANDLED) and 'HANDLED') or 'UNHANDLED'}: {debuginfo}")
+                    self.yfixer.debug(f"{((handled == FIXER_HANDLED) and 'HANDLED') or 'UNHANDLED'}: {debuginfo}")
         return self.dump('\n'.join(self.lines) + '\n')
 
 
