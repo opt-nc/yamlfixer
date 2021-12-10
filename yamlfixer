@@ -142,7 +142,6 @@ class ProblemFixer:
         blanklines = int(parts[4][1:])
         maxblanklines = int(parts[6].split(')')[0])
         nblines = blanklines - maxblanklines
-        self.filefixer.parent.debug(f"Deleting lines {self.linenum - nblines + 1} to {self.linenum + 1}")
         del self.filefixer.lines[self.linenum - nblines + 1:self.linenum + 1]
         self.filefixer.loffset -= nblines
 
