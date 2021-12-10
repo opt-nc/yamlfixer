@@ -230,6 +230,7 @@ class ProblemFixer:
         """Fix:
              - line too long
         """
+        # TODO: currently we fix this by disabling the error in yamllint, it's the easiest way
         self.filefixer.lines.insert(self.linenum, ' ' * self.get_indentation(0) \
                                     + '# yamllint disable-line rule:line-length')
         self.filefixer.loffset += 1
@@ -289,7 +290,7 @@ class FileFixer:
                 retcode = FIX_PERMERROR
         return retcode
 
-    def fixfile(self):
+    def fix(self):
         """Fix a file's contents."""
         # Load the file's contents in memory
         self.load()
@@ -357,10 +358,12 @@ class YAMLFixer:
             self.filenames.append("-") # Add fake input from stdin
         self.passed = self.modified = self.unmodified = self.skipped = self.permerrors = 0
 
-    def info(self, message):
+    def info(self, message, newline=True):
         """Output an informational message to stderr if verbose mode is active."""
         if self.verbosemode: # pylint: disable=no-member
-            sys.stderr.write(f"{message}\n")
+            sys.stderr.write(f"{message}")
+            if newline:
+                sys.stderr.write('\n')
 
     def debug(self, message):
         """Output a debug message to stderr if debug mode is active."""
@@ -380,7 +383,7 @@ class YAMLFixer:
         self.info(f"{self.skipped} files were skipped")
         self.info(f"{self.permerrors} files were not writeable")
 
-    def fixfiles(self):
+    def fix(self):
         """Fix all files."""
         for filename in self.filenames:
             if filename == '-':
@@ -388,25 +391,25 @@ class YAMLFixer:
             else:
                 absfilename = os.path.abspath(filename)
             filetofix = FileFixer(self, filename)
-            self.info(f"Fixing {absfilename} ...")
-            status = filetofix.fixfile()
+            self.info(f"Fixing {absfilename} ... ", newline=False)
+            status = filetofix.fix()
             if status == FIX_PASSEDLINTER:
-                self.debug(f"{absfilename} passed linter's strict mode.")
+                self.info(f"passed linter's strict mode.")
                 self.passed += 1
             elif status == FIX_MODIFIED:
-                self.debug(f"{absfilename} was modified.")
+                self.info(f"was modified.")
                 self.modified += 1
             elif status == FIX_UNMODIFIED:
-                self.debug(f"{absfilename} was left unmodified.")
+                self.info(f"was left unmodified.")
                 self.unmodified += 1
             elif status == FIX_SKIPPED:
-                self.debug(f"{absfilename} was skipped.")
+                self.info(f"was skipped.")
                 self.skipped += 1
             elif status == FIX_PERMERROR:
-                self.debug(f"{absfilename} was not writeable.")
+                self.info(f"was not writeable.")
                 self.permerrors += 1
             else:
-                self.error(f"Unknown fixing status [{status}] for {absfilename}")
+                self.error(f"unknown fixing status [{status}]")
 
         self.statistics()
         if (self.passed + self.skipped) == len(self.filenames):
@@ -422,7 +425,7 @@ def main(arguments):
         print(f"yamlfixer v{VERSION}")
         return 0
     fixer = YAMLFixer(arguments)
-    return fixer.fixfiles()
+    return fixer.fix()
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
