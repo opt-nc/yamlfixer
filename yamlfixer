@@ -263,7 +263,7 @@ class FileFixer:
         self.incontents = None
         self.lines = []
 
-    def canonalizeproblems(self, linteroutput):
+    def canonicalizeproblems(self, linteroutput):
         """Create a nested mapping of lines and columns to fix."""
         problemlines = {}
         for line in linteroutput.splitlines():
@@ -354,7 +354,7 @@ class FileFixer:
             return FIX_PASSEDLINTER
 
         # Organize the set of problems to fix
-        linestofix = self.canonalizeproblems(ltstdout)
+        linestofix = self.canonicalizeproblems(ltstdout)
 
         # Now handle each of the problems reported by yamllint
         self.lines = self.incontents.splitlines()
