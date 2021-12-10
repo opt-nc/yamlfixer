@@ -390,6 +390,7 @@ class YAMLFixer:
             else:
                 absfilename = os.path.abspath(filename)
             filetofix = FileFixer(self, filename)
+            # pylint: disable=no-member
             self.info(f"Fixing {absfilename} ... ", newline=False or self.debugmode)
             status = filetofix.fix()
             if status == FIX_PASSEDLINTER:
