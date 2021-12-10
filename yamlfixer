@@ -271,6 +271,31 @@ class FileFixer:
         self.incontents = None
         self.lines = []
 
+    def canonalizeproblems(self, linteroutput):
+        """Create a nested mapping of lines and columns to fix."""
+        problemlines = {}
+        for line in linteroutput.splitlines():
+            (_, linenumber, colnumber, message) = line.split(':', 3)
+            (_, msg) = message.strip().split(' ', 1)
+            colstofix = problemlines.setdefault(int(linenumber), {})
+            # On a given line, there could be several problems on the same column
+            coltofix = colstofix.setdefault(int(colnumber), [])
+            coltofix.append(msg)
+
+        # If there's a shebang line we ignore it and any problem reported on it
+        if (self.incontents is not None) and self.incontents.startswith('#!'):
+            eolpos = self.incontents.find('\n') + 1
+            self.shebang = self.incontents[:eolpos]
+            self.incontents = self.incontents[eolpos:]
+            try:
+                del problemlines[1]
+            except KeyError:
+                pass # No problem reported on shebang line by yamllint
+            # This line won't ever see the fixer so all subsequent lines must be offset by -1
+            self.loffset = -1
+
+        return problemlines
+
     def lint(self):
         """Launches the linter on a file's contents.
 
@@ -336,27 +361,8 @@ class FileFixer:
             self.dump(self.incontents)
             return FIX_PASSEDLINTER
 
-        # Create a nested mapping of lines and columns to fix
-        linestofix = {}
-        for line in ltstdout.splitlines():
-            (_, linenumber, colnumber, message) = line.split(':', 3)
-            (_, msg) = message.strip().split(' ', 1)
-            colstofix = linestofix.setdefault(int(linenumber), {})
-            # On a given line, there could be several problems on the same column
-            coltofix = colstofix.setdefault(int(colnumber), [])
-            coltofix.append(msg)
-
-        # If there's a shebang line we ignore it and any problem reported on it
-        if (self.incontents is not None) and self.incontents.startswith('#!'):
-            eolpos = self.incontents.find('\n') + 1
-            self.shebang = self.incontents[:eolpos]
-            self.incontents = self.incontents[eolpos:]
-            try:
-                del linestofix[1]
-            except KeyError:
-                pass # No problem reported on shebang line by yamllint
-            # This line won't ever see the fixer so all subsequent lines must be offset by -1
-            self.loffset = -1
+        # Organize the set of problems to fix
+        linestofix = self.canonalizeproblems(ltstdout)
 
         # Now handle each of the problems reported by yamllint
         self.lines = self.incontents.splitlines()
