@@ -26,9 +26,9 @@ This will launch _yamllint_ on each specified file name (`-` is _stdin_),
 then parse its output and try to fix the reported problems.
 
 If input is read from _stdin_, the corrected output will be sent to
-_stdout_. Other files will be overwritten if needed. Original files
-can be preserved as _.orig_ if the _--backup_ command line option is
-used.
+_stdout_. Other files will be overwritten if needed. Original files,
+_stdin_ excepted, can be preserved as _.orig_ if the _--backup_
+command line option is used.
 
 Diagnostic information is sent to stderr in verbose or debug modes.
 
@@ -64,6 +64,7 @@ has a corporate website on [www.opt.nc](https://www.opt.nc)
 
 You can contact the author of this software at
 [jerome.alet@opt.nc](mailto:jerome.alet@opt.nc)
+
 """
 
 import sys
@@ -308,10 +309,12 @@ class FileFixer:
         elif retcode == FIX_MODIFIED: # Don't write unnecessarily
             try:
                 if self.yfixer.backupmode: # pylint: disable=no-member
+                    # Try to make a backup of the original file
                     try:
                         os.replace(self.filename, f"{self.filename}.orig")
                     except PermissionError as msg:
                         self.yfixer.error(f"impossible to create a backup : {msg}")
+                # Overwrite the original file with the new contents
                 with open(self.filename, 'w') as yamlfile:
                     yamlfile.write(self.shebang + (outcontents or ''))
             except PermissionError as msg:

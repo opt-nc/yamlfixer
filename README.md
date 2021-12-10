@@ -23,9 +23,9 @@ This will launch _yamllint_ on each specified file name (`-` is _stdin_),
 then parse its output and try to fix the reported problems.
 
 If input is read from _stdin_, the corrected output will be sent to
-_stdout_. Other files will be overwritten if needed. Original files
-can be preserved as _.orig_ if the _--backup_ command line option is
-used.
+_stdout_. Other files will be overwritten if needed. Original files,
+_stdin_ excepted, can be preserved as _.orig_ if the _--backup_
+command line option is used.
 
 Diagnostic information is sent to stderr in verbose or debug modes.
 
