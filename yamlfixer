@@ -58,6 +58,183 @@ FIX_PERMERROR = 4
 FIXER_UNHANDLED = -1
 FIXER_HANDLED = 0
 
+class ProblemFixer:
+    """To hold problem fixing logic."""
+    def __init__(self, filefixer, linenum, colnum, problem):
+        """Intializes a problem fixer."""
+        self.filefixer = filefixer
+        self.linenum = linenum + self.filefixer.loffset - 1
+        self.colnum = colnum + self.filefixer.coffset - 1
+        self.problem = problem
+        # TODO: do this only once for all instances
+        self.fixers = {}
+        for methodname in [m for m in dir(self) if m.startswith('fix_')]:
+            docstring = getattr(self, methodname).__doc__
+            for prob in [pb.strip()[2:] for pb in docstring.splitlines()[1:]]:
+                if prob:
+                    self.fixers[prob] = methodname
+
+    def __call__(self):
+        """Make it callable."""
+        for (fixerkey, methodname) in self.fixers.items():
+            if self.problem.startswith(fixerkey):
+                # pylint: disable=line-too-long
+                self.filefixer.parent.debug(f"Calling {methodname} because [{fixerkey}] matches [{self.problem}]")
+                getattr(self, methodname)()
+                return FIXER_HANDLED
+        self.filefixer.parent.debug(f"No handler found for [{self.problem}]")
+        return FIXER_UNHANDLED
+
+    def get_indentation(self, offset):
+        """Returns the indentation of the specified line."""
+        line = self.filefixer.lines[self.linenum + offset]
+        return len(line) - len(line.lstrip())
+
+    def fix_missing_docstart(self):
+        """Fix:
+             - missing document start
+        """
+        self.filefixer.lines.insert(0, '---')
+        self.filefixer.loffset += 1
+
+    def fix_truthy(self):
+        """Fix:
+             - truthy value should be one of [false, true] (truthy)
+        """
+        for trueval in ('on', 'yes', 'true'):
+            if self.filefixer.lines[self.linenum][self.colnum:].lower().startswith(trueval):
+                # pylint: disable=line-too-long
+                self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
+                    + 'true' + self.filefixer.lines[self.linenum][self.colnum + len(trueval):]
+                self.filefixer.coffset += len('true') - len(trueval)
+                return
+        for falseval in ('off', 'no', 'false'):
+            if self.filefixer.lines[self.linenum][self.colnum:].lower().startswith(falseval):
+                # pylint: disable=line-too-long
+                self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
+                    + 'false' + self.filefixer.lines[self.linenum][self.colnum + len(falseval):]
+                self.filefixer.coffset += len('false') - len(falseval)
+                return
+
+    def fix_toofew_spacesbefore(self):
+        """Fix:
+             - too few spaces before comment (comments)
+        """
+        spaces = ' '
+        if self.filefixer.lines[self.linenum][self.colnum - 1] != ' ':
+            spaces += ' '
+        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
+            + spaces + self.filefixer.lines[self.linenum][self.colnum:]
+        self.filefixer.coffset += len(spaces)
+
+    def fix_trailingspaces(self):
+        """Fix:
+             - trailing spaces (trailing-spaces)
+        """
+        # No need to adjust coffset because we are at EOL by definition
+        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum].rstrip()
+
+    def fix_toomany_blanklines(self):
+        """Fix:
+             - too many blank lines
+        """
+        parts = self.problem.split()
+        blanklines = int(parts[4][1:])
+        maxblanklines = int(parts[6].split(')')[0])
+        nblines = blanklines - maxblanklines
+        self.filefixer.parent.debug(f"Deleting lines {self.linenum - nblines + 1} to {self.linenum + 1}")
+        del self.filefixer.lines[self.linenum - nblines + 1:self.linenum + 1]
+        self.filefixer.loffset -= nblines
+
+    def fix_syntax_tabchar(self):
+        """Fix:
+             - syntax error: found character '\\t' that cannot start any token (syntax)
+        """
+        # TODO: We replace TAB with a single space for now
+        # TODO: yamllint only reports the first one
+        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
+            + ' ' + self.filefixer.lines[self.linenum][self.colnum + 1:]
+
+    def fix_missingspace(self):
+        """Fix:
+             - missing starting space in comment (comments)
+             - too few spaces after comma (commas)
+        """
+        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:self.colnum] \
+            + ' ' + self.filefixer.lines[self.linenum][self.colnum:]
+        self.filefixer.coffset += 1
+
+    def fix_toomany_spacesafter(self):
+        """Fix:
+             - too many spaces after colon (colons)
+             - too many spaces after comma (commas)
+             - too many spaces after hyphen (hyphens)
+        """
+        pos = self.colnum
+        while (pos > 0) and (self.filefixer.lines[self.linenum][pos - 1] == ' '):
+            pos -= 1
+        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:pos] \
+            + self.filefixer.lines[self.linenum][self.colnum:]
+        self.filefixer.coffset -= (self.colnum - pos)
+
+    def fix_toomany_spacesother(self):
+        """Fix:
+             - too many spaces inside braces (braces)
+             - too many spaces inside brackets (brackets)
+             - too many spaces before comma (commas)
+             - too many spaces before colon (colons)
+        """
+        pos = self.colnum
+        while (pos > 0) and (self.filefixer.lines[self.linenum][pos - 1] == ' '):
+            pos -= 1
+        self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][:pos] \
+            + self.filefixer.lines[self.linenum][self.colnum + 1:]
+        self.filefixer.coffset -= (self.colnum - pos + 1)
+
+    def fix_comment_notindentedlike(self):
+        """Fix:
+             - comment not indented like content (comments-indentation)
+        """
+        if self.linenum > 0:
+            indentation = self.get_indentation(-1)
+            # If previous line is similarly indented then use indentation of next line
+            if indentation == self.colnum:
+                indentation = self.get_indentation(+1)
+        else:
+            indentation = self.get_indentation(+1)
+        self.filefixer.lines[self.linenum] = ' ' * indentation \
+            + self.filefixer.lines[self.linenum].lstrip()
+        self.filefixer.coffset += (indentation - self.colnum)
+
+    def fix_wrong_indentation(self):
+        """Fix:
+             - wrong indentation: expected
+        """
+        # TODO: yamllint only reports the first faulty line in a block :-(
+        # TODO: see https://github.com/adrienverge/yamllint/issues/427
+        # TODO: we fix anyway, knowing that we may need to launch the command
+        # TODO: several times to finally fix the problem.
+        parts = self.problem.split()
+        expected = int(parts[3])
+        found = int(parts[6])
+        offset = expected - found
+        if expected > found:
+            self.filefixer.lines[self.linenum] = (' ' * offset) \
+                + self.filefixer.lines[self.linenum]
+        else:
+            # expected < found because we woudln't be there otherwise anyway
+            self.filefixer.lines[self.linenum] = self.filefixer.lines[self.linenum][-offset:]
+        self.filefixer.coffset += offset
+
+    def fix_linetoolong(self):
+        """Fix:
+             - line too long
+        """
+        self.filefixer.lines.insert(self.linenum, ' ' * self.get_indentation(0) \
+                                    + '# yamllint disable-line rule:line-length')
+        self.filefixer.loffset += 1
+
+
 class FileFixer:
     """To hold file fixing logic."""
     def __init__(self, yamlfixer, filename):
@@ -68,10 +245,6 @@ class FileFixer:
         self.shebang = ''
         self.incontents = None
         self.lines = []
-
-    def get_indentation(self, linenumber):
-        """Returns the indentation of the specified line."""
-        return len(self.lines[linenumber]) - len(self.lines[linenumber].lstrip())
 
     def lint(self):
         """Launches the linter on a file's contents.
@@ -161,119 +334,11 @@ class FileFixer:
                 for problem in linestofix[linenumber][colnumber]:
                     # pylint: disable=line-too-long
                     debuginfo = f"({linenumber}, {colnumber})/({self.loffset}, {self.coffset}) => {problem}"
-                    handled = self.fixproblem(linenumber, colnumber, problem)
+                    handled = ProblemFixer(self, linenumber, colnumber, problem)()
                     # pylint: disable=line-too-long
                     self.parent.debug(f"{((handled == FIXER_HANDLED) and 'HANDLED') or 'UNHANDLED'}: {debuginfo}")
         return self.dump('\n'.join(self.lines) + '\n')
 
-    def fixproblem(self, linenum, colnum, message):
-        """Tries to fix a yamllint problem.
-
-           Returns 0 if problem was handled, else -1.
-        """
-        linenum += self.loffset - 1
-        colnum += self.coffset - 1
-        if message == 'missing document start "---" (document-start)':
-            self.lines.insert(0, '---')
-            self.loffset += 1
-            return FIXER_HANDLED
-        if message == 'truthy value should be one of [false, true] (truthy)':
-            for trueval in ('on', 'yes', 'true'):
-                if self.lines[linenum][colnum:].lower().startswith(trueval):
-                    self.lines[linenum] = self.lines[linenum][:colnum] + 'true' \
-                        + self.lines[linenum][colnum + len(trueval):]
-                    self.coffset += len('true') - len(trueval)
-                    return FIXER_HANDLED
-            for falseval in ('off', 'no', 'false'):
-                if self.lines[linenum][colnum:].lower().startswith(falseval):
-                    self.lines[linenum] = self.lines[linenum][:colnum] + 'false' \
-                        + self.lines[linenum][colnum + len(falseval):]
-                    self.coffset += len('false') - len(falseval)
-                    return FIXER_HANDLED
-        if message == 'too few spaces before comment (comments)':
-            spaces = ' '
-            if self.lines[linenum][colnum-1] != ' ':
-                spaces += ' '
-            self.lines[linenum] = self.lines[linenum][:colnum] + spaces \
-                + self.lines[linenum][colnum:]
-            self.coffset += len(spaces)
-            return FIXER_HANDLED
-        if message == 'trailing spaces (trailing-spaces)':
-            # No need to adjust coffset because we are at EOL by definition
-            self.lines[linenum] = self.lines[linenum].rstrip()
-            return FIXER_HANDLED
-        if message.startswith('too many blank lines'):
-            parts = message.split()
-            blanklines = int(parts[4][1:])
-            maxblanklines = int(parts[6].split(')')[0])
-            nblines = blanklines - maxblanklines
-            del self.lines[linenum:linenum + nblines]
-            self.loffset -= nblines
-            return FIXER_HANDLED
-        if message == "syntax error: found character '\\t' that cannot start any token (syntax)":
-            # TODO: We replace TAB with a single space for now
-            # TODO: yamllint only reports the first one
-            self.lines[linenum] = self.lines[linenum][:colnum] + ' ' \
-                + self.lines[linenum][colnum + 1:]
-            return FIXER_HANDLED
-        if message in ('missing starting space in comment (comments)',
-                       'too few spaces after comma (commas)'):
-            self.lines[linenum] = self.lines[linenum][:colnum] + ' ' + self.lines[linenum][colnum:]
-            self.coffset += 1
-            return FIXER_HANDLED
-        if message in ('too many spaces after colon (colons)',
-                       'too many spaces after comma (commas)',
-                       'too many spaces after hyphen (hyphens)'):
-            pos = colnum
-            while (pos > 0) and (self.lines[linenum][pos-1] == ' '):
-                pos -= 1
-            self.lines[linenum] = self.lines[linenum][:pos] + self.lines[linenum][colnum:]
-            self.coffset -= (colnum - pos)
-            return FIXER_HANDLED
-        if message in ('too many spaces inside braces (braces)',
-                       'too many spaces inside brackets (brackets)',
-                       'too many spaces before comma (commas)',
-                       'too many spaces before colon (colons)'):
-            pos = colnum
-            while (pos > 0) and (self.lines[linenum][pos-1] == ' '):
-                pos -= 1
-            self.lines[linenum] = self.lines[linenum][:pos] + self.lines[linenum][colnum + 1:]
-            self.coffset -= (colnum - pos + 1)
-            return FIXER_HANDLED
-        if message == 'comment not indented like content (comments-indentation)':
-            if linenum > 0:
-                indentation = self.get_indentation(linenum - 1)
-                # If previous line is similarly indented then use indentation of next line
-                if indentation == colnum:
-                    indentation = self.get_indentation(linenum + 1)
-            else:
-                indentation = self.get_indentation(linenum + 1)
-            self.lines[linenum] = ' ' * indentation + self.lines[linenum].lstrip()
-            self.coffset += (indentation - colnum)
-            return FIXER_HANDLED
-        if message.startswith('wrong indentation: expected'):
-            # TODO: yamllint only reports the first faulty line in a block :-(
-            # TODO: see https://github.com/adrienverge/yamllint/issues/427
-            # TODO: we fix anyway, knowing that we may need to launch the command
-            # TODO: several times to finally fix the problem.
-            parts = message.split()
-            expected = int(parts[3])
-            found = int(parts[6])
-            offset = expected - found
-            if expected > found:
-                self.lines[linenum] = (' ' * offset) + self.lines[linenum]
-            else:
-                # expected < found because we woudln't be there otherwise anyway
-                self.lines[linenum] = self.lines[linenum][-offset:]
-            self.coffset += offset
-            return FIXER_HANDLED
-        if message.startswith('line too long'):
-            indentation = self.get_indentation(linenum)
-            self.lines.insert(linenum, ' ' * indentation \
-                              + '# yamllint disable-line rule:line-length')
-            self.loffset += 1
-            return FIXER_HANDLED
-        return FIXER_UNHANDLED
 
 class YAMLFixer:
     """To hold files fixing logic."""
