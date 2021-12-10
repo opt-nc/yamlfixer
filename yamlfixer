@@ -387,7 +387,11 @@ class YAMLFixer:
         self.filenames = arguments
         if not self.filenames:
             self.filenames.append("-") # Add fake input from stdin
-        self.passed = self.modified = self.unmodified = self.skipped = self.permerrors = 0
+        self.passed = self.modified \
+            = self.unmodified \
+            = self.skipped \
+            = self.permerrors \
+            = self.unknown = 0
 
     def info(self, message, newline=True):
         """Output an informational message to stderr if verbose mode is active."""
@@ -408,11 +412,12 @@ class YAMLFixer:
     def statistics(self):
         """Output some statistics."""
         self.info(f"Files to fix: {len(self.filenames)}")
-        self.info(f"{self.passed} files passed yamllint strict mode")
+        self.info(f"{self.passed} files successfully passed yamllint strict mode")
         self.info(f"{self.modified} files were modified")
         self.info(f"{self.unmodified} files were left unmodified")
         self.info(f"{self.skipped} files were skipped")
         self.info(f"{self.permerrors} files were not writeable")
+        self.info(f"{self.unknown} files with unknown status")
 
     def fix(self):
         """Fix all files."""
@@ -442,6 +447,7 @@ class YAMLFixer:
                 self.permerrors += 1
             else:
                 self.error(f"unknown fixing status [{status}]")
+                self.unknown += 1
 
         self.statistics()
         if (self.passed + self.skipped) == len(self.filenames):
