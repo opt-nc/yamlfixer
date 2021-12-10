@@ -105,9 +105,9 @@ class ProblemFixer:
             if self.problem.startswith(fixerkey):
                 # pylint: disable=line-too-long
                 self.ffixer.yfixer.debug(f"Calling {methodname} because [{fixerkey}] matches [{self.problem}]")
-                curline = self.ffixer.lines[self.linenum]
-                left = curline[:self.colnum]
-                right = curline[self.colnum:]
+                line = self.ffixer.lines[self.linenum]
+                left = line[:self.colnum]
+                right = line[self.colnum:]
                 getattr(self, methodname)(left, right)
                 return FIXER_HANDLED
         self.ffixer.yfixer.debug(f"No handler found for [{self.problem}]")
