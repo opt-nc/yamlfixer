@@ -55,47 +55,23 @@ FIX_UNMODIFIED = 2
 FIX_SKIPPED = 3
 FIX_PERMERROR = 4
 
+FIXER_UNHANDLED = -1
+FIXER_HANDLED = 0
+
 class FileFixer:
     """To hold file fixing logic."""
-    def __init__(self, filename):
+    def __init__(self, yamlfixer, filename):
         """Initialize a file to fix."""
+        self.parent = yamlfixer
         self.filename = filename
-        if filename == '-':
-            self.absfilename = '<stdin>'
-        else:
-            self.absfilename = os.path.abspath(filename)
         self.loffset = self.coffset = 0
-        self.shebang = ""
+        self.shebang = ''
         self.incontents = None
+        self.lines = []
 
-    def load(self):
-        """Loads the input file's contents."""
-        if self.filename == '-':
-            self.incontents = sys.stdin.read()
-        else:
-            try:
-                with open(self.filename, 'r') as yamlfile:
-                    self.incontents = yamlfile.read()
-            except FileNotFoundError as msg:
-                sys.stderr.write(f"{msg}\n")
-
-    def dump(self, outcontents):
-        """Dumps the new file's contents."""
-        if outcontents != self.incontents:
-            retcode = FIX_MODIFIED
-        else:
-            retcode = FIX_SKIPPED
-        if self.filename == '-':
-            sys.stdout.write(self.shebang + outcontents)
-            sys.stdout.flush()
-        elif retcode == FIX_MODIFIED: # Don't write unnecessarily
-            try:
-                with open(self.filename, 'w') as yamlfile:
-                    yamlfile.write(self.shebang + outcontents)
-            except PermissionError as msg:
-                sys.stderr.write(f"{msg}\n")
-                retcode = FIX_PERMERROR
-        return retcode
+    def get_indentation(self, linenumber):
+        """Returns the indentation of the specified line."""
+        return len(self.lines[linenumber]) - len(self.lines[linenumber].lstrip())
 
     def lint(self):
         """Launches the linter on a file's contents.
@@ -111,15 +87,193 @@ class FileFixer:
                                 encoding='utf-8')
         return (linter.returncode, linter.stdout)
 
+    def load(self):
+        """Loads the input file's contents."""
+        if self.filename == '-':
+            self.incontents = sys.stdin.read()
+        else:
+            try:
+                with open(self.filename, 'r') as yamlfile:
+                    self.incontents = yamlfile.read()
+            except FileNotFoundError as msg:
+                sys.stderr.write(f"{msg}\n")
+
+    def dump(self, outcontents):
+        """Dumps the new file's contents."""
+        if (self.incontents is None) or (outcontents == self.incontents):
+            retcode = FIX_SKIPPED
+        else:
+            retcode = FIX_MODIFIED
+        if self.filename == '-': # Always dump to stdout in this case
+            sys.stdout.write(self.shebang + (outcontents or ''))
+            sys.stdout.flush()
+        elif retcode == FIX_MODIFIED: # Don't write unnecessarily
+            try:
+                with open(self.filename, 'w') as yamlfile:
+                    yamlfile.write(self.shebang + (outcontents or ''))
+            except PermissionError as msg:
+                sys.stderr.write(f"{msg}\n")
+                retcode = FIX_PERMERROR
+        return retcode
+
     def fixfile(self):
         """Fix a file's contents."""
+        # Load the file's contents in memory
         self.load()
+
+        # Skip that file if we don't want to modify it
         if (self.incontents is None) or self.incontents.startswith('$ANSIBLE_VAULT;'):
-            return FIX_SKIPPED
+            return self.dump(self.incontents)
+
+        # Lint the file's contents
         (ltexitcode, ltstdout) = self.lint()
         if not ltexitcode:
+            self.dump(self.incontents)
             return FIX_PASSEDLINTER
-        return None # TODO
+
+        # Create a nested mapping of lines and columns to fix
+        linestofix = {}
+        for line in ltstdout.splitlines():
+            (_, linenumber, colnumber, message) = line.split(':', 3)
+            (_, msg) = message.strip().split(' ', 1)
+            colstofix = linestofix.setdefault(int(linenumber), {})
+            # On a given line, there could be several problems on the same column
+            coltofix = colstofix.setdefault(int(colnumber), [])
+            coltofix.append(msg)
+
+        # If there's a shebang line we ignore it and any problem reported on it
+        if (self.incontents is not None) and self.incontents.startswith('#!'):
+            eolpos = self.incontents.find('\n') + 1
+            self.shebang = self.incontents[:eolpos]
+            self.incontents = self.incontents[eolpos:]
+            try:
+                del linestofix[1]
+            except KeyError:
+                pass # No problem reported on shebang line by yamllint
+            # This line won't ever see the fixer so all subsequent lines must be offset by -1
+            self.loffset = -1
+
+        # Now handle each of the problems reported by yamllint
+        self.lines = self.incontents.splitlines()
+        for linenumber in sorted(linestofix.keys()):
+            self.coffset = 0
+            for colnumber in sorted(linestofix[linenumber].keys()):
+                for problem in linestofix[linenumber][colnumber]:
+                    # pylint: disable=line-too-long
+                    debuginfo = f"({linenumber}, {colnumber})/({self.loffset}, {self.coffset}) => {problem}"
+                    handled = self.fixproblem(linenumber, colnumber, problem)
+                    # pylint: disable=line-too-long
+                    self.parent.debug(f"{((handled == FIXER_HANDLED) and 'HANDLED') or 'UNHANDLED'}: {debuginfo}")
+        return self.dump('\n'.join(self.lines) + '\n')
+
+    def fixproblem(self, linenum, colnum, message):
+        """Tries to fix a yamllint problem.
+
+           Returns 0 if problem was handled, else -1.
+        """
+        linenum += self.loffset - 1
+        colnum += self.coffset - 1
+        if message == 'missing document start "---" (document-start)':
+            self.lines.insert(0, '---')
+            self.loffset += 1
+            return FIXER_HANDLED
+        if message == 'truthy value should be one of [false, true] (truthy)':
+            for trueval in ('on', 'yes', 'true'):
+                if self.lines[linenum][colnum:].lower().startswith(trueval):
+                    self.lines[linenum] = self.lines[linenum][:colnum] + 'true' \
+                        + self.lines[linenum][colnum + len(trueval):]
+                    self.coffset += len('true') - len(trueval)
+                    return FIXER_HANDLED
+            for falseval in ('off', 'no', 'false'):
+                if self.lines[linenum][colnum:].lower().startswith(falseval):
+                    self.lines[linenum] = self.lines[linenum][:colnum] + 'false' \
+                        + self.lines[linenum][colnum + len(falseval):]
+                    self.coffset += len('false') - len(falseval)
+                    return FIXER_HANDLED
+        if message == 'too few spaces before comment (comments)':
+            spaces = ' '
+            if self.lines[linenum][colnum-1] != ' ':
+                spaces += ' '
+            self.lines[linenum] = self.lines[linenum][:colnum] + spaces \
+                + self.lines[linenum][colnum:]
+            self.coffset += len(spaces)
+            return FIXER_HANDLED
+        if message == 'trailing spaces (trailing-spaces)':
+            # No need to adjust coffset because we are at EOL by definition
+            self.lines[linenum] = self.lines[linenum].rstrip()
+            return FIXER_HANDLED
+        if message.startswith('too many blank lines'):
+            parts = message.split()
+            blanklines = int(parts[4][1:])
+            maxblanklines = int(parts[6].split(')')[0])
+            nblines = blanklines - maxblanklines
+            del self.lines[linenum:linenum + nblines]
+            self.loffset -= nblines
+            return FIXER_HANDLED
+        if message == "syntax error: found character '\\t' that cannot start any token (syntax)":
+            # TODO: We replace TAB with a single space for now
+            # TODO: yamllint only reports the first one
+            self.lines[linenum] = self.lines[linenum][:colnum] + ' ' \
+                + self.lines[linenum][colnum + 1:]
+            return FIXER_HANDLED
+        if message in ('missing starting space in comment (comments)',
+                       'too few spaces after comma (commas)'):
+            self.lines[linenum] = self.lines[linenum][:colnum] + ' ' + self.lines[linenum][colnum:]
+            self.coffset += 1
+            return FIXER_HANDLED
+        if message in ('too many spaces after colon (colons)',
+                       'too many spaces after comma (commas)',
+                       'too many spaces after hyphen (hyphens)'):
+            pos = colnum
+            while (pos > 0) and (self.lines[linenum][pos-1] == ' '):
+                pos -= 1
+            self.lines[linenum] = self.lines[linenum][:pos] + self.lines[linenum][colnum:]
+            self.coffset -= (colnum - pos)
+            return FIXER_HANDLED
+        if message in ('too many spaces inside braces (braces)',
+                       'too many spaces inside brackets (brackets)',
+                       'too many spaces before comma (commas)',
+                       'too many spaces before colon (colons)'):
+            pos = colnum
+            while (pos > 0) and (self.lines[linenum][pos-1] == ' '):
+                pos -= 1
+            self.lines[linenum] = self.lines[linenum][:pos] + self.lines[linenum][colnum + 1:]
+            self.coffset -= (colnum - pos + 1)
+            return FIXER_HANDLED
+        if message == 'comment not indented like content (comments-indentation)':
+            if linenum > 0:
+                indentation = self.get_indentation(linenum - 1)
+                # If previous line is similarly indented then use indentation of next line
+                if indentation == colnum:
+                    indentation = self.get_indentation(linenum + 1)
+            else:
+                indentation = self.get_indentation(linenum + 1)
+            self.lines[linenum] = ' ' * indentation + self.lines[linenum].lstrip()
+            self.coffset += (indentation - colnum)
+            return FIXER_HANDLED
+        if message.startswith('wrong indentation: expected'):
+            # TODO: yamllint only reports the first faulty line in a block :-(
+            # TODO: see https://github.com/adrienverge/yamllint/issues/427
+            # TODO: we fix anyway, knowing that we may need to launch the command
+            # TODO: several times to finally fix the problem.
+            parts = message.split()
+            expected = int(parts[3])
+            found = int(parts[6])
+            offset = expected - found
+            if expected > found:
+                self.lines[linenum] = (' ' * offset) + self.lines[linenum]
+            else:
+                # expected < found because we woudln't be there otherwise anyway
+                self.lines[linenum] = self.lines[linenum][-offset:]
+            self.coffset += offset
+            return FIXER_HANDLED
+        if message.startswith('line too long'):
+            indentation = self.get_indentation(linenum)
+            self.lines.insert(linenum, ' ' * indentation \
+                              + '# yamllint disable-line rule:line-length')
+            self.loffset += 1
+            return FIXER_HANDLED
+        return FIXER_UNHANDLED
 
 class YAMLFixer:
     """To hold files fixing logic."""
@@ -164,224 +318,46 @@ class YAMLFixer:
     def fixfiles(self):
         """Fix all files."""
         for filename in self.filenames:
-            filetofix = FileFixer(filename)
-            self.info(f"Fixing {filetofix.absfilename} ...")
+            if filename == '-':
+                absfilename = '<stdin>'
+            else:
+                absfilename = os.path.abspath(filename)
+            filetofix = FileFixer(self, filename)
+            self.info(f"Fixing {absfilename} ...")
             status = filetofix.fixfile()
             if status == FIX_PASSEDLINTER:
-                self.debug(f"{filetofix.absfilename} passed linter's strict mode.")
+                self.debug(f"{absfilename} passed linter's strict mode.")
                 self.passed += 1
             elif status == FIX_MODIFIED:
-                self.debug(f"{filetofix.absfilename} was modified.")
+                self.debug(f"{absfilename} was modified.")
                 self.modified += 1
             elif status == FIX_UNMODIFIED:
-                self.debug(f"{filetofix.absfilename} was left unmodified.")
+                self.debug(f"{absfilename} was left unmodified.")
                 self.unmodified += 1
             elif status == FIX_SKIPPED:
-                # file was skipped (e.g. Ansible vault, or file not found
-                self.debug(f"{filetofix.absfilename} was skipped.")
+                self.debug(f"{absfilename} was skipped.")
                 self.skipped += 1
             elif status == FIX_PERMERROR:
-                self.debug(f"{filetofix.absfilename} was not writeable.")
+                self.debug(f"{absfilename} was not writeable.")
                 self.permerrors += 1
             else:
-                self.error(f"Unknown status {status} for {filetofix.absfilename}")
+                self.error(f"Unknown fixing status [{status}] for {absfilename}")
 
         self.statistics()
         if (self.passed + self.skipped) == len(self.filenames):
             return 0
         return -1
 
-def oldfix(lines, offsets, position, message):
-    """Tries to fix a yamllint problem."""
-    (loffset, coffset) = offsets
-    (linenum, colnum) = position
-    sys.stderr.write(f"{position}/{offsets} => {message}\n")
-    linenum += loffset - 1
-    colnum += coffset - 1
-    if message == 'missing document start "---" (document-start)':
-        lines.insert(0, '---')
-        loffset += 1
-    elif message == 'truthy value should be one of [false, true] (truthy)':
-        for trueval in ('on', 'yes', 'true'):
-            if lines[linenum][colnum:].lower().startswith(trueval):
-                lines[linenum] = lines[linenum][:colnum] + 'true' + lines[linenum][colnum+len(trueval):]
-                coffset += len('true') - len(trueval)
-                break
-        for falseval in ('off', 'no', 'false'):
-            if lines[linenum][colnum:].lower().startswith(falseval):
-                lines[linenum] = lines[linenum][:colnum] + 'false' + lines[linenum][colnum+len(falseval):]
-                coffset += len('false') - len(falseval)
-                break
-    elif message == 'too few spaces before comment (comments)':
-        spaces = ' '
-        if lines[linenum][colnum-1] != ' ':
-            spaces += ' '
-        lines[linenum] = lines[linenum][:colnum] + spaces + lines[linenum][colnum:]
-        coffset += len(spaces)
-    elif message == 'trailing spaces (trailing-spaces)':
-        # No need to adjust coffset because we are at EOL by definition
-        lines[linenum] = lines[linenum].rstrip()
-    elif message.startswith('too many blank lines'):
-        parts = message.split()
-        blanklines = int(parts[4][1:])
-        maxblanklines = int(parts[6].split(')')[0])
-        nblines = blanklines - maxblanklines
-        del lines[linenum:linenum + nblines]
-        loffset -= nblines
-    elif message == "syntax error: found character '\\t' that cannot start any token (syntax)":
-        # TODO: We replace TAB with a single space for now
-        # TODO: yamllint only reports the first one
-        lines[linenum] = lines[linenum][:colnum] + ' ' + lines[linenum][colnum+1:]
-    elif message in ('missing starting space in comment (comments)',
-                     'too few spaces after comma (commas)'):
-        lines[linenum] = lines[linenum][:colnum] + ' ' + lines[linenum][colnum:]
-        coffset += 1
-    elif message in ('too many spaces after colon (colons)',
-                     'too many spaces after comma (commas)',
-                     'too many spaces after hyphen (hyphens)'):
-        pos = colnum
-        while (pos > 0) and (lines[linenum][pos-1] == ' '):
-            pos -= 1
-        lines[linenum] = lines[linenum][:pos] + lines[linenum][colnum:]
-        coffset -= (colnum - pos)
-    elif message in ('too many spaces inside braces (braces)',
-                     'too many spaces inside brackets (brackets)',
-                     'too many spaces before comma (commas)',
-                     'too many spaces before colon (colons)'):
-        pos = colnum
-        while (pos > 0) and (lines[linenum][pos-1] == ' '):
-            pos -= 1
-        lines[linenum] = lines[linenum][:pos] + lines[linenum][colnum+1:]
-        coffset -= (colnum - pos + 1)
-    elif message == 'comment not indented like content (comments-indentation)':
-        if linenum > 0:
-            indentation = len(lines[linenum-1]) - len(lines[linenum-1].lstrip())
-            # If previous line is similarly indented then use indentation of next line
-            if indentation == colnum:
-                indentation = len(lines[linenum+1]) - len(lines[linenum+1].lstrip())
-        else:
-            indentation = len(lines[linenum+1]) - len(lines[linenum+1].lstrip())
-        lines[linenum] = ' ' * indentation + lines[linenum].lstrip()
-        coffset += (indentation - colnum)
-    elif message.startswith('wrong indentation: expected'):
-        # TODO: yamllint only reports the first faulty line in a block :-(
-        # TODO: see https://github.com/adrienverge/yamllint/issues/427
-        # TODO: we fix anyway, knowing that we may need to launch the command
-        # TODO: several times to finally fix the problem.
-        parts = message.split()
-        expected = int(parts[3])
-        found = int(parts[6])
-        offset = expected - found
-        if expected > found:
-            lines[linenum] = (' ' * offset) + lines[linenum]
-        else:
-            # expected < found because we woudln't be there otherwise anyway
-            lines[linenum] = lines[linenum][-offset:]
-        coffset += offset
-    elif message.startswith('line too long'):
-        indentation = len(lines[linenum]) - len(lines[linenum].lstrip())
-        lines.insert(linenum, ' ' * indentation + '# yamllint disable-line rule:line-length')
-        loffset += 1
-
-    return ((loffset, coffset), lines)
-
-def oldmain(filenames):
-    """Main function."""
-    good = 0
-    modified = 0
-    for filename in filenames:
-        if filename == '-':
-            sys.stderr.write("Fixing -\n")
-            oldcontents = sys.stdin.read()
-        else:
-            try:
-                yamlfile = open(filename, 'r+')
-            except FileNotFoundError as msg:
-                sys.stderr.write(f"{msg}\n")
-                continue
-            else:
-                sys.stderr.write(f"Fixing {os.path.abspath(filename)}\n")
-                oldcontents = yamlfile.read()
-
-        if oldcontents.startswith('$ANSIBLE_VAULT;'):
-            sys.stderr.write(f"Skipped {filename} which seems to be an Ansible vault\n")
-            continue
-
-        yamllint = subprocess.run(f"yamllint --format parsable --strict -",
-                                  shell=True,
-                                  capture_output=True,
-                                  text=True,
-                                  check=False,
-                                  input=oldcontents,
-                                  encoding='utf-8')
-        if not yamllint.returncode:
-            sys.stderr.write(f"GOOD: {filename}\n")
-            good += 1
-            continue
-
-        linestofix = {}
-        for line in yamllint.stdout.splitlines():
-            (_, linenumber, colnumber, message) = line.split(':', 3)
-            (_, msg) = message.strip().split(' ', 1)
-            colstofix = linestofix.setdefault(int(linenumber), {})
-            coltofix = colstofix.setdefault(int(colnumber), [])
-            coltofix.append(msg)
-
-        if oldcontents.startswith('#!'):
-            # We have to skip the shebang line and any problem reported for this line
-            eolpos = oldcontents.find('\n') + 1
-            shebang = oldcontents[:eolpos]
-            oldcontents = oldcontents[eolpos:]
-            try:
-                del linestofix[1]
-            except KeyError:
-                pass
-            loffset = -1
-        else:
-            shebang = ''
-            loffset = 0
-
-        lines = oldcontents.splitlines()
-        for linenumber in sorted(linestofix.keys()):
-            coffset = 0
-            for colnumber in sorted(linestofix[linenumber].keys()):
-                for problem in linestofix[linenumber][colnumber]:
-                    ((loffset, coffset), lines) = oldfix(lines,
-                                                         (loffset, coffset),
-                                                         (linenumber, colnumber),
-                                                         problem)
-
-        newcontents = '\n'.join(lines) + '\n'
-        if newcontents != oldcontents:
-            sys.stderr.write(f"Fixed {filename}\n")
-            if filename == '-':
-                sys.stdout.write(shebang + newcontents)
-                sys.stdout.flush()
-            else:
-                yamlfile.seek(0)
-                yamlfile.write(shebang + newcontents)
-                yamlfile.truncate()
-                yamlfile.close()
-            modified += 1
-        else:
-            sys.stderr.write(f"Skipped {filename}\n")
-            if filename == '-':
-                sys.stdout.write(shebang + newcontents)
-                sys.stdout.flush()
-
-    sys.stderr.write(f"Fixed {modified}/{len(filenames)-good} files\n")
-
 def main(arguments):
     """Main function."""
+    if '--help' in arguments:
+        print(__doc__)
+        return 0
+    if '--version' in arguments:
+        print(f"yamlfixer v{VERSION}")
+        return 0
     fixer = YAMLFixer(arguments)
     return fixer.fixfiles()
 
 if __name__ == '__main__':
-    if '--help' in sys.argv[1:]:
-        print(__doc__)
-        sys.exit(0)
-    elif '--version' in sys.argv[1:]:
-        print(f"yamlfixer v{VERSION}")
-        sys.exit(0)
-    else:
-        sys.exit(main(sys.argv[1:]))
+    sys.exit(main(sys.argv[1:]))
