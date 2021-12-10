@@ -109,7 +109,7 @@ class ProblemFixer:
         return FIXER_UNHANDLED
 
     def get_indentation(self, offset):
-        """Returns the indentation of the specified line."""
+        """Returns the indentation of the current (possibly offset) line."""
         line = self.filefixer.lines[self.linenum + offset]
         return len(line) - len(line.lstrip())
 
