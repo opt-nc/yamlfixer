@@ -118,7 +118,7 @@ class ProblemFixer:
         line = self.ffixer.lines[self.linenum + offset]
         return len(line) - len(line.lstrip())
 
-    def fix_missing_docstart(self, left, right):
+    def fix_missing_docstart(self, left, right): # pylint: disable=unused-argument
         """Fix:
              - missing document start
         """
@@ -157,7 +157,7 @@ class ProblemFixer:
         # No need to adjust coffset because we are at EOL by definition
         self.ffixer.lines[self.linenum] = (left + right).rstrip()
 
-    def fix_toomany_blanklines(self, left, right):
+    def fix_toomany_blanklines(self, left, right): # pylint: disable=unused-argument
         """Fix:
              - too many blank lines
         """
@@ -175,7 +175,7 @@ class ProblemFixer:
         # TODO: We replace TAB with a single space for now
         # TODO: yamllint only reports the first one
         self.ffixer.lines[self.linenum] = left + ' ' + right[1:]
-        
+
     def fix_missingspace(self, left, right):
         """Fix:
              - missing starting space in comment (comments)
@@ -242,7 +242,7 @@ class ProblemFixer:
             self.ffixer.lines[self.linenum] = (left + right)[-offset:]
         self.ffixer.coffset += offset
 
-    def fix_linetoolong(self, left, right):
+    def fix_linetoolong(self, left, right): # pylint: disable=unused-argument
         """Fix:
              - line too long
         """
