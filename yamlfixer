@@ -118,6 +118,17 @@ class ProblemFixer:
         line = self.ffixer.lines[self.linenum + offset]
         return len(line) - len(line.lstrip())
 
+    #
+    # Fixing code below.
+    #
+    # To fix a new kind of problem, simply add a fix_whatever method
+    # and ensure its docstring is formatted the same way as the
+    # existing ones. Each docstring lists each problem its method
+    # should fix, exactly as it is reported by yamllint. Matching is
+    # done from the beginning of yamllint's output after the
+    # warning/error level.
+    #
+    
     def fix_missing_docstart(self, left, right): # pylint: disable=unused-argument
         """Fix:
              - missing document start
