@@ -3,6 +3,14 @@ yamlfixer automates the fixing of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
+# Prerequisistes
+In order for it to work, _yamlfixer_ needs that the following
+utilities are already installed on your system, in a directory present
+in your _$PATH_ :
+
+- _Python_ v3.6 or higher
+- _yamllint_ v1.26.3 or higher
+
 # Usage
 This software automatically fixes some errors and warnings reported by
 _yamllint_.
