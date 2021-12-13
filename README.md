@@ -3,7 +3,7 @@ yamlfixer automates the fixing of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
-# Prerequisistes
+# Prerequisites
 In order for it to work, _yamlfixer_ needs that the following
 utilities are already installed on your system, in a directory present
 in your _$PATH_ :
