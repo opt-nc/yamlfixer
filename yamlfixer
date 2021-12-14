@@ -199,6 +199,7 @@ class ProblemFixer:
         """
         # TODO: We replace TAB with a single space for now
         # TODO: yamllint only reports the first one
+        # TODO: use expandtabs after reading indentation size from .yamllint if possible
         self.ffixer.lines[self.linenum] = left + ' ' + right[1:]
 
     def fix_missingspace(self, left, right):
