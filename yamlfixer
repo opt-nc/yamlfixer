@@ -136,7 +136,7 @@ class ProblemFixer:
     # done from the beginning of yamllint's output after the
     # warning/error level.
     #
-    
+
     def fix_missing_docstart(self, left, right): # pylint: disable=unused-argument
         """Fix:
              - missing document start
