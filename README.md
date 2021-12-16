@@ -11,6 +11,14 @@ in your _$PATH_ :
 - _Python_ v3.6 or higher
 - _yamllint_ v1.26.3 or higher
 
+Then simply copy the _yamlfixer_ file to a directory present in your
+_$PATH_, and ensure it is executable, for example:
+
+```
+cp yamlfixer /usr/local/bin
+chmod 0755 /usr/local/bin/yamlfixer
+```
+
 # Usage
 This software automatically fixes some errors and warnings reported by
 _yamllint_.
