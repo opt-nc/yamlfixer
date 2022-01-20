@@ -1,3 +1,6 @@
+[![Docker Image](https://img.shields.io/badge/docker-homepage-blue)](https://hub.docker.com/r/optnc/yamlfixer)
+
+
 # yamlfixer
 yamlfixer automates the fixing of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
@@ -53,6 +56,15 @@ way _yamllint_ works, it doesn't currenlty report all faulty lines,
 _yamlfixer_ might even introduce indentation problems under some
 circumstances.
 **Use at your own risk, you have been warned...**
+
+# Docker
+
+A Docker image containing yamlfixer tool is published on DockerHub on each release.
+You can use it this way :
+```
+docker pull optnc/yamlfixer
+docker run -i -t --rm optnc/yamlfixer /bin/sh
+```
 
 # Licensing information
 Copyright (C) 2021 OPT-NC
