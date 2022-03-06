@@ -113,7 +113,7 @@ class ProblemFixer:
         self.ffixer.yfixer.debug(f"No handler found for [{self.problem}]")
         return FIXER_UNHANDLED
 
-    def get_indentation(self, offset):
+    def get_indentation(self, offset=0):
         """Returns the indentation of the current (possibly offset) line."""
         line = self.ffixer.lines[self.linenum + offset]
         return len(line) - len(line.lstrip())
@@ -265,9 +265,21 @@ class ProblemFixer:
              - line too long
         """
         # TODO: currently we fix this by disabling the error in yamllint, it's the easiest way
-        self.ffixer.lines.insert(self.linenum, ' ' * self.get_indentation(0) \
+        self.ffixer.lines.insert(self.linenum, ' ' * self.get_indentation() \
                              + '# yamllint disable-line rule:line-length')
         self.ffixer.loffset += 1
+
+    def fix_syntax_mappingvalues_nah(self, left, right):
+        """Fix:
+             - syntax error: mapping values are not allowed here
+        """
+        indentation = self.get_indentation()
+        previndentation = self.get_indentation(-1)
+        if self.ffixer.lines[self.linenum-1][previndentation:].startswith("- "):
+            # if previous line is a list item, indent like item itself
+            previndentation += 2
+        self.ffixer.lines[self.linenum] = ' ' * previndentation + (left + right).lstrip()
+        self.ffixer.coffset += previndentation - indentation
 
 
 class FileFixer:
@@ -469,6 +481,7 @@ class YAMLFixer:
         if (self.passed + self.skipped) == len(self.filenames):
             return 0
         return -1
+
 
 def main(arguments):
     """Main function."""
