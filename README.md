@@ -75,7 +75,7 @@ docker run -i -t --rm optnc/yamlfixer /bin/sh
 
 # 🔖 Related contents
 
-- [Dedicated Post explaining how we are using thid project to automate `yaml` linting and fixing](https://dev.to/adriens/let-ci-check-fix-your-yamls-kfa)
+- [Dedicated Post explaining how we are using this project to automate `yaml` linting and fixing](https://dev.to/adriens/let-ci-check-fix-your-yamls-kfa)
 - [GH Action relying on this project](https://github.com/marketplace/actions/yaml-fixer)
 
 # 📖 Licensing information
