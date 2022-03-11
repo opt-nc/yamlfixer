@@ -70,15 +70,14 @@ import sys
 import os
 import subprocess
 
-VERSION = '0.1.1'
+VERSION = '0.1.2'
 
 LINTERCOMMAND = 'yamllint --format parsable --strict -'
 
 FIX_PASSEDLINTER = 0
 FIX_MODIFIED = 1
-FIX_UNMODIFIED = 2
-FIX_SKIPPED = 3
-FIX_PERMERROR = 4
+FIX_SKIPPED = 2
+FIX_PERMERROR = 3
 
 FIXER_UNHANDLED = -1
 FIXER_HANDLED = 0
@@ -416,7 +415,6 @@ class YAMLFixer:
         if not self.filenames:
             self.filenames.append("-") # Add fake input from stdin
         self.passed = self.modified \
-            = self.unmodified \
             = self.skipped \
             = self.permerrors \
             = self.unknown = 0
@@ -442,7 +440,6 @@ class YAMLFixer:
         self.info(f"Files to fix: {len(self.filenames)}")
         self.info(f"{self.passed} files successfully passed yamllint strict mode")
         self.info(f"{self.modified} files were modified")
-        self.info(f"{self.unmodified} files were left unmodified")
         self.info(f"{self.skipped} files were skipped")
         self.info(f"{self.permerrors} files were not writeable")
         self.info(f"{self.unknown} files with unknown status")
@@ -464,9 +461,6 @@ class YAMLFixer:
             elif status == FIX_MODIFIED:
                 self.info(f"was modified.")
                 self.modified += 1
-            elif status == FIX_UNMODIFIED:
-                self.info(f"was left unmodified.")
-                self.unmodified += 1
             elif status == FIX_SKIPPED:
                 self.info(f"was skipped.")
                 self.skipped += 1
