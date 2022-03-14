@@ -1,10 +1,12 @@
+
 [![Docker Image](https://img.shields.io/badge/docker-homepage-blue)](https://hub.docker.com/r/optnc/yamlfixer)
 [![Kataocda scenario](https://img.shields.io/badge/katacoda-homepage-blue)](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer)
 
 
 # ❔ About
 
-`yamlfixer` automates the fixing of problems reported by
+[yamlfixer](https://github.com/opt-nc/yamlfixer) automates the fixing
+of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
@@ -12,15 +14,15 @@ output.
 
 💡 **You can try the install process online thanks to the dedicated [Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
 
-In order for it to work, `_yamlfixer_` needs that the following
+In order for it to work, `yamlfixer` needs that the following
 utilities are already installed on your system, in a directory present
-in your `_$PATH_` :
+in your `$PATH` :
 
-- [x] `_Python_ v3.6` (or higher)
-- [x] `_yamllint_ v1.26.3` (or higher)
+- [x] `Python v3.6` (or higher)
+- [x] `yamllint v1.26.3` (or higher)
 
-Then simply copy the `_yamlfixer_` file to a directory present in your
-`_$PATH_`, and ensure it is executable, for example:
+Then simply copy the `yamlfixer` file to a directory present in your
+`$PATH`, and ensure it is executable, for example:
 
 ```shell
 cp yamlfixer /usr/local/bin
@@ -31,7 +33,7 @@ chmod 0755 /usr/local/bin/yamlfixer
 # 🚀 Usage
 
 This software automatically fixes some errors and warnings reported by
-`_yamllint_`.
+`yamllint`.
 
 
 
@@ -45,23 +47,24 @@ or:
 $ yamlfixer [--help] [--version]
 ```
 
-This will launch `_yamllint_` on each specified file name (`-` is `_stdin_`),
-then parse its output and try to fix the reported problems.
+This will launch `yamllint` on each specified filename, then parse its
+output and try to fix the reported problems. The special filename `-`
+means `stdin`, and is assumed if there's no other filename argument.
 
-If input is read from `_stdin_`, the corrected output will be sent to
-`_stdout_`.
+If input is read from `stdin`, the corrected output will be sent to
+`stdout`.
 Other files will be overwritten if needed. Original files,
-`_stdin_` excepted, can be preserved as` _.orig_` if the `_--backup_`
+`stdin` excepted, can be preserved as `.orig` if the `--backup`
 command line option is used.
 
 Diagnostic information is sent to stderr in verbose or debug modes.
 
 This command exits with `0` if all input files either are skipped or
-successfully pass `_yamllint_` strict mode, else `-1`.
+successfully pass `yamllint` strict mode, else `-1`.
 
-**IMPORTANT:** Not all problems are fixable by `_yamlfixer_`. Due to the
-way `_yamllint_` works, it doesn't currenlty report all faulty lines,
-`_yamlfixer_` might even introduce indentation problems under some
+**IMPORTANT:** Not all problems are fixable by `yamlfixer`. Due to the
+fact that `yamllint` doesn't currently report all faulty lines,
+`yamlfixer` might even introduce indentation problems under some
 circumstances.
 
 ⚠️**Use at your own risk, you have been warned...** ⚠️
@@ -74,7 +77,7 @@ so **you don't have to deal with prerequisites.**
 Install it :
 
 ```shell
-alias yamlfixer="docker run --rm optnc/yamlfixer  yamlfixer"
+alias yamlfixer="docker run --rm optnc/yamlfixer yamlfixer"
 ```
 
 Use it : 
@@ -92,7 +95,7 @@ yamlfixer --version
 # 📖 Licensing information
 
 ```
-Copyright (C) 2021 OPT-NC
+Copyright (C) 2021-2022 OPT-NC
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
