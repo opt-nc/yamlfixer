@@ -64,13 +64,19 @@ circumstances.
 
 # 🐋 Docker
 
-A Docker image containing `yamlfixer` tool is published on DockerHub on each release.
+A Docker image containing `yamlfixer` tool is [published on DockerHub](https://hub.docker.com/r/optnc/yamlfixer)
+so **you don't have to deal with prerequisites.**
 
-You can use it this way :
+Install it :
 
 ```shell
-docker pull optnc/yamlfixer
-docker run -i -t --rm optnc/yamlfixer /bin/sh
+alias yamlfixer="docker run --rm optnc/yamlfixer  yamlfixer"
+```
+
+Use it : 
+
+```shell
+yamlfixer --version
 ```
 
 # 🔖 Related contents
