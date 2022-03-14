@@ -1,103 +1,17 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""# ❔ About
-[yamlfixer](https://github.com/opt-nc/yamlfixer) automates the fixing
-of problems reported by
-[yamllint](https://github.com/adrienverge/yamllint) by parsing its
-output.
+"""yamlfixer automates the fixing of problems reported by yamllint
+by feeding it with files and parsing its output."""
 
-# 📑 Prerequisites
+import sys
+import os
+import subprocess
+import argparse
+import json
 
-💡 **You can try the install process online thanks to the dedicated
-[Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
-
-In order for it to work, `yamlfixer` needs that the following
-utilities are already installed on your system, in a directory present
-in your `$PATH` :
-
-- [x] `Python v3.6` (or higher)
-- [x] `yamllint v1.26.3` (or higher)
-
-Then simply copy the `yamlfixer` file to a directory present in your
-`$PATH`, and ensure it is executable, for example:
-
-```shell
-cp yamlfixer /usr/local/bin
-chmod 0755 /usr/local/bin/yamlfixer
-```
-
-
-# 🚀 Usage
-
-This software automatically fixes some errors and warnings reported by
-`yamllint`.
-
-
-
-```shell
-$ yamlfixer [--debug] [--verbose] [--backup] *.yml - thisfile.yaml
-```
-
-or:
-
-```shell
-$ yamlfixer [--help] [--version]
-```
-
-This will launch `yamllint` on each specified filename, then parse its
-output and try to fix the reported problems. The special filename `-`
-means `stdin`, and is assumed if there's no other filename argument.
-
-If input is read from `stdin`, the corrected output will be sent to
-`stdout`.
-Other files will be overwritten if needed. Original files,
-`stdin` excepted, can be preserved as `.orig` if the `--backup`
-command line option is used.
-
-Diagnostic information is sent to stderr in verbose or debug modes.
-
-This command exits with `-2` if yamllint is not available on your
-system. Otherwise it exits with `0` if all input files either are
-skipped or successfully pass `yamllint` strict mode, else `-1`.
-
-**IMPORTANT:** Not all problems are fixable by `yamlfixer`. Due to the
-fact that `yamllint` doesn't currently report all faulty lines,
-`yamlfixer` might even introduce indentation problems under some
-circumstances.
-
-⚠️**Use at your own risk, you have been warned...** ⚠️
-
-# 🐋 Docker
-
-A Docker image containing `yamlfixer` tool is
-[published on DockerHub](https://hub.docker.com/r/optnc/yamlfixer)
-so **you don't have to deal with prerequisites.**
-
-Install it :
-
-```shell
-alias yamlfixer="docker run --rm optnc/yamlfixer yamlfixer"
-```
-
-Use it :
-
-```shell
-yamlfixer --version
-```
-
-# 🔖 Related contents
-
-- [Dedicated Post explaining how we are using this project to automate
-  `yaml` linting and fixing](https://dev.to/adriens/let-ci-check-fix-your-yamls-kfa)
-- [GH Action relying on this project](https://github.com/marketplace/actions/yaml-fixer)
-- [Dedicated Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer)
-  so you can see it live
-
-# 📖 Licensing information
-
-```
-Copyright (C) 2021-2022 OPT-NC
+VERSION = '0.2.0'
+GPLBLURB = """Copyright (C) 2021-2022 OPT-NC
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -111,14 +25,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 """
-
-import sys
-import os
-import subprocess
-
-VERSION = '0.1.3'
 
 LINTERCOMMAND = 'yamllint --format parsable --strict -'
 
@@ -389,7 +296,11 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
     def load(self):
         """Loads the input file's contents."""
         if self.filename == '-':
-            self.incontents = sys.stdin.read()
+            try:
+                self.incontents = sys.stdin.read()
+            except KeyboardInterrupt:
+                self.yfixer.error("\nInterrupted at user's request.")
+                self.incontents = ""
         else:
             try:
                 with open(self.filename, 'r') as yamlfile:
@@ -408,7 +319,7 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
             sys.stdout.flush()
         elif retcode == FIX_MODIFIED: # Don't write unnecessarily
             try:
-                if self.yfixer.backupmode: # pylint: disable=no-member
+                if self.yfixer.arguments.backup: # pylint: disable=no-member
                     # Try to make a backup of the original file
                     try:
                         os.replace(self.filename, f"{self.filename}.orig")
@@ -463,31 +374,20 @@ class YAMLFixer:
     """To hold files fixing logic."""
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
-        for mode in ('verbose', 'debug', 'backup'):
-            attribute = f"{mode}mode"
-            option = f"--{mode}"
-            if option in arguments:
-                setattr(self, attribute, True)
-                arguments.remove(option)
-            else:
-                setattr(self, attribute, False)
-        self.filenames = arguments
-        if not self.filenames:
-            self.filenames.append("-") # Add fake input from stdin
+        self.arguments = arguments
         self.passed = self.modified \
             = self.skipped \
             = self.permerrors \
             = self.unknown = 0
         self.summary = []
 
-    def info(self, message):
-        """Output an informational message to stderr if verbose mode is active."""
-        if self.verbosemode: # pylint: disable=no-member
-            sys.stderr.write(f"{message}\n")
+    def info(self, message): # pylint: disable=no-self-use
+        """Output an informational message to stderr."""
+        sys.stderr.write(f"{message}\n")
 
     def debug(self, message):
         """Output a debug message to stderr if debug mode is active."""
-        if self.debugmode: # pylint: disable=no-member
+        if self.arguments.debug:
             sys.stderr.write(f"DEBUG: {message}\n")
 
     def error(self, message): # pylint: disable=no-self-use
@@ -496,22 +396,38 @@ class YAMLFixer:
 
     def statistics(self):
         """Output some statistics."""
-        self.info(f"Files to fix: {len(self.filenames)}")
-        self.info(f"{self.passed} files successfully passed yamllint strict mode")
-        self.info(f"{self.modified} files were modified")
-        self.info(f"{self.skipped} files were skipped")
-        self.info(f"{self.permerrors} files were not writeable")
-        self.info(f"{self.unknown} files with unknown status")
-        for (status, filename, issues, handled) in self.summary:
-            if issues:
-                msg = f" (handled {handled}/{issues})"
-            else:
-                msg = ""
-            self.info(f"{status} {filename}{msg}")
+        if self.arguments.summary:
+            self.info(f"Files to fix: {len(self.arguments.filenames)}")
+            self.info(f"{self.passed} files successfully passed yamllint strict mode")
+            self.info(f"{self.modified} files were modified")
+            self.info(f"{self.skipped} files were skipped")
+            self.info(f"{self.permerrors} files were not writeable")
+            self.info(f"{self.unknown} files with unknown status")
+            for (status, filename, issues, handled) in self.summary:
+                if issues:
+                    msg = f" (handled {handled}/{issues})"
+                else:
+                    msg = ""
+                self.info(f"{status} {filename}{msg}")
+        elif self.arguments.jsonsummary:
+            summarymapping = {"filestofix": len(self.arguments.filenames),
+                              "passedstrictmode": self.passed,
+                              "modified": self.modified,
+                              "skipped": self.skipped,
+                              "notwriteable": self.permerrors,
+                              "unknown": self.unknown,
+                              "details": {},
+                             }
+            for (status, filename, issues, handled) in self.summary:
+                summarymapping["details"][filename] = {"status": status,
+                                                       "issues": issues,
+                                                       "handled": handled,
+                                                      }
+            self.info(json.dumps(summarymapping, indent=4))
 
     def fix(self):
         """Fix all files."""
-        for filename in self.filenames:
+        for filename in self.arguments.filenames:
             if filename == '-':
                 absfilename = '<stdin>'
             else:
@@ -546,20 +462,47 @@ class YAMLFixer:
                                  filetofix.issueshandled))
 
         self.statistics()
-        if (self.passed + self.skipped) == len(self.filenames):
+        if (self.passed + self.skipped) == len(self.arguments.filenames):
             return EXIT_OK
         return EXIT_NOK
 
 
-def main(arguments):
+def main():
     """Main function."""
-    if '--help' in arguments:
-        print(__doc__)
-        return EXIT_OK
-    if '--version' in arguments:
-        print(f"yamlfixer v{VERSION}")
-        return EXIT_OK
+    # Ensure we read from stdin in case it's redirected
+    if ("-" not in sys.argv[1:]) and not sys.stdin.isatty():
+        sys.argv.append("-")
+
+    # Parse the command line arguments
+    cmdline = argparse.ArgumentParser(description="Fix formatting problems in YAML documents. "
+                                      "If no file is specified,\nthen reads input from `stdin`.",
+                                      epilog=GPLBLURB,
+                                      formatter_class=argparse.RawDescriptionHelpFormatter)
+    cmdline.add_argument("-v", "--version",
+                         action="version",
+                         version=f"yamlfixer v{VERSION}",
+                         help="display this program's version number")
+    cmdline.add_argument("-b", "--backup",
+                         action="store_true",
+                         help="make a backup copy of original files as `.orig`")
+    cmdline.add_argument("-d", "--debug",
+                         action="store_true",
+                         help="output debug information to stderr.")
+    mutuallyexclusive = cmdline.add_mutually_exclusive_group()
+    mutuallyexclusive.add_argument("-j", "--jsonsummary",
+                                   action="store_true",
+                                   help="output JSON summary to stderr.")
+    mutuallyexclusive.add_argument("-s", "--summary",
+                                   action="store_true",
+                                   help="output plain text summary to stderr.")
+    cmdline.add_argument("filenames",
+                         nargs="*",
+                         metavar="file",
+                         default=["-"], # Read from stdin if no file is specified
+                         help="the YAML files to fix. Use `-` to read from `stdin`.")
+    arguments = cmdline.parse_args()
     return YAMLFixer(arguments).fix()
 
+
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())
