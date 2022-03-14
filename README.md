@@ -70,22 +70,6 @@ circumstances.
 
 ⚠️**Use at your own risk, you have been warned...** ⚠️
 
-# 🐋 Docker
-
-A Docker image containing `yamlfixer` tool is [published on DockerHub](https://hub.docker.com/r/optnc/yamlfixer)
-so **you don't have to deal with prerequisites.**
-
-Install it :
-
-```shell
-alias yamlfixer="docker run --rm optnc/yamlfixer yamlfixer"
-```
-
-Use it :
-
-```shell
-yamlfixer --version
-```
 
 # 🔖 Related contents
 
