@@ -59,8 +59,9 @@ command line option is used.
 
 Diagnostic information is sent to stderr in verbose or debug modes.
 
-This command exits with `0` if all input files either are skipped or
-successfully pass `yamllint` strict mode, else `-1`.
+This command exits with `-2` if yamllint is not available on your
+system. Otherwise it exits with `0` if all input files either are
+skipped or successfully pass `yamllint` strict mode, else `-1`.
 
 **IMPORTANT:** Not all problems are fixable by `yamlfixer`. Due to the
 fact that `yamllint` doesn't currently report all faulty lines,

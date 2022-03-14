@@ -9,7 +9,8 @@ output.
 
 # 📑 Prerequisites
 
-💡 **You can try the install process online thanks to the dedicated [Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
+💡 **You can try the install process online thanks to the dedicated
+[Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
 
 In order for it to work, `yamlfixer` needs that the following
 utilities are already installed on your system, in a directory present
@@ -56,8 +57,9 @@ command line option is used.
 
 Diagnostic information is sent to stderr in verbose or debug modes.
 
-This command exits with `0` if all input files either are skipped or
-successfully pass `yamllint` strict mode, else `-1`.
+This command exits with `-2` if yamllint is not available on your
+system. Otherwise it exits with `0` if all input files either are
+skipped or successfully pass `yamllint` strict mode, else `-1`.
 
 **IMPORTANT:** Not all problems are fixable by `yamlfixer`. Due to the
 fact that `yamllint` doesn't currently report all faulty lines,
@@ -68,7 +70,8 @@ circumstances.
 
 # 🐋 Docker
 
-A Docker image containing `yamlfixer` tool is [published on DockerHub](https://hub.docker.com/r/optnc/yamlfixer)
+A Docker image containing `yamlfixer` tool is
+[published on DockerHub](https://hub.docker.com/r/optnc/yamlfixer)
 so **you don't have to deal with prerequisites.**
 
 Install it :
@@ -77,7 +80,7 @@ Install it :
 alias yamlfixer="docker run --rm optnc/yamlfixer yamlfixer"
 ```
 
-Use it : 
+Use it :
 
 ```shell
 yamlfixer --version
@@ -85,9 +88,11 @@ yamlfixer --version
 
 # 🔖 Related contents
 
-- [Dedicated Post explaining how we are using this project to automate `yaml` linting and fixing](https://dev.to/adriens/let-ci-check-fix-your-yamls-kfa)
+- [Dedicated Post explaining how we are using this project to automate
+  `yaml` linting and fixing](https://dev.to/adriens/let-ci-check-fix-your-yamls-kfa)
 - [GH Action relying on this project](https://github.com/marketplace/actions/yaml-fixer)
-- [Dedicated Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer) so you can see it live
+- [Dedicated Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer)
+  so you can see it live
 
 # 📖 Licensing information
 
@@ -106,13 +111,14 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 """
 
 import sys
 import os
 import subprocess
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 LINTERCOMMAND = 'yamllint --format parsable --strict -'
 
@@ -123,6 +129,10 @@ FIX_PERMERROR = 3
 
 FIXER_UNHANDLED = -1
 FIXER_HANDLED = 0
+
+EXIT_OK = 0
+EXIT_NOK = -1
+EXIT_PROBLEM = -2
 
 class ProblemFixer:
     """To hold problem fixing logic."""
@@ -323,7 +333,7 @@ class ProblemFixer:
         self.ffixer.coffset += previndentation - indentation
 
 
-class FileFixer:
+class FileFixer: # pylint: disable=too-many-instance-attributes
     """To hold file fixing logic."""
     def __init__(self, yamlfixer, filename):
         """Initialize a file to fix."""
@@ -333,6 +343,7 @@ class FileFixer:
         self.shebang = ''
         self.incontents = None
         self.lines = []
+        self.issues = self.issueshandled = 0
 
     def canonicalizeproblems(self, linteroutput):
         """Create a nested mapping of lines and columns to fix."""
@@ -344,6 +355,7 @@ class FileFixer:
             # On a given line, there could be several problems on the same column
             coltofix = colstofix.setdefault(int(colnumber), [])
             coltofix.append(msg)
+            self.issues += 1
 
         # If there's a shebang line we ignore it and any problem reported on it
         if (self.incontents is not None) and self.incontents.startswith('#!'):
@@ -352,6 +364,7 @@ class FileFixer:
             self.incontents = self.incontents[eolpos:]
             try:
                 del problemlines[1]
+                self.issues -= 1
             except KeyError:
                 pass # No problem reported on shebang line by yamllint
             # This line won't ever see the fixer so all subsequent lines must be offset by -1
@@ -423,6 +436,9 @@ class FileFixer:
         if not ltexitcode:
             self.dump(self.incontents)
             return FIX_PASSEDLINTER
+        if ltexitcode == 127: # yamllint not found !
+            self.yfixer.error("yamllint is not in your PATH, please ensure it's installed.")
+            sys.exit(EXIT_PROBLEM)
 
         # Organize the set of problems to fix
         linestofix = self.canonicalizeproblems(ltstdout)
@@ -436,6 +452,8 @@ class FileFixer:
                     # pylint: disable=line-too-long
                     debuginfo = f"({linenumber}, {colnumber})/({self.loffset}, {self.coffset}) => {problem}"
                     handled = ProblemFixer(self, linenumber, colnumber, problem)()
+                    if handled == FIXER_HANDLED:
+                        self.issueshandled += 1
                     # pylint: disable=line-too-long
                     self.yfixer.debug(f"{((handled == FIXER_HANDLED) and 'HANDLED') or 'UNHANDLED'}: {debuginfo}")
         return self.dump('\n'.join(self.lines) + '\n')
@@ -460,13 +478,12 @@ class YAMLFixer:
             = self.skipped \
             = self.permerrors \
             = self.unknown = 0
+        self.summary = []
 
-    def info(self, message, newline=True):
+    def info(self, message):
         """Output an informational message to stderr if verbose mode is active."""
         if self.verbosemode: # pylint: disable=no-member
-            sys.stderr.write(f"{message}")
-            if newline:
-                sys.stderr.write('\n')
+            sys.stderr.write(f"{message}\n")
 
     def debug(self, message):
         """Output a debug message to stderr if debug mode is active."""
@@ -485,6 +502,12 @@ class YAMLFixer:
         self.info(f"{self.skipped} files were skipped")
         self.info(f"{self.permerrors} files were not writeable")
         self.info(f"{self.unknown} files with unknown status")
+        for (status, filename, issues, handled) in self.summary:
+            if issues:
+                msg = f" (handled {handled}/{issues})"
+            else:
+                msg = ""
+            self.info(f"{status} {filename}{msg}")
 
     def fix(self):
         """Fix all files."""
@@ -495,40 +518,48 @@ class YAMLFixer:
                 absfilename = os.path.abspath(filename)
             filetofix = FileFixer(self, filename)
             # pylint: disable=no-member
-            self.info(f"Fixing {absfilename} ... ", newline=False or self.debugmode)
+            self.debug(f"Fixing {absfilename} ... ")
             status = filetofix.fix()
             if status == FIX_PASSEDLINTER:
-                self.info(f"passed linter's strict mode.")
+                self.debug(f"passed linter's strict mode.")
+                txtstatus = "  PASSED"
                 self.passed += 1
             elif status == FIX_MODIFIED:
-                self.info(f"was modified.")
+                self.debug(f"was modified.")
+                txtstatus = "MODIFIED"
                 self.modified += 1
             elif status == FIX_SKIPPED:
-                self.info(f"was skipped.")
+                self.debug(f"was skipped.")
+                txtstatus = " SKIPPED"
                 self.skipped += 1
             elif status == FIX_PERMERROR:
-                self.info(f"was not writeable.")
+                self.debug(f"was not writeable.")
+                txtstatus = "   ERROR"
                 self.permerrors += 1
             else:
                 self.error(f"unknown fixing status [{status}]")
+                txtstatus = " UNKNOWN"
                 self.unknown += 1
+            self.summary.append((txtstatus,
+                                 absfilename,
+                                 filetofix.issues,
+                                 filetofix.issueshandled))
 
         self.statistics()
         if (self.passed + self.skipped) == len(self.filenames):
-            return 0
-        return -1
+            return EXIT_OK
+        return EXIT_NOK
 
 
 def main(arguments):
     """Main function."""
     if '--help' in arguments:
         print(__doc__)
-        return 0
+        return EXIT_OK
     if '--version' in arguments:
         print(f"yamlfixer v{VERSION}")
-        return 0
-    fixer = YAMLFixer(arguments)
-    return fixer.fix()
+        return EXIT_OK
+    return YAMLFixer(arguments).fix()
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
