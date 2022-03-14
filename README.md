@@ -80,7 +80,7 @@ Install it :
 alias yamlfixer="docker run --rm optnc/yamlfixer yamlfixer"
 ```
 
-Use it : 
+Use it :
 
 ```shell
 yamlfixer --version
