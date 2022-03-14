@@ -1,4 +1,5 @@
 [![Docker Image](https://img.shields.io/badge/docker-homepage-blue)](https://hub.docker.com/r/optnc/yamlfixer)
+[![Kataocda scenario](https://img.shields.io/badge/katacoda-homepage-blue)](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer)
 
 
 # ❔ About
@@ -8,6 +9,8 @@
 output.
 
 # 📑 Prerequisites
+
+💡 **You can try the install process online thanks to the dedicated [Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
 
 In order for it to work, `_yamlfixer_` needs that the following
 utilities are already installed on your system, in a directory present
@@ -23,6 +26,7 @@ Then simply copy the `_yamlfixer_` file to a directory present in your
 cp yamlfixer /usr/local/bin
 chmod 0755 /usr/local/bin/yamlfixer
 ```
+
 
 # 🚀 Usage
 
@@ -83,6 +87,7 @@ yamlfixer --version
 
 - [Dedicated Post explaining how we are using this project to automate `yaml` linting and fixing](https://dev.to/adriens/let-ci-check-fix-your-yamls-kfa)
 - [GH Action relying on this project](https://github.com/marketplace/actions/yaml-fixer)
+- [Dedicated Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer) so you can see it live
 
 # 📖 Licensing information
 
