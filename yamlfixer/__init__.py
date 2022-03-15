@@ -10,7 +10,7 @@ import subprocess
 import argparse
 import json
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
@@ -424,7 +424,7 @@ class YAMLFixer:
                               "details": {},
                              }
             for (status, filename, issues, handled) in self.summary:
-                summarymapping["details"][filename] = {"status": status,
+                summarymapping["details"][filename] = {"status": status.strip(),
                                                        "issues": issues,
                                                        "handled": handled,
                                                       }
