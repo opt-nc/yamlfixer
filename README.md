@@ -33,29 +33,38 @@ python3 -m pip install yamlfixer-opt-nc
 This software automatically fixes some errors and warnings reported by
 `yamllint`.
 
-
-
 ```shell
-$ yamlfixer [--debug] [--verbose] [--backup] *.yml - thisfile.yaml
+yamlfixer --help
+usage: yamlfixer [-h] [-v] [-b] [-d] [-j | -s] [file [file ...]]
+
+Fix formatting problems in YAML documents. If no file is specified,
+then reads input from `stdin`.
+
+positional arguments:
+  file               the YAML files to fix. Use `-` to read from `stdin`.
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -v, --version      display this program's version number
+  -b, --backup       make a backup copy of original files as `.orig`
+  -d, --debug        output debug information to stderr.
+  -j, --jsonsummary  output JSON summary to stderr.
+  -s, --summary      output plain text summary to stderr.
 ```
 
-or:
-
-```shell
-$ yamlfixer [--help] [--version]
-```
-
-This will launch `yamllint` on each specified filename, then parse its
-output and try to fix the reported problems. The special filename `-`
-means `stdin`, and is assumed if there's no other filename argument.
+yamlfixer launches `yamllint` on each specified filename, then parses
+its output and try to fix the reported problems. The special filename
+`-` means `stdin`, and is assumed if there's no other filename
+argument.
 
 If input is read from `stdin`, the corrected output will be sent to
 `stdout`.
+
 Other files will be overwritten if needed. Original files,
 `stdin` excepted, can be preserved as `.orig` if the `--backup`
 command line option is used.
 
-Diagnostic information is sent to stderr in verbose or debug modes.
+Both summaries and diagnostic information are sent to stderr.
 
 This command exits with `-2` if yamllint is not available on your
 system. Otherwise it exits with `0` if all input files either are
