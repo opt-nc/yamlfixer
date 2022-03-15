@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """yamlfixer automates the fixing of problems reported by yamllint
@@ -6,13 +5,19 @@ by feeding it with files and parsing its output."""
 
 import sys
 import os
+import time
 import subprocess
 import argparse
 import json
 
-VERSION = '0.2.0'
-GPLBLURB = """Copyright (C) 2021-2022 OPT-NC
+__version__ = "0.3.0"
+__author__ = "OPT-NC"
+__license__ = "GPLv3+"
+__copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
+                                                            time.localtime(time.time())),
+                                              __author__)
 
+GPLBLURB = """
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -467,7 +472,7 @@ class YAMLFixer:
         return EXIT_NOK
 
 
-def main():
+def run():
     """Main function."""
     # Ensure we read from stdin in case it's redirected
     if ("-" not in sys.argv[1:]) and not sys.stdin.isatty():
@@ -476,11 +481,11 @@ def main():
     # Parse the command line arguments
     cmdline = argparse.ArgumentParser(description="Fix formatting problems in YAML documents. "
                                       "If no file is specified,\nthen reads input from `stdin`.",
-                                      epilog=GPLBLURB,
+                                      epilog=f"{__copyright__}\n{GPLBLURB}",
                                       formatter_class=argparse.RawDescriptionHelpFormatter)
     cmdline.add_argument("-v", "--version",
                          action="version",
-                         version=f"yamlfixer v{VERSION}",
+                         version=f"yamlfixer v{__version__}",
                          help="display this program's version number")
     cmdline.add_argument("-b", "--backup",
                          action="store_true",
@@ -502,7 +507,3 @@ def main():
                          help="the YAML files to fix. Use `-` to read from `stdin`.")
     arguments = cmdline.parse_args()
     return YAMLFixer(arguments).fix()
-
-
-if __name__ == '__main__':
-    sys.exit(main())

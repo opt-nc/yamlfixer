@@ -1,0 +1,3 @@
+include requirements.txt
+include Dockerfile
+recursive-include examples/ *.yml *.yaml
