@@ -3,6 +3,8 @@
 [![Kataocda scenario](https://img.shields.io/badge/katacoda-homepage-blue)](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer)
 
 ![PyPI](https://img.shields.io/pypi/v/yamlfixer-opt-nc)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/yamlfixer-opt-nc)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/yamlfixer-opt-nc)
 
 
 # ❔ About
