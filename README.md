@@ -25,7 +25,7 @@ in your `$PATH` :
 - [x] `Python v3.6` (or higher)
 - [x] `yamllint v1.26.3` (or higher)
 
-Then simply install `yamlfixer` from [pypi](https://pypi.org/)
+Then simply install `yamlfixer` from [pypi](https://pypi.org/project/yamlfixer-opt-nc/)
 
 ```shell
 python3 -m pip install yamlfixer-opt-nc
