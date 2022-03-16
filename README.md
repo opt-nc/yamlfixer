@@ -81,6 +81,36 @@ circumstances.
 
 ⚠️**Use at your own risk, you have been warned...** ⚠️
 
+# 💪 Tips and tips
+
+## ⏩ One liners
+
+Most of use love short and efficient command lines. Here are some ready to use ones : 
+
+### Piping `json`  summary through `jq`
+
+```
+yamlfixer --jsonsummary bad.yml 2>&1 | jq
+```
+
+So you can get a nicely colored (and vlidated `json` output) : 
+
+```json
+  "filestofix": 1,
+  "passedstrictmode": 1,
+  "modified": 0,
+  "skipped": 0,
+  "notwriteable": 0,
+  "unknown": 0,
+  "details": {
+    "/home/jerome/yamlfixer/bad.yml": {
+      "status": "PASSED",
+      "issues": 0,
+      "handled": 0
+    }
+  }
+}
+```
 
 # 🔖 Related contents
 
