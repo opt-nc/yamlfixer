@@ -107,10 +107,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ```
 
-
 # 🧑‍🤝‍🧑 Contact
 
-To contact the authors of this software, simply fill an issue on this project. 
+To contact the [authors](AUTHORS.md) of this software, simply fill an
+issue on this project.
 
 OPT-NC, aka _Office des Postes et Télécommunications de Nouvelle-Calédonie_,
 has a corporate website on [www.opt.nc](https://www.opt.nc)
