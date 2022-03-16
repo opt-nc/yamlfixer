@@ -112,6 +112,16 @@ So you can get a nicely colored (and vlidated `json` output) :
 }
 ```
 
+### Check if `yamlfixer` could fix a `yaml` and get the exit code
+
+See how piping fixing and linting can be intersting... and get exit code
+so you can go furher in automation :
+
+```
+yamlfixer <bad.yml | yamllint --format parsable --strict -
+echo $?
+```
+
 # 🔖 Related contents
 
 - [Dedicated Post explaining how we are using this project to automate `yaml` linting and fixing](https://dev.to/adriens/let-ci-check-fix-your-yamls-kfa)
