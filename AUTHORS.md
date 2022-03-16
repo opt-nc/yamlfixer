@@ -13,7 +13,8 @@
 * __[Adrien Sales](https://github.com/adriens)__
 
   @adriens does general project management, helps with ticket triage,
-  and brings ideas for improvements. He also works on _PR_ and demos.
+  and brings ideas for improvements. He also works on documentations,
+  demos, and _PR_.
   
 # Contributors
 
