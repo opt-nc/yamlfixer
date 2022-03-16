@@ -10,7 +10,7 @@ import subprocess
 import argparse
 import json
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
@@ -235,6 +235,8 @@ class ProblemFixer:
     def fix_syntax_mappingvalues_nah(self, left, right):
         """Fix:
              - syntax error: mapping values are not allowed here
+             - syntax error: expected <block end>, but found '<block mapping start>'
+             - syntax error: expected <block end>, but found '?'
         """
         indentation = self.get_indentation()
         previndentation = self.get_indentation(-1)
