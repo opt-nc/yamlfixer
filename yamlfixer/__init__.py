@@ -10,7 +10,7 @@ import subprocess
 import argparse
 import json
 
-__version__ = "0.3.5"
+__version__ = "0.3.6"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
