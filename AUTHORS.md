@@ -12,7 +12,7 @@
   
 * __[Adrien Sales](https://github.com/adriens)__
 
-  @adriens does general project management, helps with ticket triage,
+  @adriens (aka. [`@rastadidi`](https://twitter.com/rastadidi)) does general project management, helps with ticket triage,
   and brings ideas for improvements. He also works on documentation,
   demos, and _PR_.
   
