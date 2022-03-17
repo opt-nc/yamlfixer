@@ -7,32 +7,32 @@ assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+# 1️⃣ Description
 
-**To Reproduce**
+**A clear and concise description** of what the bug is.
+
+## 📑 Steps to Reproduce
+
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+1. WHen I do this : '...'
+2. Then run that : '....'
+3. I got this : `...`
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+# 2️⃣ Expected behavior
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**A clear and concise description** of what you expected to happen.
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+# 3️⃣ Scripts
 
-**Additional context**
+Any script or screenshots, If applicable, to help us understand your problem.
+
+# ℹ️ Environment details
+
+ - OS: [e.g. iOS, `cat /etc/issue`]
+ - Python runtime
+ - Used shell (Git bash, `bash`, `zsh`, `MS DOS`, ...)
+ 
+# Additional context
+
 Add any other context about the problem here.
