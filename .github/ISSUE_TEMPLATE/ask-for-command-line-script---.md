@@ -9,7 +9,7 @@ assignees: ''
 
 # 🎗️ Reminder
 
-`yamlfixer` has been created based on [Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) : "
+`yamlfixer` has been created based on [Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) :
 
 > The Unix philosophy emphasizes building simple, short, clear, modular, and extensible code that can be easily maintained and repurposed by developers other than its creators. 
 
