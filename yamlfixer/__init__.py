@@ -10,7 +10,7 @@ import subprocess
 import argparse
 import json
 
-__version__ = "0.3.4"
+__version__ = "0.3.5"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
@@ -46,11 +46,11 @@ EXIT_OK = 0
 EXIT_NOK = -1
 EXIT_PROBLEM = -2
 
-COLORSEQ = {"PASSED": "32m",
-            "MODIFIED": "34m",
-            "SKIPPED": "36m",
-            "ERROR": "31m",
-            "UNKNOWN": "33m",
+COLORSEQ = {"PASSED": "38;2;0;255;0m",
+            "MODIFIED": "38;2;0;0;255m",
+            "SKIPPED": "38;2;255;0;255m",
+            "ERROR": "38;2;255;0;0m",
+            "UNKNOWN": "38;2;255;255;0m",
            }
 
 class ProblemFixer:
@@ -410,7 +410,7 @@ class YAMLFixer:
 
     def statistics(self):
         """Output some statistics."""
-        if self.arguments.summary or self.arguments.colorsummary:
+        if self.arguments.summary or self.arguments.plainsummary:
             self.info(f"Files to fix: {len(self.arguments.filenames)}")
             self.info(f"{self.passed} files successfully passed yamllint strict mode")
             self.info(f"{self.modified} files were modified")
@@ -422,7 +422,7 @@ class YAMLFixer:
                     msg = f" (handled {handled}/{issues})"
                 else:
                     msg = ""
-                if self.arguments.colorsummary and sys.stderr.isatty():
+                if self.arguments.summary and sys.stderr.isatty():
                     status = f"\033[{COLORSEQ.get(status.strip(), '0m')}{status}\033[0m"
                 self.info(f"{status} {filename}{msg}")
         elif self.arguments.jsonsummary:
@@ -508,13 +508,13 @@ def run():
     mutuallyexclusive.add_argument("-j", "--jsonsummary",
                                    action="store_true",
                                    help="output JSON summary to stderr.")
-    mutuallyexclusive.add_argument("-c", "--colorsummary",
-                                   action="store_true",
-                                   help="output colored plain text summary to stderr. "
-                                   "If stderr is not a TTY output is identical to --summary.")
-    mutuallyexclusive.add_argument("-s", "--summary",
+    mutuallyexclusive.add_argument("-p", "--plainsummary",
                                    action="store_true",
                                    help="output plain text summary to stderr.")
+    mutuallyexclusive.add_argument("-s", "--summary",
+                                   action="store_true",
+                                   help="output colored plain text summary to stderr. "
+                                   "If stderr is not a TTY output is identical to --plainsummary.")
     cmdline.add_argument("filenames",
                          nargs="*",
                          metavar="file",
