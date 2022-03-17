@@ -124,8 +124,8 @@ So you can get a nicely colored (and vlidated `json` output) :
 
 ### Check if `yamlfixer` could fix a `yaml` and get the exit code
 
-See how piping fixing and linting can be intersting... and get exit code
-so you can go furher in automation :
+See how piping fixing and linting can be interesting... and get exit code
+so you can go further in automation :
 
 ```
 yamlfixer <bad.yml | yamllint --format parsable --strict -
