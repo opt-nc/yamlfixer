@@ -14,18 +14,14 @@ of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
-# 📑 Prerequisites
+# 📑 Installation
 
 💡 **You can try the install process online thanks to the dedicated [Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
 
-In order for it to work, `yamlfixer` needs that the following
-utilities are already installed on your system, in a directory present
-in your `$PATH` :
+The easiest way to install `yamlfixer` is from
+[pypi](https://pypi.org/project/yamlfixer-opt-nc/), as described
+below.
 
-- [x] `Python v3.6` (or higher)
-- [x] `yamllint v1.26.3` (or higher)
-
-Then simply install `yamlfixer` from [pypi](https://pypi.org/project/yamlfixer-opt-nc/)
 
 ## 🐧Linux install
 
