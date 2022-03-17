@@ -423,7 +423,7 @@ class YAMLFixer:
                 else:
                     msg = ""
                 if self.arguments.colorsummary and sys.stderr.isatty():
-                    status = f"\033[{COLORSEQ.get(status.strip())}{status}\033[0m"
+                    status = f"\033[{COLORSEQ.get(status.strip(), '0m')}{status}\033[0m"
                 self.info(f"{status} {filename}{msg}")
         elif self.arguments.jsonsummary:
             summarymapping = {"filestofix": len(self.arguments.filenames),
