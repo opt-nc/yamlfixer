@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-# ☝️ Read this before
+# ☝️ Read (and accept) this before
 
 - [ ] I am respectful : this is free software and efforts are made on free time, with 💙
 - [ ] I have looked at the current [project roadmap](https://github.com/opt-nc/yamlfixer/projects/1)
