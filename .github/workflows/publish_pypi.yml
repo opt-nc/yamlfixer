@@ -1,0 +1,33 @@
+---
+name: Publish Python packages to PyPI
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-n-publish:
+    name: Build and publish Python packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Initialize Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade build
+
+      - name: Build binary wheel and a source tarball
+        run: python -m build
+        # - name: Publish distribution to PyPI
+        #  uses: pypa/gh-action-pypi-publish@master
+        #  with:
+        #    password: ${{ secrets.test_pypi_password }}
+        #    repository_url: https://test.pypi.org/legacy/
