@@ -9,7 +9,7 @@ assignees: ''
 
 # 1️⃣ Description
 
-**A clear and concise description** of what the bug is.
+**A clear and concise description** of what the bug is.. or rather why you think it's a bug 🙂.
 
 ## 📑 Steps to Reproduce
 
