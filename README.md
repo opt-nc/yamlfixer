@@ -87,7 +87,11 @@ circumstances.
 
 ⚠️**Use at your own risk, you have been warned...** ⚠️
 
-# 💪 Tips and tips
+# 💪 Tips and tricks
+
+Find here a set of tips & tricks about how to achieve great things.
+
+Don't find the usecase you're looking for ➡️ [🎫 Fill a dedicated issue so we could share your idea with the comunity](https://github.com/opt-nc/yamlfixer/issues/new?assignees=&labels=help+wanted&template=ask-for-command-line-script---.md&title=Request+for+script+or+oneLiner)
 
 ## ⏩ One liners
 
