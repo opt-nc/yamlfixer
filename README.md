@@ -158,5 +158,5 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 To contact the [authors](AUTHORS.md) of this software, simply fill an
 issue on this project.
 
-OPT-NC, aka _Office des Postes et Télécommunications de Nouvelle-Calédonie_,
-has a corporate website on [www.opt.nc](https://www.opt.nc)
+OPT-NC, aka _Office des Postes et Télécommunications de Nouvelle-Calédonie_, check
+[`OPT-NC`](https://github.com/opt-nc) Github Organization page for more.
