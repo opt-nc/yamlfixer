@@ -1,5 +1,5 @@
 ---
-name: 'Ask for command line/script > '
+name: '🙏 Ask for command line/script > '
 about: Ask for a one purpose command line
 title: Request for script or oneLiner
 labels: help wanted
@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-# Reminder
+# 🎗️ Reminder
 
 `yamlfixer` has been created based on [Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) : "
 
@@ -15,10 +15,10 @@ assignees: ''
 
 So keep in mind that philsophy :
 
-- do not ask `yamlfixer` to implement more and more features it has not to deal with
-- focus on command lines and other tools you can plus before or after `yamlfixer` like [`|`](https://youtu.be/bKzonnwoR2I), [`jq`](https://stedolan.github.io/jq/),[`sed`](https://en.wikipedia.org/wiki/Sed), `awk`, [`gomplate`](https://docs.gomplate.ca/) or [`ytt`](https://carvel.dev/ytt/) ... operators
+☑️ do not ask `yamlfixer` to implement more and more features it has not to deal with
+✔️ focus on command lines and other tools you can plus before or after `yamlfixer` like [`|`](https://youtu.be/bKzonnwoR2I), [`jq`](https://stedolan.github.io/jq/),[`sed`](https://en.wikipedia.org/wiki/Sed), `awk`, [`gomplate`](https://docs.gomplate.ca/) or [`ytt`](https://carvel.dev/ytt/) ... operators
 
-# Ask for command line
+# ❔ Ask for command line
 
 Please detall a use case you would like to achieve thanks to `yamlfixer`.
 
