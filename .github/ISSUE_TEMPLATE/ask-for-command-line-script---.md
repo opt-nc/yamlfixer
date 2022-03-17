@@ -1,5 +1,5 @@
 ---
-name: '🙏 Ask for command line/script'
+name: "\U0001F64F Ask for command line/script"
 about: Ask for a one purpose command line
 title: Request for script or oneLiner
 labels: help wanted
