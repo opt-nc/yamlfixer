@@ -38,22 +38,23 @@ This software automatically fixes some errors and warnings reported by
 `yamllint`.
 
 ```shell
-yamlfixer --help
-usage: yamlfixer [-h] [-v] [-b] [-d] [-j | -s] [file [file ...]]
+usage: yamlfixer [-h] [-v] [-b] [-d] [-j | -c | -s] [file [file ...]]
 
 Fix formatting problems in YAML documents. If no file is specified,
 then reads input from `stdin`.
 
 positional arguments:
-  file               the YAML files to fix. Use `-` to read from `stdin`.
+  file                the YAML files to fix. Use `-` to read from `stdin`.
 
 optional arguments:
-  -h, --help         show this help message and exit
-  -v, --version      display this program's version number
-  -b, --backup       make a backup copy of original files as `.orig`
-  -d, --debug        output debug information to stderr.
-  -j, --jsonsummary  output JSON summary to stderr.
-  -s, --summary      output plain text summary to stderr.
+  -h, --help          show this help message and exit
+  -v, --version       display this program's version number and exit.
+  -b, --backup        make a backup copy of original files as `.orig`
+  -d, --debug         output debug information to stderr.
+  -j, --jsonsummary   output JSON summary to stderr.
+  -c, --colorsummary  output colored plain text summary to stderr. If stderr
+                      is not a TTY output is identical to --summary.
+  -s, --summary       output plain text summary to stderr.
 ```
 
 yamlfixer launches `yamllint` on each specified filename, then parses

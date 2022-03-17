@@ -10,7 +10,7 @@ import subprocess
 import argparse
 import json
 
-__version__ = "0.3.3"
+__version__ = "0.3.4"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
@@ -45,6 +45,13 @@ FIXER_HANDLED = 0
 EXIT_OK = 0
 EXIT_NOK = -1
 EXIT_PROBLEM = -2
+
+COLORSEQ = {"PASSED": "32m",
+            "MODIFIED": "34m",
+            "SKIPPED": "36m",
+            "ERROR": "31m",
+            "UNKNOWN": "33m",
+           }
 
 class ProblemFixer:
     """To hold problem fixing logic."""
@@ -403,7 +410,7 @@ class YAMLFixer:
 
     def statistics(self):
         """Output some statistics."""
-        if self.arguments.summary:
+        if self.arguments.summary or self.arguments.colorsummary:
             self.info(f"Files to fix: {len(self.arguments.filenames)}")
             self.info(f"{self.passed} files successfully passed yamllint strict mode")
             self.info(f"{self.modified} files were modified")
@@ -415,6 +422,8 @@ class YAMLFixer:
                     msg = f" (handled {handled}/{issues})"
                 else:
                     msg = ""
+                if self.arguments.colorsummary and sys.stderr.isatty():
+                    status = f"\033[{COLORSEQ.get(status.strip())}{status}\033[0m"
                 self.info(f"{status} {filename}{msg}")
         elif self.arguments.jsonsummary:
             summarymapping = {"filestofix": len(self.arguments.filenames),
@@ -488,7 +497,7 @@ def run():
     cmdline.add_argument("-v", "--version",
                          action="version",
                          version=f"yamlfixer v{__version__}",
-                         help="display this program's version number")
+                         help="display this program's version number and exit.")
     cmdline.add_argument("-b", "--backup",
                          action="store_true",
                          help="make a backup copy of original files as `.orig`")
@@ -499,6 +508,10 @@ def run():
     mutuallyexclusive.add_argument("-j", "--jsonsummary",
                                    action="store_true",
                                    help="output JSON summary to stderr.")
+    mutuallyexclusive.add_argument("-c", "--colorsummary",
+                                   action="store_true",
+                                   help="output colored plain text summary to stderr. "
+                                   "If stderr is not a TTY output is identical to --summary.")
     mutuallyexclusive.add_argument("-s", "--summary",
                                    action="store_true",
                                    help="output plain text summary to stderr.")
