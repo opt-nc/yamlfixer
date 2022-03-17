@@ -21,6 +21,6 @@ assignees: ''
 
 Detail the current situation/difficultes or problem you are facing and how you think `yamlfixer` could help : 
 
-# 💡 Solution
+# 💡 Proposed solution
 
 Detail here what you would like `yamlfixer` to do to help on the problematic.
