@@ -27,8 +27,16 @@ in your `$PATH` :
 
 Then simply install `yamlfixer` from [pypi](https://pypi.org/project/yamlfixer-opt-nc/)
 
+## Linux install
+
 ```shell
 python3 -m pip install yamlfixer-opt-nc
+```
+
+## 🪟 Windows nstall
+
+```shell
+python -m pip install yamlfixer-opt-nc
 ```
 
 
