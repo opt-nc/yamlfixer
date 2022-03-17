@@ -1,5 +1,5 @@
 ---
-name: "💡 Feature request"
+name: "\U0001F4A1 Feature request"
 about: Submitting and idea to yamlfixer
 title: 'Feature request > '
 labels: enhancement
