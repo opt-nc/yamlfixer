@@ -27,7 +27,9 @@ jobs:
       - name: Build binary wheel and a source tarball
         run: python -m build
 
+        # Upload sur PyPi seulement si le commit a un tag
       - name: Publish distribution to PyPI
+        if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.YAMLFIXER_PYPI_TOKEN }}
