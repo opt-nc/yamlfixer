@@ -4,8 +4,10 @@ name: Publish Python packages to PyPI
 on:  # yamllint disable-line rule:truthy
   push:
     branches: [main]
+    tags: '*.*.*'
   pull_request:
     branches: [main]
+    tags: '*.*.*'
 
 jobs:
   build-n-publish:
