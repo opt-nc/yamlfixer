@@ -33,7 +33,7 @@ Then simply install `yamlfixer` from [pypi](https://pypi.org/project/yamlfixer-o
 python3 -m pip install yamlfixer-opt-nc
 ```
 
-## 🪟 Windows nstall
+## Windows install
 
 ```shell
 python -m pip install yamlfixer-opt-nc
