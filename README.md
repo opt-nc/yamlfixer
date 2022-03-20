@@ -104,7 +104,7 @@ Most of use love short and efficient command lines. Here are some ready to use o
 yamlfixer --jsonsummary bad.yml 2>&1 | jq
 ```
 
-So you can get a nicely colored (and vlidated `json` output) : 
+So you can get a nicely colored (and validated `json` output) : 
 
 ```json
   "filestofix": 1,
