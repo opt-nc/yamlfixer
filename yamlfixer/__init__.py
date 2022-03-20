@@ -10,7 +10,7 @@ import subprocess
 import argparse
 import json
 
-__version__ = "0.3.8"
+__version__ = "0.3.9"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
@@ -441,6 +441,21 @@ class YAMLFixer:
                                                       }
             self.info(json.dumps(summarymapping, indent=4))
 
+    def listfixes(self):
+        """List all the available fixes."""
+        availablefixes = []
+        notfilefixer = FileFixer(self, "-")
+        notpbfixer = ProblemFixer(notfilefixer, 0, 0, "")
+        for methodname in [m for m in dir(notpbfixer) if m.startswith('fix_')]:
+            docstring = getattr(notpbfixer, methodname).__doc__
+            for prob in [pb.strip()[2:] for pb in docstring.splitlines()[1:]]:
+                if prob:
+                    availablefixes.append(prob)
+        self.info("fixes:")
+        for f in sorted(availablefixes):
+            self.info(f"  - {f}")
+        return EXIT_OK
+
     def fix(self):
         """Fix all files."""
         for filename in self.arguments.filenames:
@@ -504,6 +519,9 @@ def run():
     cmdline.add_argument("-d", "--debug",
                          action="store_true",
                          help="output debug information to stderr.")
+    cmdline.add_argument("-l", "--listfixes",
+                         action="store_true",
+                         help="output the list of available fixes.")
     mutuallyexclusive = cmdline.add_mutually_exclusive_group()
     mutuallyexclusive.add_argument("-j", "--jsonsummary",
                                    action="store_true",
@@ -521,4 +539,6 @@ def run():
                          default=["-"], # Read from stdin if no file is specified
                          help="the YAML files to fix. Use `-` to read from `stdin`.")
     arguments = cmdline.parse_args()
+    if arguments.listfixes:
+        return YAMLFixer(arguments).listfixes()
     return YAMLFixer(arguments).fix()

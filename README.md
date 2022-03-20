@@ -55,6 +55,7 @@ optional arguments:
   -v, --version       display this program's version number and exit.
   -b, --backup        make a backup copy of original files as `.orig`
   -d, --debug         output debug information to stderr.
+  -l, --listfixes     output the list of available fixes.
   -j, --jsonsummary   output JSON summary to stderr.
   -p, --plainsummary  output plain text summary to stderr.
   -s, --summary       output colored plain text summary to stderr.
