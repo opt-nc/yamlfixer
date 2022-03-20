@@ -15,8 +15,8 @@ assignees: ''
 
 Steps to reproduce the behavior:
 
-1. WHen I do this : '...'
-2. Then run that : '....'
+1. WHen I do this : `...`
+2. Then run that : `...`
 3. I got this : `...`
 
 # 2️⃣ Expected behavior
@@ -31,6 +31,7 @@ Any script or screenshots, If applicable, to help us understand your problem.
 
  - OS: [e.g. iOS, `cat /etc/issue`]
  - Python runtime
+ - The output of `yamlfixer --version`
  - Used shell (Git bash, `bash`, `zsh`, `MS DOS`, ...)
  
 # Additional context

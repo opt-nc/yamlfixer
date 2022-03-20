@@ -9,7 +9,7 @@ assignees: ''
 
 # ❔ Context
 
-In a few words, tell why you did create the issue that does not match already xisting templates.
+In a few words, tell why you did create the issue that does not match already existing templates.
 
 # 🎯 Target
 

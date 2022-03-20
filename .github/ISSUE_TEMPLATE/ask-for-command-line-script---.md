@@ -20,6 +20,6 @@ So keep in mind that philsophy :
 
 # ❔ Ask for command line
 
-Please detall a use case you would like to achieve thanks to `yamlfixer`.
+Please detail a use case you would like to achieve thanks to `yamlfixer`.
 
-Our answser could be a oneLiner (see #33) or a script anr rely on others [**single purpose**](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) third party tools
+Our answser could be a oneLiner (see #33) or a script and rely on others [**single purpose**](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) third party tools
