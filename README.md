@@ -1,4 +1,5 @@
 
+
 [![Docker Image](https://img.shields.io/badge/docker-homepage-blue)](https://hub.docker.com/r/optnc/yamlfixer)
 [![Kataocda scenario](https://img.shields.io/badge/katacoda-homepage-blue)](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer)
 
@@ -6,6 +7,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/yamlfixer-opt-nc)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/yamlfixer-opt-nc)
 
+![yamlfixer's logo](logos/candidates/1-64x64.png)
 
 # ❔ About
 
