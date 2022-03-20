@@ -444,16 +444,14 @@ class YAMLFixer:
     def listfixes(self):
         """List all the available fixes."""
         availablefixes = []
-        notfilefixer = FileFixer(self, "-")
-        notpbfixer = ProblemFixer(notfilefixer, 0, 0, "")
-        for methodname in [m for m in dir(notpbfixer) if m.startswith('fix_')]:
-            docstring = getattr(notpbfixer, methodname).__doc__
+        for methodname in [m for m in dir(ProblemFixer) if m.startswith('fix_')]:
+            docstring = getattr(ProblemFixer, methodname).__doc__
             for prob in [pb.strip()[2:] for pb in docstring.splitlines()[1:]]:
                 if prob:
                     availablefixes.append(prob)
         self.info("fixes:")
-        for f in sorted(availablefixes):
-            self.info(f"  - {f}")
+        for fixstr in sorted(availablefixes):
+            self.info(f"  - {fixstr}")
         return EXIT_OK
 
     def fix(self):
