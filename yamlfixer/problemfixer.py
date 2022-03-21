@@ -228,5 +228,8 @@ class ProblemFixer:
         if self.ffixer.lines[self.linenum-1][previndentation:].startswith("- "):
             # if previous line is a list item, indent like item itself
             previndentation += 2
+        elif self.ffixer.lines[self.linenum-1][previndentation:].startswith("-"):
+            # same as above, because yamllint allows no space before item
+            previndentation += 1
         self.ffixer.lines[self.linenum] = ' ' * previndentation + (left + right).lstrip()
         self.ffixer.coffset += previndentation - indentation
