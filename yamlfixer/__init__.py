@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 """yamlfixer automates the fixing of problems reported by yamllint
@@ -73,19 +74,33 @@ class ProblemFixer:
         """Make it callable."""
         for (fixerkey, methodname) in self.fixers.items():
             if self.problem.startswith(fixerkey):
-                # pylint: disable=line-too-long
-                self.ffixer.yfixer.debug(f"Calling {methodname} because [{fixerkey}] matches [{self.problem}]")
                 line = self.ffixer.lines[self.linenum]
                 left = line[:self.colnum]
                 right = line[self.colnum:]
+                pbdebug = f"{left}^{right}"
+                self.ffixer.yfixer.debug(f'Calling {methodname}("{left}", "{right}")')
                 getattr(self, methodname)(left, right)
                 return FIXER_HANDLED
-        self.ffixer.yfixer.debug(f"No handler found for [{self.problem}]")
+        self.ffixer.yfixer.debug(f"No handler found")
         return FIXER_UNHANDLED
 
     def get_indentation(self, offset=0):
         """Returns the indentation of the current (possibly offset) line."""
-        line = self.ffixer.lines[self.linenum + offset]
+        lnum = self.linenum
+        if offset:
+            direction = int(offset/abs(offset))
+            lnum += direction
+            try:
+                while offset:
+                    while (0 < lnum < len(self.ffixer.lines)) \
+                      and not self.ffixer.lines[lnum].strip():
+                        lnum += direction
+                    offset -= direction
+            except IndexError:
+                # We're past EOF, so just take the last line of the file
+                # which is most probably empty anyway...
+                lnum = -1
+        line = self.ffixer.lines[lnum]
         return len(line) - len(line.lstrip())
 
     #
@@ -375,12 +390,13 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
             for colnumber in sorted(linestofix[linenumber].keys()):
                 for problem in linestofix[linenumber][colnumber]:
                     # pylint: disable=line-too-long
-                    debuginfo = f"({linenumber}, {colnumber})/({self.loffset}, {self.coffset}) => {problem}"
+                    self.yfixer.debug(f"({linenumber}+{self.loffset}, {colnumber}+{self.coffset}) => [{problem}]")
                     handled = ProblemFixer(self, linenumber, colnumber, problem)()
                     if handled == FIXER_HANDLED:
                         self.issueshandled += 1
-                    # pylint: disable=line-too-long
-                    self.yfixer.debug(f"{((handled == FIXER_HANDLED) and 'HANDLED') or 'UNHANDLED'}: {debuginfo}")
+                        self.yfixer.debug(f"HANDLED: #{self.issueshandled}")
+                    else:
+                        self.yfixer.debug("UNHANDLED")
         return self.dump('\n'.join(self.lines) + '\n')
 
 
