@@ -149,7 +149,7 @@ echo $?
 
 - [`ytt`](https://carvel.dev/ytt/) : _"YAML templating tool that works on YAML structure (instead of text)."_
 - [`jq`](https://stedolan.github.io/jq/) : _"lightweight and flexible command-line JSON processor."_
-- [`vimdiff`](https://www.tutorialspoint.com/vim/vim_diff.htm)
+- [`vimdiff`](https://www.tutorialspoint.com/vim/vim_diff.htm) : _"edit two, three or four versions of a file with Vim and show differences"_
 - [`icdiff`](https://www.jefftk.com/icdiff) : _"improved colored diff "_
 - [`gomplate`](https://gomplate.ca/) : _"A flexible commandline tool for template rendering. Supports lots of local and remote datasources."_
 
