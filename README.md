@@ -145,6 +145,13 @@ so you can go further in automation :
 yamlfixer <bad.yml | yamllint --format parsable --strict -
 echo $?
 ```
+# 🧰 Single purpose tools worth knowing
+
+- [`ytt`](https://carvel.dev/ytt/) : _"YAML templating tool that works on YAML structure (instead of text)."_
+- [`jq`](https://stedolan.github.io/jq/) : _"lightweight and flexible command-line JSON processor."_
+- [`vimdiff`](https://www.tutorialspoint.com/vim/vim_diff.htm)
+- [`icdiff`](https://www.jefftk.com/icdiff) : _"improved colored diff "_
+- [`gomplate`](https://gomplate.ca/) : _"A flexible commandline tool for template rendering. Supports lots of local and remote datasources."_
 
 # 🔖 Related contents
 
