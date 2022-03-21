@@ -147,6 +147,7 @@ echo $?
 - [Dedicated Post explaining how we are using this project to automate `yaml` linting and fixing](https://dev.to/adriens/let-ci-check-fix-your-yamls-kfa)
 - [GH Action relying on this project](https://github.com/marketplace/actions/yaml-fixer)
 - [Dedicated Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer) so you can see it live
+- [Yamlfixer video intro (French, 15')](https://youtu.be/_FiVaMFITkI)
 
 # 📖 Licensing information
 
