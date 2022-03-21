@@ -16,6 +16,8 @@ of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
+[![asciicast](https://asciinema.org/a/478928.svg)](https://asciinema.org/a/478928)
+
 # 📑 Installation
 
 💡 **You can try the install process online thanks to the dedicated [Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
