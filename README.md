@@ -61,7 +61,6 @@ positional arguments:
 optional arguments:
   -h, --help          show this help message and exit
   -v, --version       display this program's version number and exit.
-  -b, --backup        make a backup copy of original files as `.orig`
   -b, --backup        make a backup copy of original files.
   -B BACKUPSUFFIX, --backupsuffix BACKUPSUFFIX
                       sets the suffix for backup files, `.orig` is
@@ -83,9 +82,10 @@ argument.
 If input is read from `stdin`, the corrected output will be sent to
 `stdout`.
 
-Other files will be overwritten if needed. Original files,
-`stdin` excepted, can be preserved as `.orig` if the `--backup`
-command line option is used.
+Other files will be overwritten if needed. Original files, `stdin`
+excepted, can be preserved as `.orig` if the `--backup` command line
+option is used. You can specify any other backup filename suffix with
+the `--backupsuffix` command line option.
 
 Both summaries and diagnostic information are sent to stderr.
 
