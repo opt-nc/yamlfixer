@@ -77,7 +77,6 @@ class ProblemFixer:
                 line = self.ffixer.lines[self.linenum]
                 left = line[:self.colnum]
                 right = line[self.colnum:]
-                pbdebug = f"{left}^{right}"
                 self.ffixer.yfixer.debug(f'Calling {methodname}("{left}", "{right}")')
                 getattr(self, methodname)(left, right)
                 return FIXER_HANDLED
