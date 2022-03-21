@@ -14,14 +14,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""yamlfixer automates the fixing of problems reported by yamllint
-by feeding it with files and parsing its output."""
+"""Constants for yamlfixer."""
 
-import time
+FIX_PASSEDLINTER = 0
+FIX_MODIFIED = 1
+FIX_SKIPPED = 2
+FIX_PERMERROR = 3
 
-__version__ = "0.4.0"
-__author__ = "OPT-NC"
-__license__ = "GPLv3+"
-__copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
-                                                            time.localtime(time.time())),
-                                              __author__)
+FIXER_UNHANDLED = -1
+FIXER_HANDLED = 0
+
+EXIT_OK = 0
+EXIT_NOK = -1
+EXIT_PROBLEM = -2
