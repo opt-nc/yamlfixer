@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,6 +21,7 @@ import sys
 import argparse
 
 from . import __version__, __copyright__
+from .constants import EXIT_CMDLINEERROR
 from .yamlfixer import YAMLFixer
 
 GPLBLURB = """
@@ -45,7 +47,7 @@ def run():
 
     # Parse the command line arguments
     cmdline = argparse.ArgumentParser(description="Fix formatting problems in YAML documents. "
-                                      "If no file is specified,\nthen reads input from `stdin`.",
+                                      "If no file is specified, then reads input from `stdin`.",
                                       epilog=f"{__copyright__}\n{GPLBLURB}",
                                       formatter_class=argparse.RawDescriptionHelpFormatter)
     cmdline.add_argument("-v", "--version",
@@ -54,7 +56,10 @@ def run():
                          help="display this program's version number and exit.")
     cmdline.add_argument("-b", "--backup",
                          action="store_true",
-                         help="make a backup copy of original files as `.orig`")
+                         help="make a backup copy of original files.")
+    cmdline.add_argument("-B", "--backupsuffix",
+                         default=".orig",
+                         help="sets the suffix for backup files, `%(default)s` is the default.")
     cmdline.add_argument("-d", "--debug",
                          action="store_true",
                          help="output debug information to stderr.")
@@ -80,6 +85,9 @@ def run():
     if cmdline.prog == "__main__.py":
         cmdline.prog = "yamlfixer"
     arguments = cmdline.parse_args()
+    if arguments.backupsuffix and not arguments.backup:
+        sys.stderr.write("ERROR: Option -B|--backupsuffix requires -b|--backup\n")
+        return EXIT_CMDLINEERROR
     if arguments.listfixes:
         return YAMLFixer(arguments).listfixes()
     return YAMLFixer(arguments).fix()

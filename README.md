@@ -44,7 +44,7 @@ This software automatically fixes some errors and warnings reported by
 `yamllint`.
 
 ```shell
-usage: yamlfixer [-h] [-v] [-b] [-d] [-j | -p | -s] [file [file ...]]
+usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-j | -p | -s] [file [file ...]]
 
 Fix formatting problems in YAML documents. If no file is specified,
 then reads input from `stdin`.
@@ -56,6 +56,10 @@ optional arguments:
   -h, --help          show this help message and exit
   -v, --version       display this program's version number and exit.
   -b, --backup        make a backup copy of original files as `.orig`
+  -b, --backup        make a backup copy of original files.
+  -B BACKUPSUFFIX, --backupsuffix BACKUPSUFFIX
+                      sets the suffix for backup files, `.orig` is
+                      the default.
   -d, --debug         output debug information to stderr.
   -l, --listfixes     output the list of available fixes.
   -j, --jsonsummary   output JSON summary to stderr.
@@ -79,7 +83,8 @@ command line option is used.
 
 Both summaries and diagnostic information are sent to stderr.
 
-This command exits with `-2` if yamllint is not available on your
+This command exits with `-3` if there are incompatible command line
+options. It exits with `-2` if yamllint is not available on your
 system. Otherwise it exits with `0` if all input files either are
 skipped or successfully pass `yamllint` strict mode, else `-1`.
 

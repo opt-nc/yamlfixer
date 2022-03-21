@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #
 # This program is free software: you can redistribute it and/or modify
@@ -27,3 +28,4 @@ FIXER_HANDLED = 0
 EXIT_OK = 0
 EXIT_NOK = -1
 EXIT_PROBLEM = -2
+EXIT_CMDLINEERROR = -3

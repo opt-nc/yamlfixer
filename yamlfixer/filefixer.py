@@ -110,7 +110,8 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
                 if self.yfixer.arguments.backup: # pylint: disable=no-member
                     # Try to make a backup of the original file
                     try:
-                        os.replace(self.filename, f"{self.filename}.orig")
+                        os.replace(self.filename,
+                                   f"{self.filename}{self.yfixer.arguments.backupsuffix}")
                     except PermissionError as msg:
                         self.yfixer.error(f"impossible to create a backup : {msg}")
                 # Overwrite the original file with the new contents
