@@ -85,9 +85,6 @@ def run():
     if cmdline.prog == "__main__.py":
         cmdline.prog = "yamlfixer"
     arguments = cmdline.parse_args()
-    if arguments.backupsuffix and not arguments.backup:
-        sys.stderr.write("ERROR: Option -B|--backupsuffix requires -b|--backup\n")
-        return EXIT_CMDLINEERROR
     if arguments.listfixes:
         return YAMLFixer(arguments).listfixes()
     return YAMLFixer(arguments).fix()
