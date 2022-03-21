@@ -16,6 +16,10 @@ of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
+# Demo
+
+Click on the white triangle in the image below to view a short video demonstration:
+
 [![asciicast](https://asciinema.org/a/478928.svg)](https://asciinema.org/a/478928)
 
 # 📑 Installation
