@@ -89,16 +89,16 @@ class YAMLFixer:
                                                       }
             self.info(json.dumps(summarymapping, indent=4))
 
-    def listfixes(self):
-        """List all the available fixes."""
-        availablefixes = []
+    def listfixers(self):
+        """List all the available fixers."""
+        availablefixers = []
         for methodname in [m for m in dir(ProblemFixer) if m.startswith('fix_')]:
             docstring = getattr(ProblemFixer, methodname).__doc__
             for prob in [pb.strip()[2:] for pb in docstring.splitlines()[1:]]:
                 if prob:
-                    availablefixes.append(prob)
-        self.info("fixes:")
-        for fixstr in sorted(availablefixes):
+                    availablefixers.append(prob)
+        self.info("fixers:")
+        for fixstr in sorted(availablefixers):
             self.info(f"  - {fixstr}")
         return EXIT_OK
 

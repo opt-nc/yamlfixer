@@ -63,9 +63,9 @@ def run():
     cmdline.add_argument("-d", "--debug",
                          action="store_true",
                          help="output debug information to stderr.")
-    cmdline.add_argument("-l", "--listfixes",
+    cmdline.add_argument("-l", "--listfixers",
                          action="store_true",
-                         help="output the list of available fixes.")
+                         help="output the list of available fixers.")
     mutuallyexclusive = cmdline.add_mutually_exclusive_group()
     mutuallyexclusive.add_argument("-j", "--jsonsummary",
                                    action="store_true",
@@ -90,9 +90,10 @@ def run():
     if cmdline.prog == "__main__.py":
         cmdline.prog = "yamlfixer"
     arguments = cmdline.parse_args()
-    if arguments.listfixes:
-        return YAMLFixer(arguments).listfixes()
-    return YAMLFixer(arguments).fix()
+    yfixer = YAMLFixer(arguments)
+    if arguments.listfixers:
+        return yfixer.listfixers()
+    return yfixer.fix()
 
 if __name__ == '__main__':
     sys.exit(run())
