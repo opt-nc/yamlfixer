@@ -66,7 +66,7 @@ optional arguments:
                       sets the suffix for backup files, `.orig` is
                       the default.
   -d, --debug         output debug information to stderr.
-  -l, --listfixes     output the list of available fixes.
+  -l, --listfixers    output the list of available fixers.
   -j, --jsonsummary   output JSON summary to stderr.
   -p, --plainsummary  output plain text summary to stderr.
   -s, --summary       output colored plain text summary to stderr.
@@ -96,6 +96,10 @@ This command exits with `-3` if there are incompatible command line
 options. It exits with `-2` if yamllint is not available on your
 system. Otherwise it exits with `0` if all input files either are
 skipped or successfully pass `yamllint` strict mode, else `-1`.
+
+For convenience, all or parts of the command line arguments can be
+read from a file, one per line, by using the well known `@argsfile`
+syntax.
 
 **IMPORTANT:** Not all problems are fixable by `yamlfixer`. Due to the
 fact that `yamllint` doesn't currently report all faulty lines,
