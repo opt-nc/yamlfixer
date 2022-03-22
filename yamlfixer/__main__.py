@@ -48,6 +48,7 @@ def run():
     cmdline = argparse.ArgumentParser(description="Fix formatting problems in YAML documents. "
                                       "If no file is specified, then reads input from `stdin`.",
                                       epilog=f"{__copyright__}\n{GPLBLURB}",
+                                      fromfile_prefix_chars="@",
                                       formatter_class=argparse.RawDescriptionHelpFormatter)
     cmdline.add_argument("-v", "--version",
                          action="version",
