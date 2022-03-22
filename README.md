@@ -50,7 +50,7 @@ This software automatically fixes some errors and warnings reported by
 `yamllint`.
 
 ```shell
-usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-j | -p | -s] [file [file ...]]
+usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-j | -p | -s] [-t TABSIZE] [file [file ...]]
 
 Fix formatting problems in YAML documents. If no file is specified,
 then reads input from `stdin`.
@@ -72,6 +72,9 @@ optional arguments:
   -s, --summary       output colored plain text summary to stderr.
                       If stderr is not a TTY output is identical to
                       --plainsummary.
+  -t TABSIZE, --tabsize TABSIZE
+                      sets the number of spaces to replace tabs with,
+                      default is 2.
 ```
 
 yamlfixer launches `yamllint` on each specified filename, then parses

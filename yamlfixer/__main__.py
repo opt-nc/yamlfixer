@@ -21,7 +21,6 @@ import sys
 import argparse
 
 from . import __version__, __copyright__
-from .constants import EXIT_CMDLINEERROR
 from .yamlfixer import YAMLFixer
 
 GPLBLURB = """
@@ -77,6 +76,11 @@ def run():
                                    action="store_true",
                                    help="output colored plain text summary to stderr. "
                                    "If stderr is not a TTY output is identical to --plainsummary.")
+    cmdline.add_argument("-t", "--tabsize",
+                         type=int,
+                         default=2,
+                         help="sets the number of spaces to replace tabs "
+                         "with, default is %(default)i.")
     cmdline.add_argument("filenames",
                          nargs="*",
                          metavar="file",

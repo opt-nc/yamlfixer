@@ -133,14 +133,13 @@ class ProblemFixer:
         del self.ffixer.lines[self.linenum - nblines + 1:self.linenum + 1]
         self.ffixer.loffset -= nblines
 
-    def fix_syntax_tabchar(self, left, right):
+    def fix_syntax_tabchar(self, left, right): # pylint: disable=unused-argument
         """Fix:
              - syntax error: found character '\\t' that cannot start any token (syntax)
         """
-        # TODO: We replace TAB with a single space for now
-        # TODO: yamllint only reports the first one
-        # TODO: use expandtabs after reading indentation size from .yamllint if possible
-        self.ffixer.lines[self.linenum] = left + ' ' + right[1:]
+        line = self.ffixer.lines[self.linenum][:]
+        self.ffixer.lines[self.linenum] = line.expandtabs(self.ffixer.yfixer.arguments.tabsize)
+        self.ffixer.coffset += len(self.ffixer.lines[self.linenum]) - len(line)
 
     def fix_missingspace(self, left, right):
         """Fix:
