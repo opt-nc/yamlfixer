@@ -7,7 +7,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/yamlfixer-opt-nc)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/yamlfixer-opt-nc)
 
-# ![yamlfixer's logo](logo/candidates/1-64x64.png) yamlfixer
+# ![yamlfixer's logo](logo/candidates/1-64x64.png) `yamlfixer`
 
 # ❔ About
 
