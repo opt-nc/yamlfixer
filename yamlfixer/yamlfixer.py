@@ -62,7 +62,7 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
         """Output some statistics."""
         if self.arguments.summary or self.arguments.plainsummary:
             self.info(f"Files to fix: {len(self.arguments.filenames)}")
-            self.info(f"{self.passed} files successfully passed yamllint strict mode")
+            self.info(f"{self.passed} files were already correct before")
             self.info(f"{self.modified} files were modified but problems remain")
             self.info(f"{self.fixed} files were entirely fixed")
             self.info(f"{self.skipped} files were skipped")
@@ -108,7 +108,7 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
             for prob in [pb.strip()[2:] for pb in docstring.splitlines()[1:]]:
                 if prob:
                     availablefixers.append(prob)
-        self.info("fixers:")
+        self.info("Fixers:")
         for fixstr in sorted(availablefixers):
             self.info(f"  - {fixstr}")
         return EXIT_OK
