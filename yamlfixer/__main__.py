@@ -54,9 +54,10 @@ def run():
                          action="version",
                          version=f"yamlfixer v{__version__}",
                          help="display this program's version number and exit.")
-    cmdline.add_argument("-b", "--backup",
-                         action="store_true",
-                         help="make a backup copy of original files.")
+    mutuallyexclusive = cmdline.add_mutually_exclusive_group()
+    mutuallyexclusive.add_argument("-b", "--backup",
+                                   action="store_true",
+                                   help="make a backup copy of original files.")
     cmdline.add_argument("-B", "--backupsuffix",
                          default=".orig",
                          help="sets the suffix for backup files, `%(default)s` is the default.")
@@ -66,6 +67,9 @@ def run():
     cmdline.add_argument("-l", "--listfixers",
                          action="store_true",
                          help="output the list of available fixers.")
+    mutuallyexclusive.add_argument("-n", "--nochange",
+                                   action="store_true",
+                                   help="don't modify anything.")
     mutuallyexclusive = cmdline.add_mutually_exclusive_group()
     mutuallyexclusive.add_argument("-j", "--jsonsummary",
                                    action="store_true",

@@ -67,6 +67,7 @@ optional arguments:
                       the default.
   -d, --debug         output debug information to stderr.
   -l, --listfixers    output the list of available fixers.
+  -n, --nochange      don't modify anything.
   -j, --jsonsummary   output JSON summary to stderr.
   -p, --plainsummary  output plain text summary to stderr.
   -s, --summary       output colored plain text summary to stderr.

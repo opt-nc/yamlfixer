@@ -73,6 +73,12 @@ class YAMLFixer:
                 if self.arguments.summary and sys.stderr.isatty():
                     status = f"\033[{COLORSEQ.get(status.strip(), '0m')}{status}\033[0m"
                 self.info(f"{status} {filename}{msg}")
+            if self.arguments.nochange:
+                message = "WARNING: No file was modified per user's request !"
+                if self.arguments.summary and sys.stderr.isatty():
+                    self.info(f"\033[38;2;255;0;0m{message}\033[0m")
+                else:
+                    self.info(f"{message}")
         elif self.arguments.jsonsummary:
             summarymapping = {"filestofix": len(self.arguments.filenames),
                               "passedstrictmode": self.passed,
@@ -81,6 +87,7 @@ class YAMLFixer:
                               "notwriteable": self.permerrors,
                               "unknown": self.unknown,
                               "details": {},
+                              "nochangemode": self.arguments.nochange,
                              }
             for (status, filename, issues, handled) in self.summary:
                 summarymapping["details"][filename] = {"status": status.strip(),

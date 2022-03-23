@@ -102,24 +102,31 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
             retcode = FIX_SKIPPED
         else:
             retcode = FIX_MODIFIED
-        if self.filename == '-': # Always dump to stdout in this case
-            sys.stdout.write(self.shebang + (outcontents or ''))
-            sys.stdout.flush()
-        elif retcode == FIX_MODIFIED: # Don't write unnecessarily
-            try:
-                if self.yfixer.arguments.backup: # pylint: disable=no-member
-                    # Try to make a backup of the original file
-                    try:
-                        os.replace(self.filename,
-                                   f"{self.filename}{self.yfixer.arguments.backupsuffix}")
-                    except PermissionError as msg:
-                        self.yfixer.error(f"impossible to create a backup : {msg}")
-                # Overwrite the original file with the new contents
-                with open(self.filename, 'w') as yamlfile:
-                    yamlfile.write(self.shebang + (outcontents or ''))
-            except PermissionError as msg:
-                self.yfixer.error(f"impossible to save fixed contents : {msg}")
-                retcode = FIX_PERMERROR
+        if self.yfixer.arguments.nochange:
+            # We don't want to modify anything
+            if self.filename == '-': # Always dump original input to stdout in this case
+                sys.stdout.write(self.shebang + (self.incontents or ''))
+                sys.stdout.flush()
+        else:
+            # It seems we really want to fix things.
+            if self.filename == '-': # Always dump to stdout in this case
+                sys.stdout.write(self.shebang + (outcontents or ''))
+                sys.stdout.flush()
+            elif retcode == FIX_MODIFIED: # Don't write unnecessarily
+                try:
+                    if self.yfixer.arguments.backup: # pylint: disable=no-member
+                        # Try to make a backup of the original file
+                        try:
+                            os.replace(self.filename,
+                                       f"{self.filename}{self.yfixer.arguments.backupsuffix}")
+                        except PermissionError as msg:
+                            self.yfixer.error(f"impossible to create a backup : {msg}")
+                    # Overwrite the original file with the new contents
+                    with open(self.filename, 'w') as yamlfile:
+                        yamlfile.write(self.shebang + (outcontents or ''))
+                except PermissionError as msg:
+                    self.yfixer.error(f"impossible to save fixed contents : {msg}")
+                    retcode = FIX_PERMERROR
         return retcode
 
     def fix(self):

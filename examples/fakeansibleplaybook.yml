@@ -1,0 +1,7 @@
+#!/usr/bin/ansible-playbook
+
+# Fake ansible playbook
+- name : reload daemon
+  systemd:
+    name: "{{ mydaemon }}"
+   state: reloaded
