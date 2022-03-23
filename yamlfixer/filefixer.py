@@ -20,7 +20,7 @@ import sys
 import os
 import subprocess
 
-from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_SKIPPED, FIX_PERMERROR
+from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
 from .constants import EXIT_PROBLEM
 
@@ -28,7 +28,7 @@ from .problemfixer import ProblemFixer
 
 LINTERCOMMAND = 'yamllint --format parsable --strict -'
 
-class FileFixer: # pylint: disable=too-many-instance-attributes
+class FileFixer:  # pylint: disable=too-many-instance-attributes
     """To hold file fixing logic."""
     def __init__(self, yamlfixer, filename):
         """Initialize a file to fix."""
@@ -61,13 +61,13 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
                 del problemlines[1]
                 self.issues -= 1
             except KeyError:
-                pass # No problem reported on shebang line by yamllint
+                pass  # No problem reported on shebang line by yamllint
             # This line won't ever see the fixer so all subsequent lines must be offset by -1
             self.loffset = -1
 
         return problemlines
 
-    def lint(self):
+    def lint(self, contents=None):
         """Launches the linter on a file's contents.
 
            Returns the (linter's exitcode, linter's stdout) tuple.
@@ -77,7 +77,7 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
                                 capture_output=True,
                                 text=True,
                                 check=False,
-                                input=self.incontents,
+                                input=(contents or self.incontents),
                                 encoding='utf-8')
         return (linter.returncode, linter.stdout)
 
@@ -102,19 +102,20 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
             retcode = FIX_SKIPPED
         else:
             retcode = FIX_MODIFIED
+        finaloutput = self.shebang + (outcontents or '')
         if self.yfixer.arguments.nochange:
             # We don't want to modify anything
-            if self.filename == '-': # Always dump original input to stdout in this case
+            if self.filename == '-':  # Always dump original input to stdout in this case
                 sys.stdout.write(self.shebang + (self.incontents or ''))
                 sys.stdout.flush()
         else:
             # It seems we really want to fix things.
-            if self.filename == '-': # Always dump to stdout in this case
-                sys.stdout.write(self.shebang + (outcontents or ''))
+            if self.filename == '-':  # Always dump to stdout in this case
+                sys.stdout.write(finaloutput)
                 sys.stdout.flush()
-            elif retcode == FIX_MODIFIED: # Don't write unnecessarily
+            elif retcode == FIX_MODIFIED:  # Don't write unnecessarily
                 try:
-                    if self.yfixer.arguments.backup: # pylint: disable=no-member
+                    if self.yfixer.arguments.backup:  # pylint: disable=no-member
                         # Try to make a backup of the original file
                         try:
                             os.replace(self.filename,
@@ -123,10 +124,18 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
                             self.yfixer.error(f"impossible to create a backup : {msg}")
                     # Overwrite the original file with the new contents
                     with open(self.filename, 'w') as yamlfile:
-                        yamlfile.write(self.shebang + (outcontents or ''))
+                        yamlfile.write(finaloutput)
                 except PermissionError as msg:
-                    self.yfixer.error(f"impossible to save fixed contents : {msg}")
+                    self.yfixer.error(f"impossible to save modified contents : {msg}")
                     retcode = FIX_PERMERROR
+
+        # We've successfully modified the file, so we lint its new contents
+        if retcode == FIX_MODIFIED:
+            (ltexitcode, _) = self.lint(finaloutput)
+            if not ltexitcode:
+                # We know we have succesfully fixed the file
+                # because it now passes yamlllint's strict mode.
+                retcode = FIX_FIXED
         return retcode
 
     def fix(self):
@@ -143,7 +152,7 @@ class FileFixer: # pylint: disable=too-many-instance-attributes
         if not ltexitcode:
             self.dump(self.incontents)
             return FIX_PASSEDLINTER
-        if ltexitcode == 127: # yamllint not found !
+        if ltexitcode == 127:  # yamllint not found !
             self.yfixer.error("yamllint is not in your PATH, please ensure it's installed.")
             sys.exit(EXIT_PROBLEM)
 

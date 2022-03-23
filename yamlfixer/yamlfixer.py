@@ -20,30 +20,32 @@ import sys
 import os
 import json
 
-from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_SKIPPED, FIX_PERMERROR
+from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import EXIT_OK, EXIT_NOK
 from .filefixer import FileFixer
 from .problemfixer import ProblemFixer
 
 COLORSEQ = {"PASSED": "38;2;0;255;0m",
             "MODIFIED": "38;2;0;0;255m",
+            "FIXED": "38;2;0;255;0m",
             "SKIPPED": "38;2;255;0;255m",
             "ERROR": "38;2;255;0;0m",
             "UNKNOWN": "38;2;255;255;0m",
            }
 
-class YAMLFixer:
+class YAMLFixer:  # pylint: disable=too-many-instance-attributes
     """To hold files fixing logic."""
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
         self.arguments = arguments
         self.passed = self.modified \
+            = self.fixed \
             = self.skipped \
             = self.permerrors \
             = self.unknown = 0
         self.summary = []
 
-    def info(self, message): # pylint: disable=no-self-use
+    def info(self, message):  # pylint: disable=no-self-use
         """Output an informational message to stderr."""
         sys.stderr.write(f"{message}\n")
 
@@ -52,7 +54,7 @@ class YAMLFixer:
         if self.arguments.debug:
             sys.stderr.write(f"DEBUG: {message}\n")
 
-    def error(self, message): # pylint: disable=no-self-use
+    def error(self, message):  # pylint: disable=no-self-use
         """Output an error message to stderr."""
         sys.stderr.write(f"ERROR: {message}\n")
 
@@ -61,7 +63,8 @@ class YAMLFixer:
         if self.arguments.summary or self.arguments.plainsummary:
             self.info(f"Files to fix: {len(self.arguments.filenames)}")
             self.info(f"{self.passed} files successfully passed yamllint strict mode")
-            self.info(f"{self.modified} files were modified")
+            self.info(f"{self.modified} files were modified but problems remain")
+            self.info(f"{self.fixed} files were entirely fixed")
             self.info(f"{self.skipped} files were skipped")
             self.info(f"{self.permerrors} files were not writeable")
             self.info(f"{self.unknown} files with unknown status")
@@ -83,6 +86,7 @@ class YAMLFixer:
             summarymapping = {"filestofix": len(self.arguments.filenames),
                               "passedstrictmode": self.passed,
                               "modified": self.modified,
+                              "fixed": self.fixed,
                               "skipped": self.skipped,
                               "notwriteable": self.permerrors,
                               "unknown": self.unknown,
@@ -117,7 +121,6 @@ class YAMLFixer:
             else:
                 absfilename = os.path.abspath(filename)
             filetofix = FileFixer(self, filename)
-            # pylint: disable=no-member
             self.debug(f"Fixing {absfilename} ... ")
             status = filetofix.fix()
             if status == FIX_PASSEDLINTER:
@@ -128,6 +131,10 @@ class YAMLFixer:
                 self.debug(f"was modified.")
                 txtstatus = "MODIFIED"
                 self.modified += 1
+            elif status == FIX_FIXED:
+                self.debug(f"was fixed.")
+                txtstatus = "   FIXED"
+                self.fixed += 1
             elif status == FIX_SKIPPED:
                 self.debug(f"was skipped.")
                 txtstatus = " SKIPPED"
@@ -146,6 +153,6 @@ class YAMLFixer:
                                  filetofix.issueshandled))
 
         self.statistics()
-        if (self.passed + self.skipped) == len(self.arguments.filenames):
+        if (self.passed + self.skipped + self.fixed) == len(self.arguments.filenames):
             return EXIT_OK
         return EXIT_NOK

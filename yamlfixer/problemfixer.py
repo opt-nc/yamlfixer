@@ -77,14 +77,14 @@ class ProblemFixer:
     # warning/error level.
     #
 
-    def fix_missing_docstart(self, left, right): # pylint: disable=unused-argument
+    def fix_missing_docstart(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - missing document start
         """
         self.ffixer.lines.insert(0, '---')
         self.ffixer.loffset += 1
 
-    def fix_newlineateof(self, left, right): # pylint: disable=unused-argument,no-self-use
+    def fix_newlineateof(self, left, right):  # pylint: disable=unused-argument,no-self-use
         """Fix:
              - no new line character at the end of file
         """
@@ -122,7 +122,7 @@ class ProblemFixer:
         # No need to adjust coffset because we are at EOL by definition
         self.ffixer.lines[self.linenum] = (left + right).rstrip()
 
-    def fix_toomany_blanklines(self, left, right): # pylint: disable=unused-argument
+    def fix_toomany_blanklines(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - too many blank lines
         """
@@ -133,7 +133,7 @@ class ProblemFixer:
         del self.ffixer.lines[self.linenum - nblines + 1:self.linenum + 1]
         self.ffixer.loffset -= nblines
 
-    def fix_syntax_tabchar(self, left, right): # pylint: disable=unused-argument
+    def fix_syntax_tabchar(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - syntax error: found character '\\t' that cannot start any token (syntax)
         """
@@ -207,7 +207,7 @@ class ProblemFixer:
             self.ffixer.lines[self.linenum] = (left + right)[-offset:]
         self.ffixer.coffset += offset
 
-    def fix_linetoolong(self, left, right): # pylint: disable=unused-argument
+    def fix_linetoolong(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - line too long
         """

@@ -96,7 +96,8 @@ Both summaries and diagnostic information are sent to stderr.
 This command exits with status `2` if there are incompatible command
 line options. It exits with `-2` if yamllint is not available on your
 system. Otherwise it exits with `0` if all input files either are
-skipped or successfully pass `yamllint` strict mode, else `-1`.
+skipped, entirely fixed, or already successfully passed `yamllint`
+strict mode before, else `-1`.
 
 For convenience, all or parts of the command line arguments can be
 read from a file, one per line, by using the well known `@argsfile`
@@ -131,6 +132,7 @@ So you can get a nicely colored (and validated `json` output) :
   "filestofix": 1,
   "passedstrictmode": 1,
   "modified": 0,
+  "fixed": 0,
   "skipped": 0,
   "notwriteable": 0,
   "unknown": 0,
@@ -140,7 +142,8 @@ So you can get a nicely colored (and validated `json` output) :
       "issues": 0,
       "handled": 0
     }
-  }
+  },
+  "nochangemode": false
 }
 ```
 

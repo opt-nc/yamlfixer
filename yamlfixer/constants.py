@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,8 +18,9 @@
 
 FIX_PASSEDLINTER = 0
 FIX_MODIFIED = 1
-FIX_SKIPPED = 2
-FIX_PERMERROR = 3
+FIX_FIXED = 2
+FIX_SKIPPED = 3
+FIX_PERMERROR = 4
 
 FIXER_UNHANDLED = -1
 FIXER_HANDLED = 0
