@@ -93,8 +93,8 @@ the `--backupsuffix` command line option.
 
 Both summaries and diagnostic information are sent to stderr.
 
-This command exits with `-3` if there are incompatible command line
-options. It exits with `-2` if yamllint is not available on your
+This command exits with status `2` if there are incompatible command
+line options. It exits with `-2` if yamllint is not available on your
 system. Otherwise it exits with `0` if all input files either are
 skipped or successfully pass `yamllint` strict mode, else `-1`.
 
