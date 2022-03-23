@@ -79,9 +79,9 @@ optional arguments:
 ```
 
 yamlfixer launches `yamllint` on each specified filename, then parses
-its output and try to fix the reported problems. The special filename
-`-` means `stdin`, and is assumed if there's no other filename
-argument.
+its output and tries to fix the reported problems. The special
+filename `-` means `stdin`, and is assumed if there's no other
+filename argument.
 
 If input is read from `stdin`, the corrected output will be sent to
 `stdout`.
