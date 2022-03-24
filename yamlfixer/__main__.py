@@ -17,6 +17,7 @@
 """Execute yamlfixer from the command line."""
 
 import sys
+import os
 import argparse
 
 from . import __version__, __copyright__
