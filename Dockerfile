@@ -6,5 +6,3 @@ RUN pip install --upgrade pip
 RUN pip install yamlfixer-opt-nc
 
 ENV PATH="/home/worker/.local/bin:${PATH}"
-ENV GITHUB_ACTIONS="true"
-ENV CI="true"
