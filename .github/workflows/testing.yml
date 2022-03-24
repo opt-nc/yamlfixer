@@ -1,0 +1,14 @@
+---
+name: Some testing
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches: main
+
+jobs:
+  print_environment:
+    name: Print action's environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print it
+        run: printenv
