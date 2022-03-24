@@ -170,6 +170,7 @@ echo $?
 - [GH Action relying on this project](https://github.com/marketplace/actions/yaml-fixer)
 - [Dedicated Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer) so you can see it live
 - [Yamlfixer video intro (French, 15')](https://youtu.be/_FiVaMFITkI)
+- [From `cli` to community DEV.to blog post](https://dev.to/adriens/we-wanted-to-create-a-tool-to-fix-yamlsthen-we-got-a-community-42ji) to better understand `yamlfixer inception, history`and roadmap
 
 # 📖 Licensing information
 
