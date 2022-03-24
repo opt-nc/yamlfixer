@@ -40,7 +40,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 def run():
     """Main function."""
     # Ensure we read from stdin in case it's redirected
-    if ("-" not in sys.argv[1:]) and not sys.stdin.isatty():
+    # We add some additional checks because GitHub actions don't
+    # provide a TTY
+    if ("-" not in sys.argv[1:]) \
+       and not sys.stdin.isatty() \
+       and not os.environ.get("GITHUB_ACTIONS") \
+       and not os.environ.get("CI"):
         sys.argv.append("-")
 
     # Parse the command line arguments
