@@ -95,7 +95,7 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                     self.incontents = yamlfile.read()
             except FileNotFoundError as msg:
                 self.yfixer.error(f"{msg}")
-            except UnicodeDecodeError as msg:
+            except (UnicodeDecodeError, IsADirectoryError) as msg:
                 self.yfixer.error(f"{self.filename} doesn't seem to be YAML : {msg}")
 
     def dump(self, outcontents):
