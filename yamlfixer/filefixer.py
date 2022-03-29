@@ -20,6 +20,8 @@ import sys
 import os
 import subprocess
 
+import magic
+
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
 from .constants import EXIT_PROBLEM
@@ -27,6 +29,17 @@ from .constants import EXIT_PROBLEM
 from .problemfixer import ProblemFixer
 
 LINTERCOMMAND = 'yamllint --format parsable --strict -'
+ALLOWEDMIMETYPES = ["text/plain",
+                    "text/vnd.yaml",
+                    "text/yaml",
+                    "text/x-yaml",
+                    "application/yaml",
+                    "application/x-yaml",
+                   ]
+
+
+class NotYAMLError(Exception):
+    """An exception for files which can't be YAML formatted because of their mime type."""
 
 class FileFixer:  # pylint: disable=too-many-instance-attributes
     """To hold file fixing logic."""
@@ -83,20 +96,30 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
 
     def load(self):
         """Loads the input file's contents."""
-        if self.filename == '-':
-            try:
-                self.incontents = sys.stdin.read()
-            except KeyboardInterrupt:
-                self.yfixer.error("\nInterrupted at user's request.")
-                self.incontents = ""
-        else:
-            try:
-                with open(self.filename, 'r') as yamlfile:
-                    self.incontents = yamlfile.read()
-            except FileNotFoundError as msg:
-                self.yfixer.error(f"{msg}")
-            except (UnicodeDecodeError, IsADirectoryError) as msg:
-                self.yfixer.error(f"{self.filename} doesn't seem to be YAML : {msg}")
+        try:
+            if self.filename == '-':
+                try:
+                    self.incontents = sys.stdin.read()
+                except KeyboardInterrupt:
+                    self.yfixer.error("\nInterrupted at user's request.")
+                    self.incontents = ""  # Initialized but empty
+                else:
+                    mimetype = magic.from_buffer(self.incontents, mime=True)
+                    if mimetype not in ALLOWEDMIMETYPES:
+                        self.incontents = ""  # Empty it
+                        raise NotYAMLError(mimetype)
+            else:
+                try:
+                    with open(self.filename, 'r') as yamlfile:
+                        mimetype = magic.from_file(self.filename, mime=True)
+                        if mimetype in ALLOWEDMIMETYPES:
+                            self.incontents = yamlfile.read()
+                        else:
+                            raise NotYAMLError(mimetype)
+                except FileNotFoundError as msg:
+                    self.yfixer.error(f"{msg}")
+        except (UnicodeDecodeError, IsADirectoryError, NotYAMLError) as msg:
+            self.yfixer.error(f"{self.filename} doesn't seem to be YAML : {msg}")
 
     def dump(self, outcontents):
         """Dumps the new file's contents."""
