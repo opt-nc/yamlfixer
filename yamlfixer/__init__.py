@@ -19,7 +19,7 @@ by feeding it with files and parsing its output."""
 
 import time
 
-__version__ = "0.4.9"
+__version__ = "0.5.0"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",

@@ -38,12 +38,32 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
         self.arguments = arguments
+        self.extensions = [".%s" % e.strip() for e in self.arguments.ext.split(",")]
         self.passed = self.modified \
             = self.fixed \
             = self.skipped \
             = self.permerrors \
             = self.unknown = 0
         self.summary = []
+        # Generate the list of unique filenames we'll be working on
+        self.filenames = []
+        for name in self.arguments.filenames:
+            # os.path.isdir() returns False instead of raising an exception
+            # if we don't have sufficient permissions, so we have to do
+            # a workaround to skip such directories
+            try:
+                os.path.getsize(name)
+            except PermissionError:
+                pass
+            except FileNotFoundError:
+                if name == "-":  # For <stdin>
+                    self.filenames.append(name)
+            else:
+                if os.path.isdir(name):
+                    self.recurse(name)
+                else:
+                    self.filenames.append(os.path.abspath(name))
+        self.filenames = sorted(set(self.filenames))
 
     def info(self, message):  # pylint: disable=no-self-use
         """Output an informational message to stderr."""
@@ -58,10 +78,31 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
         """Output an error message to stderr."""
         sys.stderr.write(f"ERROR: {message}\n")
 
+    def matchesext(self, filename):
+        """Returns True if filename matches the set of extensions, else False."""
+        for ext in self.extensions:
+            if filename.endswith(ext):
+                return True
+        return False
+
+    def recurse(self, path, level=0):
+        """Find all files in a directory recursively."""
+        self.debug(f"SCAN [{path}] at level {level} with limit {self.arguments.recurse}\n")
+        if (self.arguments.recurse < 0) or (level <= self.arguments.recurse):
+            with os.scandir(path) as dircontents:
+                for entry in dircontents:
+                    try:
+                        if entry.is_file() and self.matchesext(entry.name):
+                            self.filenames.append(os.path.abspath(entry.path))
+                        elif entry.is_dir(follow_symlinks=False):
+                            self.recurse(entry.path, level+1)
+                    except PermissionError:
+                        pass
+
     def statistics(self):
         """Output some statistics."""
         if self.arguments.summary or self.arguments.plainsummary:
-            self.info(f"Files to fix: {len(self.arguments.filenames)}")
+            self.info(f"Files to fix: {len(self.filenames)}")
             self.info(f"{self.passed} files were already correct before")
             self.info(f"{self.modified} files were modified but problems remain")
             self.info(f"{self.fixed} files were entirely fixed")
@@ -83,7 +124,7 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                 else:
                     self.info(f"{message}")
         elif self.arguments.jsonsummary:
-            summarymapping = {"filestofix": len(self.arguments.filenames),
+            summarymapping = {"filestofix": len(self.filenames),
                               "passedstrictmode": self.passed,
                               "modified": self.modified,
                               "fixed": self.fixed,
@@ -115,11 +156,11 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
 
     def fix(self):
         """Fix all files."""
-        for filename in self.arguments.filenames:
+        for filename in self.filenames:
             if filename == '-':
                 absfilename = '<stdin>'
             else:
-                absfilename = os.path.abspath(filename)
+                absfilename = filename
             filetofix = FileFixer(self, filename)
             self.debug(f"Fixing {absfilename} ... ")
             status = filetofix.fix()
@@ -153,6 +194,6 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                                  filetofix.issueshandled))
 
         self.statistics()
-        if (self.passed + self.skipped + self.fixed) == len(self.arguments.filenames):
+        if (self.passed + self.skipped + self.fixed) == len(self.filenames):
             return EXIT_OK
         return EXIT_NOK

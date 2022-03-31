@@ -69,6 +69,11 @@ def run():
     cmdline.add_argument("-d", "--debug",
                          action="store_true",
                          help="output debug information to stderr.")
+    cmdline.add_argument("-e", "--ext",
+                         metavar="extensions",
+                         default="yaml,yml,yamllint",
+                         help="comma separated list of acceptable extensions when searching "
+                         "directories for YAML files. Defaults to %(default)s")
     cmdline.add_argument("-l", "--listfixers",
                          action="store_true",
                          help="output the list of available fixers.")
@@ -82,6 +87,12 @@ def run():
     mutuallyexclusive.add_argument("-p", "--plainsummary",
                                    action="store_true",
                                    help="output plain text summary to stderr.")
+    cmdline.add_argument("-r", "--recurse",
+                         metavar="level",
+                         type=int,
+                         default=0,
+                         help="sets the maximum recursion level for directories. Default is "
+                         "%(default)i meaning no recursion, and any negative value means no limit.")
     mutuallyexclusive.add_argument("-s", "--summary",
                                    action="store_true",
                                    help="output colored plain text summary to stderr. "
