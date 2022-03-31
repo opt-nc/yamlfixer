@@ -78,7 +78,7 @@ This software automatically fixes some errors and warnings reported by
 `yamllint`.
 
 ```shell
-usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-j | -p | -s] [-t TABSIZE] [file [file ...]]
+usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-e extensions] [-l] [-n] [-j] [-p] [-r level] [-s] [-t TABSIZE] [file [file ...]]
 
 Fix formatting problems in YAML documents. If no file is specified,
 then reads input from `stdin`.
@@ -94,10 +94,18 @@ optional arguments:
                       sets the suffix for backup files, `.orig` is
                       the default.
   -d, --debug         output debug information to stderr.
+  -e extensions, --ext extensions
+                      comma separated list of acceptable extensions
+                      when searching directories for YAML files. 
+                      Defaults to yaml,yml,yamllint
   -l, --listfixers    output the list of available fixers.
   -n, --nochange      don't modify anything.
   -j, --jsonsummary   output JSON summary to stderr.
   -p, --plainsummary  output plain text summary to stderr.
+  -r level, --recurse level
+                      sets the maximum recursion level for directories.
+                      Default is 0 meaning no recursion, and any negative
+                      value means no limit.
   -s, --summary       output colored plain text summary to stderr.
                       If stderr is not a TTY output is identical to
                       --plainsummary.
