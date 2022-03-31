@@ -20,7 +20,14 @@ import sys
 import os
 import subprocess
 
-import magic
+try:
+    import magic
+except ImportError as magicmsg:
+    sys.stderr.write(f"WARNING: python-magic or it's dependencies are not installed. Please "
+                     "see https://github.com/ahupp/python-magic on how to set it up : {magicmsg}\n")
+    HASMAGIC = False
+else:
+    HASMAGIC = True
 
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
@@ -104,18 +111,22 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                     self.yfixer.error("\nInterrupted at user's request.")
                     self.incontents = ""  # Initialized but empty
                 else:
-                    mimetype = magic.from_buffer(self.incontents, mime=True)
-                    if mimetype not in ALLOWEDMIMETYPES:
-                        self.incontents = ""  # Empty it
-                        raise NotYAMLError(mimetype)
+                    if HASMAGIC:
+                        mimetype = magic.from_buffer(self.incontents, mime=True)
+                        if mimetype not in ALLOWEDMIMETYPES:
+                            self.incontents = ""  # Empty it
+                            raise NotYAMLError(mimetype)
             else:
                 try:
                     with open(self.filename, 'r') as yamlfile:
-                        mimetype = magic.from_file(self.filename, mime=True)
-                        if mimetype in ALLOWEDMIMETYPES:
-                            self.incontents = yamlfile.read()
+                        if HASMAGIC:
+                            mimetype = magic.from_file(self.filename, mime=True)
+                            if mimetype in ALLOWEDMIMETYPES:
+                                self.incontents = yamlfile.read()
+                            else:
+                                raise NotYAMLError(mimetype)
                         else:
-                            raise NotYAMLError(mimetype)
+                            self.incontents = yamlfile.read()
                 except FileNotFoundError as msg:
                     self.yfixer.error(f"{msg}")
         except (UnicodeDecodeError, IsADirectoryError, NotYAMLError) as msg:
