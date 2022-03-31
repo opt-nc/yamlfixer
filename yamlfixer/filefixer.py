@@ -22,9 +22,9 @@ import subprocess
 
 try:
     import magic
-except ImportError as magicmsg:
+except ImportError:
     sys.stderr.write(f"WARNING: python-magic or it's dependencies are not installed. Please "
-                     "see https://github.com/ahupp/python-magic on how to set it up : {magicmsg}\n")
+                     "see https://github.com/ahupp/python-magic on how to set it up\n")
     HASMAGIC = False
 else:
     HASMAGIC = True
