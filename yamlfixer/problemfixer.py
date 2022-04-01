@@ -165,6 +165,7 @@ class ProblemFixer:
         """Fix:
              - too many spaces inside braces (braces)
              - too many spaces inside brackets (brackets)
+             - too many spaces inside empty brackets (brackets)
              - too many spaces before comma (commas)
              - too many spaces before colon (colons)
         """
