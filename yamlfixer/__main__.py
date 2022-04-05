@@ -80,6 +80,12 @@ def run():
     mutuallyexclusive.add_argument("-n", "--nochange",
                                    action="store_true",
                                    help="don't modify anything.")
+    cmdline.add_argument("-r", "--recurse",
+                         metavar="level",
+                         type=int,
+                         default=0,
+                         help="sets the maximum recursion level for directories. Default is "
+                         "%(default)i meaning no recursion, and any negative value means no limit.")
     mutuallyexclusive = cmdline.add_mutually_exclusive_group()
     mutuallyexclusive.add_argument("-j", "--jsonsummary",
                                    action="store_true",
@@ -87,12 +93,6 @@ def run():
     mutuallyexclusive.add_argument("-p", "--plainsummary",
                                    action="store_true",
                                    help="output plain text summary to stderr.")
-    cmdline.add_argument("-r", "--recurse",
-                         metavar="level",
-                         type=int,
-                         default=0,
-                         help="sets the maximum recursion level for directories. Default is "
-                         "%(default)i meaning no recursion, and any negative value means no limit.")
     mutuallyexclusive.add_argument("-s", "--summary",
                                    action="store_true",
                                    help="output colored plain text summary to stderr. "
