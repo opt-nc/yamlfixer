@@ -159,7 +159,18 @@ strict mode before, else `-1`.
 
 For convenience, all or parts of the command line arguments can be
 read from a file, one per line, by using the well known `@argsfile`
-syntax.
+syntax. For example you could do something like this :
+
+```shell
+$ find . -type f -name "*.yml" >list-of-yaml-files
+$ yamlfixer --nochange --summary @list-of-yaml-files
+```
+
+Although this could probably be shortened to :
+
+```shell
+$ yamlfixer --nochange --summary --recurse -1 .
+```
 
 **IMPORTANT:** Not all problems are fixable by `yamlfixer`. Due to the
 fact that `yamllint` doesn't currently report all faulty lines,
