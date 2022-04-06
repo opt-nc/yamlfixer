@@ -31,7 +31,7 @@ The easiest way to install `yamlfixer` is from
 below.
 
 
-## 🐧Linux install
+## 🐧 Linux install
 
 ```shell
 python3 -m pip install yamlfixer-opt-nc
@@ -41,6 +41,28 @@ python3 -m pip install yamlfixer-opt-nc
 
 ```shell
 python -m pip install yamlfixer-opt-nc
+```
+## `pipx` setup
+
+For an optimal experience we recommand using [`pipx`](https://pypa.github.io/pipx/).
+
+To install : 
+
+```shell
+pipx install yamlfixer-opt-nc
+pipx list
+```
+
+To upgrade : 
+
+```shell
+pipx upgrade yamlfixer-opt-nc
+```
+
+To uninstall :
+
+```
+pipx uninstall yamlfixer-opt-nc
 ```
 
 ## Recommendation
