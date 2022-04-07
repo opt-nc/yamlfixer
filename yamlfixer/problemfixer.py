@@ -52,19 +52,17 @@ class ProblemFixer:
     def get_indentation(self, offset=0):
         """Returns the indentation of the current (possibly offset) line."""
         lnum = self.linenum
+        nblines = len(self.ffixer.lines)
         if offset:
             direction = int(offset/abs(offset))
             lnum += direction
-            try:
-                while offset:
-                    while (0 < lnum < len(self.ffixer.lines)) \
-                      and not self.ffixer.lines[lnum].strip():
-                        lnum += direction
-                    offset -= direction
-            except IndexError:
-                # We're past EOF, so just take the last line of the file
-                # which is most probably empty anyway...
-                lnum = -1
+            while offset:
+                while (0 < lnum < nblines) and not self.ffixer.lines[lnum].strip():
+                    lnum += direction
+                offset -= direction
+        if lnum == nblines:
+            # We are past EOF so just take the last line's indentation
+            lnum = -1
         line = self.ffixer.lines[lnum]
         return len(line) - len(line.lstrip())
 
