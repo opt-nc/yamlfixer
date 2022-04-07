@@ -65,35 +65,6 @@ To uninstall :
 pipx uninstall yamlfixer-opt-nc
 ```
 
-## Recommendation
-
-`yamlfixer` can make use of the `libmagic` library to automatically
-skip files that can't be YAML based on their MIME type, if this
-library is installed on your system. If it is not installed, you can
-install it using the method best matching your environment. The
-different methods are explained on [python-magic's
-homepage](https://github.com/ahupp/python-magic) and are pasted below
-for convenience.
-
-### Debian/Ubuntu
-
-```
-sudo apt-get install libmagic1
-```
-
-### Windows
-
-You'll need DLLs for libmagic.  @julian-r maintains a pypi package with the DLLs, you can fetch it with:
-
-```
-pip install python-magic-bin
-```
-
-### OSX
-
-- When using Homebrew: `brew install libmagic`
-- When using macports: `port install file`
-
 # 🚀 Usage
 
 This software automatically fixes some errors and warnings reported by

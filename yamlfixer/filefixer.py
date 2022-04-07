@@ -22,15 +22,6 @@ import sys
 import os
 import subprocess
 
-try:
-    import magic
-except ImportError:
-    sys.stderr.write(f"WARNING: python-magic or it's dependencies are not installed. Please "
-                     "see https://github.com/ahupp/python-magic on how to set it up\n")
-    HASMAGIC = False
-else:
-    HASMAGIC = True
-
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
 from .constants import EXIT_PROBLEM
@@ -46,9 +37,6 @@ ALLOWEDMIMETYPES = ["text/plain",
                     "application/x-yaml",
                    ]
 
-
-class NotYAMLError(Exception):
-    """An exception for files which can't be YAML formatted because of their mime type."""
 
 class FileFixer:  # pylint: disable=too-many-instance-attributes
     """To hold file fixing logic."""
@@ -112,26 +100,13 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                 except KeyboardInterrupt:
                     self.yfixer.error("\nInterrupted at user's request.")
                     self.incontents = ""  # Initialized but empty
-                else:
-                    if HASMAGIC:
-                        mimetype = magic.from_buffer(self.incontents, mime=True)
-                        if mimetype not in ALLOWEDMIMETYPES:
-                            self.incontents = ""  # Empty it
-                            raise NotYAMLError(mimetype)
             else:
                 try:
                     with open(self.filename, 'r') as yamlfile:
-                        if HASMAGIC:
-                            mimetype = magic.from_file(self.filename, mime=True)
-                            if mimetype in ALLOWEDMIMETYPES:
-                                self.incontents = yamlfile.read()
-                            else:
-                                raise NotYAMLError(mimetype)
-                        else:
-                            self.incontents = yamlfile.read()
+                        self.incontents = yamlfile.read()
                 except (FileNotFoundError, PermissionError) as msg:
                     self.yfixer.error(f"{msg}")
-        except (UnicodeDecodeError, IsADirectoryError, NotYAMLError) as msg:
+        except (UnicodeDecodeError, IsADirectoryError) as msg:
             self.yfixer.error(f"{self.filename} doesn't seem to be YAML : {msg}")
 
     def dump(self, outcontents):
