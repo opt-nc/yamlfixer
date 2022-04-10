@@ -71,40 +71,36 @@ This software automatically fixes some errors and warnings reported by
 `yamllint`.
 
 ```shell
-usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-e extensions] [-l] [-n] [-r level] [-j | -p | -s] [-t TABSIZE] [file [file ...]]
+usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-e EXTENSIONS] [-l] [-n] [-r LEVEL]
+                 [-j | -p | -s] [-t TABSIZE]
+                 [FILE_or_DIR [FILE_or_DIR ...]]
 
-Fix formatting problems in YAML documents. If no file is specified,
-then reads input from `stdin`.
+Fix formatting problems in YAML documents. If no file is specified, then reads input from `stdin`.
 
 positional arguments:
-  file                the YAML files to fix. Use `-` to read from `stdin`.
+  FILE_or_DIR           the YAML files to fix. Use `-` to read from `stdin`.
 
 optional arguments:
-  -h, --help          show this help message and exit
-  -v, --version       display this program's version number and exit.
-  -b, --backup        make a backup copy of original files.
+  -h, --help            show this help message and exit
+  -v, --version         display this program's version number and exit.
+  -b, --backup          make a backup copy of original files.
   -B BACKUPSUFFIX, --backupsuffix BACKUPSUFFIX
-                      sets the suffix for backup files, `.orig` is
-                      the default.
-  -d, --debug         output debug information to stderr.
-  -e extensions, --ext extensions
-                      comma separated list of acceptable extensions
-                      when searching directories for YAML files. 
-                      Defaults to yaml,yml,yamllint
-  -l, --listfixers    output the list of available fixers.
-  -n, --nochange      don't modify anything.
-  -r level, --recurse level
-                      sets the maximum recursion level for directories.
-                      Default is 0 meaning no recursion, and any negative
-                      value means no limit.
-  -j, --jsonsummary   output JSON summary to stderr.
-  -p, --plainsummary  output plain text summary to stderr.
-  -s, --summary       output colored plain text summary to stderr.
-                      If stderr is not a TTY output is identical to
-                      --plainsummary.
+                        sets the suffix for backup files, `.orig` is the default.
+  -d, --debug           output debug information to stderr.
+  -e EXTENSIONS, --ext EXTENSIONS
+                        comma separated list of acceptable extensions when searching directories
+                        for YAML files. Defaults to `yaml,yml,yamllint`.
+  -l, --listfixers      output the list of available fixers.
+  -n, --nochange        don't modify anything.
+  -r LEVEL, --recurse LEVEL
+                        sets the maximum recursion level for directories. Default is `0` meaning
+                        no recursion, and any negative value means no limit.
+  -j, --jsonsummary     output JSON summary to stderr.
+  -p, --plainsummary    output plain text summary to stderr.
+  -s, --summary         output colored plain text summary to stderr. If stderr is not a TTY
+                        output is identical to --plainsummary.
   -t TABSIZE, --tabsize TABSIZE
-                      sets the number of spaces to replace tabs with,
-                      default is 2.
+                        sets the number of spaces to replace tabs with, default is `2`.
 ```
 
 yamlfixer launches `yamllint` on each specified filename, then parses

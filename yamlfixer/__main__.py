@@ -72,10 +72,10 @@ def run():
                          action="store_true",
                          help="output debug information to stderr.")
     cmdline.add_argument("-e", "--ext",
-                         metavar="extensions",
+                         metavar="EXTENSIONS",
                          default="yaml,yml,yamllint",
                          help="comma separated list of acceptable extensions when searching "
-                         "directories for YAML files. Defaults to %(default)s")
+                         "directories for YAML files. Defaults to `%(default)s`.")
     cmdline.add_argument("-l", "--listfixers",
                          action="store_true",
                          help="output the list of available fixers.")
@@ -83,11 +83,12 @@ def run():
                                    action="store_true",
                                    help="don't modify anything.")
     cmdline.add_argument("-r", "--recurse",
-                         metavar="level",
+                         metavar="LEVEL",
                          type=int,
                          default=0,
                          help="sets the maximum recursion level for directories. Default is "
-                         "%(default)i meaning no recursion, and any negative value means no limit.")
+                         "`%(default)i` meaning no recursion, and "
+                         "any negative value means no limit.")
     mutuallyexclusive = cmdline.add_mutually_exclusive_group()
     mutuallyexclusive.add_argument("-j", "--jsonsummary",
                                    action="store_true",
@@ -103,10 +104,10 @@ def run():
                          type=int,
                          default=2,
                          help="sets the number of spaces to replace tabs "
-                         "with, default is %(default)i.")
+                         "with, default is `%(default)i`.")
     cmdline.add_argument("filenames",
                          nargs="*",
-                         metavar="file",
+                         metavar="FILE_or_DIR",
                          default=["-"], # Read from stdin if no file is specified
                          help="the YAML files to fix. Use `-` to read from `stdin`.")
     if cmdline.prog == "__main__.py":
