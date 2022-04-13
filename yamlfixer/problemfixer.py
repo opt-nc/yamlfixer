@@ -40,7 +40,10 @@ class ProblemFixer:
         """Make it callable."""
         for (fixerkey, methodname) in self.fixers.items():
             if self.problem.startswith(fixerkey):
-                line = self.ffixer.lines[self.linenum]
+                try:
+                    line = self.ffixer.lines[self.linenum]
+                except IndexError:
+                    line = self.ffixer.lines[-1]
                 left = line[:self.colnum]
                 right = line[self.colnum:]
                 self.ffixer.yfixer.debug(f'Calling {methodname}("{left}", "{right}")')
@@ -82,6 +85,13 @@ class ProblemFixer:
              - missing document start
         """
         self.ffixer.lines.insert(0, '---')
+        self.ffixer.loffset += 1
+
+    def fix_expected_docstart(self, left, right):  # pylint: disable=unused-argument
+        """Fix:
+             - syntax error: expected '<document start>', but found '<stream end>' (syntax)
+        """
+        self.ffixer.lines.insert(self.linenum, '---')
         self.ffixer.loffset += 1
 
     def fix_newlineateof(self, left, right):  # pylint: disable=unused-argument,no-self-use
@@ -221,15 +231,17 @@ class ProblemFixer:
         """Fix:
              - syntax error: mapping values are not allowed here
              - syntax error: expected <block end>, but found '<block mapping start>'
+             - syntax error: expected <block end>, but found '<block sequence start>' (syntax)
              - syntax error: expected <block end>, but found '?'
         """
         indentation = self.get_indentation()
         previndentation = self.get_indentation(-1)
-        if self.ffixer.lines[self.linenum-1][previndentation:].startswith("- "):
-            # if previous line is a list item, indent like item itself
-            previndentation += 2
-        elif self.ffixer.lines[self.linenum-1][previndentation:].startswith("-"):
-            # same as above, because yamllint allows no space before item
-            previndentation += 1
+        if not right.startswith("-"):
+            if self.ffixer.lines[self.linenum-1][previndentation:].startswith("- "):
+                # if previous line is a list item, indent like item itself
+                previndentation += 2
+            elif self.ffixer.lines[self.linenum-1][previndentation:].startswith("-"):
+                # same as above, because yamllint allows no space before item
+                previndentation += 1
         self.ffixer.lines[self.linenum] = ' ' * previndentation + (left + right).lstrip()
         self.ffixer.coffset += previndentation - indentation
