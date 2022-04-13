@@ -147,7 +147,7 @@ circumstances.
 
 ⚠️**Use at your own risk, you have been warned...** ⚠️
 
-# Fixers:
+# Fixers
 
 yamlfixer currently (as of 0.5.10) can fix the following problems as reported by `yamllint` :
 
