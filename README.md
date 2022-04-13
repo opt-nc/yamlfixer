@@ -156,10 +156,10 @@ yamlfixer currently (as of 0.5.10) can fix the following problems as reported by
   - missing document start
   - missing starting space in comment (comments)
   - no new line character at the end of file
-  - syntax error: expected '<document start>', but found '<stream end>' (syntax)
-  - syntax error: expected <block end>, but found '<block mapping start>'
-  - syntax error: expected <block end>, but found '<block sequence start>' (syntax)
-  - syntax error: expected <block end>, but found '?'
+  - syntax error: expected `'<document start>'`, but found `'<stream end>'` (syntax)
+  - syntax error: expected `<block end>`, but found `'<block mapping start>'`
+  - syntax error: expected `<block end>`, but found `'<block sequence start>'` (syntax)
+  - syntax error: expected `<block end>`, but found `'?'`
   - syntax error: found character '\t' that cannot start any token (syntax)
   - syntax error: mapping values are not allowed here
   - too few spaces after comma (commas)
