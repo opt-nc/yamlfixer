@@ -20,9 +20,11 @@
 
 from .constants import FIXER_HANDLED, FIXER_UNHANDLED
 
+
 class ProblemFixer:
     """To hold problem fixing logic."""
     fixers = {}
+
     def __init__(self, filefixer, linenum, colnum, problem):
         """Intializes a problem fixer."""
         self.ffixer = filefixer
@@ -49,7 +51,7 @@ class ProblemFixer:
                 self.ffixer.yfixer.debug(f'Calling {methodname}("{left}", "{right}")')
                 getattr(self, methodname)(left, right)
                 return FIXER_HANDLED
-        self.ffixer.yfixer.debug(f"No handler found")
+        self.ffixer.yfixer.debug("No handler found")
         return FIXER_UNHANDLED
 
     def get_indentation(self, offset=0):
@@ -223,8 +225,8 @@ class ProblemFixer:
              - line too long
         """
         # TODO: currently we fix this by disabling the error in yamllint, it's the easiest way
-        self.ffixer.lines.insert(self.linenum, ' ' * self.get_indentation() \
-                             + '# yamllint disable-line rule:line-length')
+        self.ffixer.lines.insert(self.linenum, ' ' * self.get_indentation()
+                                 + '# yamllint disable-line rule:line-length')
         self.ffixer.loffset += 1
 
     def fix_syntax_mappingvalues_nah(self, left, right):

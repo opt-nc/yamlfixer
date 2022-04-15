@@ -32,15 +32,15 @@ COLORSEQ = {"PASSED": "38;2;0;255;0m",
             "FIXED": "38;2;0;255;0m",
             "SKIPPED": "38;2;255;0;255m",
             "ERROR": "38;2;255;0;0m",
-            "UNKNOWN": "38;2;255;255;0m",
-           }
+            "UNKNOWN": "38;2;255;255;0m"}
+
 
 class YAMLFixer:  # pylint: disable=too-many-instance-attributes
     """To hold files fixing logic."""
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
         self.arguments = arguments
-        self.extensions = [".%s" % e.strip() for e in self.arguments.ext.split(",")]
+        self.extensions = [f".{e.strip()}" for e in self.arguments.ext.split(",")]
         self.passed = self.modified \
             = self.fixed \
             = self.skipped \
@@ -134,13 +134,11 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                               "notwriteable": self.permerrors,
                               "unknown": self.unknown,
                               "details": {},
-                              "nochangemode": self.arguments.nochange,
-                             }
+                              "nochangemode": self.arguments.nochange}
             for (status, filename, issues, handled) in self.summary:
                 summarymapping["details"][filename] = {"status": status.strip(),
                                                        "issues": issues,
-                                                       "handled": handled,
-                                                      }
+                                                       "handled": handled}
             self.info(json.dumps(summarymapping, indent=4))
 
     def listfixers(self):
@@ -167,23 +165,23 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
             self.debug(f"Fixing {absfilename} ... ")
             status = filetofix.fix()
             if status == FIX_PASSEDLINTER:
-                self.debug(f"passed linter's strict mode.")
+                self.debug("passed linter's strict mode.")
                 txtstatus = "  PASSED"
                 self.passed += 1
             elif status == FIX_MODIFIED:
-                self.debug(f"was modified.")
+                self.debug("was modified.")
                 txtstatus = "MODIFIED"
                 self.modified += 1
             elif status == FIX_FIXED:
-                self.debug(f"was fixed.")
+                self.debug("was fixed.")
                 txtstatus = "   FIXED"
                 self.fixed += 1
             elif status == FIX_SKIPPED:
-                self.debug(f"was skipped.")
+                self.debug("was skipped.")
                 txtstatus = " SKIPPED"
                 self.skipped += 1
             elif status == FIX_PERMERROR:
-                self.debug(f"was not writeable.")
+                self.debug("was not writeable.")
                 txtstatus = "   ERROR"
                 self.permerrors += 1
             else:

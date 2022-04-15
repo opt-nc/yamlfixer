@@ -25,7 +25,6 @@ import subprocess
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
 from .constants import EXIT_PROBLEM
-
 from .problemfixer import ProblemFixer
 
 LINTERCOMMAND = 'yamllint --format parsable --strict -'
@@ -34,8 +33,7 @@ ALLOWEDMIMETYPES = ["text/plain",
                     "text/yaml",
                     "text/x-yaml",
                     "application/yaml",
-                    "application/x-yaml",
-                   ]
+                    "application/x-yaml"]
 
 
 class FileFixer:  # pylint: disable=too-many-instance-attributes
@@ -102,7 +100,7 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                     self.incontents = ""  # Initialized but empty
             else:
                 try:
-                    with open(self.filename, 'r') as yamlfile:
+                    with open(self.filename, 'r', encoding='utf-8') as yamlfile:
                         self.incontents = yamlfile.read()
                 except (FileNotFoundError, PermissionError) as msg:
                     self.yfixer.error(f"{msg}")
@@ -136,7 +134,7 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                         except PermissionError as msg:
                             self.yfixer.error(f"impossible to create a backup : {msg}")
                     # Overwrite the original file with the new contents
-                    with open(self.filename, 'w') as yamlfile:
+                    with open(self.filename, 'w', encoding='utf-8') as yamlfile:
                         yamlfile.write(finaloutput)
                 except PermissionError as msg:
                     self.yfixer.error(f"impossible to save modified contents : {msg}")
@@ -178,7 +176,6 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
             self.coffset = 0
             for colnumber in sorted(linestofix[linenumber].keys()):
                 for problem in linestofix[linenumber][colnumber]:
-                    # pylint: disable=line-too-long
                     self.yfixer.debug(f"({linenumber}+{self.loffset}, {colnumber}+{self.coffset}) => [{problem}]")
                     handled = ProblemFixer(self, linenumber, colnumber, problem)()
                     if handled == FIXER_HANDLED:

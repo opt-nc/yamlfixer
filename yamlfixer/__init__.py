@@ -24,6 +24,5 @@ import time
 __version__ = "0.5.10"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
-__copyright__ = "Copyright (C) 2021-%s %s" % (time.strftime("%Y",
-                                                            time.localtime(time.time())),
-                                              __author__)
+__year__ = time.strftime("%Y", time.localtime(time.time()))
+__copyright__ = f"Copyright (C) 2021-{__year__} {__author__}"

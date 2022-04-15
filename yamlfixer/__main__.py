@@ -40,6 +40,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+
 def run():
     """Main function."""
     # Ensure we read from stdin in case it's redirected
@@ -108,7 +109,7 @@ def run():
     cmdline.add_argument("filenames",
                          nargs="*",
                          metavar="FILE_or_DIR",
-                         default=["-"], # Read from stdin if no file is specified
+                         default=["-"],  # Read from stdin if no file is specified
                          help="the YAML files to fix. Use `-` to read from `stdin`.")
     if cmdline.prog == "__main__.py":
         cmdline.prog = "yamlfixer"
@@ -117,6 +118,7 @@ def run():
     if arguments.listfixers:
         return yfixer.listfixers()
     return yfixer.fix()
+
 
 if __name__ == '__main__':
     sys.exit(run())
