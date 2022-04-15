@@ -111,15 +111,19 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
 
     def diff(self, finalcontent):
         """Returns a unified diff of original content to final one."""
+        differences = []
         original = (self.shebang + (self.incontents or '')).splitlines()
         final = finalcontent.splitlines()
-        relfname = os.path.relpath(self.filename)
-        relafter = f"{relfname}-after"
-        return [f"diff -u {relfname} {relafter}"] + list(difflib.unified_diff(original,
-                                                                              final,
-                                                                              fromfile=relfname,
-                                                                              tofile=relafter,
-                                                                              lineterm=''))
+        if original != final:
+            relfname = os.path.relpath(self.filename)
+            relafter = f"{relfname}-after"
+            differences.append(f"diff -u {relfname} {relafter}")
+            differences.extend(list(difflib.unified_diff(original,
+                                                         final,
+                                                         fromfile=relfname,
+                                                         tofile=relafter,
+                                                         lineterm='')))
+        return differences
 
     def dump(self, outcontents):
         """Dumps the new file's contents."""
