@@ -21,6 +21,7 @@
 import sys
 import os
 import subprocess
+import difflib
 
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
@@ -75,7 +76,8 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
 
         return problemlines
 
-    def lint(self, contents=None):
+    @staticmethod
+    def lint(contents):
         """Launches the linter on a file's contents.
 
            Returns the (linter's exitcode, linter's stdout) tuple.
@@ -85,7 +87,7 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                                 capture_output=True,
                                 text=True,
                                 check=False,
-                                input=(contents or self.incontents),
+                                input=contents,
                                 encoding='utf-8')
         return (linter.returncode, linter.stdout)
 
@@ -106,6 +108,18 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                     self.yfixer.error(f"{msg}")
         except (UnicodeDecodeError, IsADirectoryError) as msg:
             self.yfixer.error(f"{self.filename} doesn't seem to be YAML : {msg}")
+
+    def diff(self, finalcontent):
+        """Returns a unified diff of original content to final one."""
+        original = (self.shebang + (self.incontents or '')).splitlines()
+        final = finalcontent.splitlines()
+        relfname = os.path.relpath(self.filename)
+        relafter = f"{relfname}-after"
+        return [f"diff -u {relfname} {relafter}"] + list(difflib.unified_diff(original,
+                                                                              final,
+                                                                              fromfile=relfname,
+                                                                              tofile=relafter,
+                                                                              lineterm=''))
 
     def dump(self, outcontents):
         """Dumps the new file's contents."""
@@ -147,7 +161,7 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                 # We know we have succesfully fixed the file
                 # because it now passes yamlllint's strict mode.
                 retcode = FIX_FIXED
-        return retcode
+        return (retcode, self.diff(finaloutput))
 
     def fix(self):
         """Fix a file's contents."""
@@ -159,10 +173,10 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
             return self.dump(self.incontents)
 
         # Lint the file's contents
-        (ltexitcode, ltstdout) = self.lint()
+        (ltexitcode, ltstdout) = self.lint(self.incontents)
         if not ltexitcode:
-            self.dump(self.incontents)
-            return FIX_PASSEDLINTER
+            (_, differences) = self.dump(self.incontents)
+            return (FIX_PASSEDLINTER, differences)
         if ltexitcode == 127:  # yamllint not found !
             self.yfixer.error("yamllint is not in your PATH, please ensure it's installed.")
             sys.exit(EXIT_PROBLEM)

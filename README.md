@@ -88,6 +88,9 @@ optional arguments:
   -B BACKUPSUFFIX, --backupsuffix BACKUPSUFFIX
                         sets the suffix for backup files, `.orig` is the default.
   -d, --debug           output debug information to stderr.
+  -D DIFF_FILE, --diffto DIFF_FILE
+                        name of the file a unified diff will be written to.
+                        Defaults to `/dev/null`.
   -e EXTENSIONS, --ext EXTENSIONS
                         comma separated list of acceptable extensions when searching directories
                         for YAML files. Defaults to `yaml,yml,yamllint`.

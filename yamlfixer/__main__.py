@@ -72,6 +72,10 @@ def run():
     cmdline.add_argument("-d", "--debug",
                          action="store_true",
                          help="output debug information to stderr.")
+    cmdline.add_argument("-D", "--diffto",
+                         metavar="DIFF_FILE",
+                         default=os.devnull,
+                         help="name of the file a unified diff will be written to. Defaults to `%(default)s`.")
     cmdline.add_argument("-e", "--ext",
                          metavar="EXTENSIONS",
                          default="yaml,yml,yamllint",

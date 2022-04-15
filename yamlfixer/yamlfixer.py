@@ -156,42 +156,44 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
 
     def fix(self):
         """Fix all files."""
-        for filename in self.filenames:
-            if filename == '-':
-                absfilename = '<stdin>'
-            else:
-                absfilename = filename
-            filetofix = FileFixer(self, filename)
-            self.debug(f"Fixing {absfilename} ... ")
-            status = filetofix.fix()
-            if status == FIX_PASSEDLINTER:
-                self.debug("passed linter's strict mode.")
-                txtstatus = "  PASSED"
-                self.passed += 1
-            elif status == FIX_MODIFIED:
-                self.debug("was modified.")
-                txtstatus = "MODIFIED"
-                self.modified += 1
-            elif status == FIX_FIXED:
-                self.debug("was fixed.")
-                txtstatus = "   FIXED"
-                self.fixed += 1
-            elif status == FIX_SKIPPED:
-                self.debug("was skipped.")
-                txtstatus = " SKIPPED"
-                self.skipped += 1
-            elif status == FIX_PERMERROR:
-                self.debug("was not writeable.")
-                txtstatus = "   ERROR"
-                self.permerrors += 1
-            else:
-                self.error(f"unknown fixing status [{status}]")
-                txtstatus = " UNKNOWN"
-                self.unknown += 1
-            self.summary.append((txtstatus,
-                                 absfilename,
-                                 filetofix.issues,
-                                 filetofix.issueshandled))
+        with open(self.arguments.diffto, 'w', encoding='utf-8') as diffto:
+            for filename in self.filenames:
+                if filename == '-':
+                    absfilename = '<stdin>'
+                else:
+                    absfilename = filename
+                filetofix = FileFixer(self, filename)
+                self.debug(f"Fixing {absfilename} ... ")
+                (status, unidiff) = filetofix.fix()
+                diffto.writelines([f"{line}\n" for line in unidiff])
+                if status == FIX_PASSEDLINTER:
+                    self.debug("passed linter's strict mode.")
+                    txtstatus = "  PASSED"
+                    self.passed += 1
+                elif status == FIX_MODIFIED:
+                    self.debug("was modified.")
+                    txtstatus = "MODIFIED"
+                    self.modified += 1
+                elif status == FIX_FIXED:
+                    self.debug("was fixed.")
+                    txtstatus = "   FIXED"
+                    self.fixed += 1
+                elif status == FIX_SKIPPED:
+                    self.debug("was skipped.")
+                    txtstatus = " SKIPPED"
+                    self.skipped += 1
+                elif status == FIX_PERMERROR:
+                    self.debug("was not writeable.")
+                    txtstatus = "   ERROR"
+                    self.permerrors += 1
+                else:
+                    self.error(f"unknown fixing status [{status}]")
+                    txtstatus = " UNKNOWN"
+                    self.unknown += 1
+                    self.summary.append((txtstatus,
+                                         absfilename,
+                                         filetofix.issues,
+                                         filetofix.issueshandled))
 
         self.statistics()
         if (self.passed + self.skipped + self.fixed) == len(self.filenames):
