@@ -1,0 +1,35 @@
+---
+
+name: Checks
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Linters
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+
+      - name: install linters
+        run: python -m pip install yamllint pylint flake8 flake8-import-order
+
+      - name: lint YAML files, excluding examples
+        run: yamllint --strict $(git ls-files '*.yaml' '*.yml' '.yamllint' | grep -v ^examples/)
+
+      - name: lint Python code through flake8
+        run: flake8 .
+
+      - name: lint Python code through pylint
+        run: pylint yamlfixer
