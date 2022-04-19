@@ -21,7 +21,7 @@ by feeding it with files and parsing its output."""
 
 import time
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __year__ = time.strftime("%Y", time.localtime(time.time()))
