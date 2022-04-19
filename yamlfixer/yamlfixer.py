@@ -190,10 +190,10 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                     self.error(f"unknown fixing status [{status}]")
                     txtstatus = " UNKNOWN"
                     self.unknown += 1
-                    self.summary.append((txtstatus,
-                                         absfilename,
-                                         filetofix.issues,
-                                         filetofix.issueshandled))
+                self.summary.append((txtstatus,
+                                     absfilename,
+                                     filetofix.issues,
+                                     filetofix.issueshandled))
 
         self.statistics()
         if (self.passed + self.skipped + self.fixed) == len(self.filenames):
