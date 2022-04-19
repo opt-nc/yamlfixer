@@ -35,7 +35,7 @@ class ProblemFixer:
             for methodname in [m for m in dir(self) if m.startswith('fix_')]:
                 docstring = getattr(self, methodname).__doc__
                 for prob in [pb.strip()[2:] for pb in docstring.splitlines()[1:]]:
-                    if prob:
+                    if prob and ((not prob.startswith("syntax error")) or (not self.ffixer.yfixer.arguments.nosyntax)):
                         self.fixers[prob] = methodname
 
     def __call__(self):

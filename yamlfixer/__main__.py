@@ -84,6 +84,9 @@ def run():
     cmdline.add_argument("-l", "--listfixers",
                          action="store_true",
                          help="output the list of available fixers.")
+    cmdline.add_argument("-N", "--nosyntax",
+                         action="store_true",
+                         help="don't try to fix syntax errors.")
     mutuallyexclusive.add_argument("-n", "--nochange",
                                    action="store_true",
                                    help="don't modify anything.")

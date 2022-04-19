@@ -95,6 +95,7 @@ optional arguments:
                         comma separated list of acceptable extensions when searching directories
                         for YAML files. Defaults to `yaml,yml,yamllint`.
   -l, --listfixers      output the list of available fixers.
+  -N, --nosyntax        don't try to fix syntax errors.
   -n, --nochange        don't modify anything.
   -r LEVEL, --recurse LEVEL
                         sets the maximum recursion level for directories. Default is `0` meaning
@@ -152,7 +153,7 @@ circumstances.
 
 # Fixers
 
-yamlfixer currently (as of 0.5.10) can fix the following problems as reported by `yamllint` :
+yamlfixer currently (as of 0.6.3) can fix the following problems as reported by `yamllint` :
 
   - comment not indented like content (comments-indentation)
   - line too long
@@ -179,6 +180,11 @@ yamlfixer currently (as of 0.5.10) can fix the following problems as reported by
   - trailing spaces (trailing-spaces)
   - truthy value should be one of [false, true] (truthy)
   - wrong indentation: expected
+
+**IMPORTANT : fixing syntax errors is done on a best effort basis and
+may work only partially or not at all for you. Use the -N|--nosyntax
+command line switch do prevent `yamlfixer` from trying to fix syntax
+errors.**
 
 # 💪 Tips and tricks
 
