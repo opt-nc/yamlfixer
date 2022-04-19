@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
@@ -31,3 +32,22 @@ jobs:
 
       - name: lint Python code through pylint
         run: pylint yamlfixer
+
+      # ATTENTION : No workflow will be run on main :-(
+      - name: Create Pull Request
+        id: createpr
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ""  # If blank, default: triggered branch
+          destination_branch: "main"  # If blank, default: master
+          github_token: ${{secrets.GITHUB_TOKEN}}
+
+      # ATTENTION : No workflow will be run on main :-(
+      # Activate auto merge
+      - if: steps.createpr.outputs.pr_number != 0
+        name: Enable Pull Request Automerge
+        uses: peter-evans/enable-pull-request-automerge@v1
+        with:
+          pull-request-number: ${{steps.createpr.outputs.pr_number}}
+          merge-method: merge  # merge, squash, rebase
+          token: ${{secrets.GITHUB_TOKEN}}  # Works despite what the documentation says
