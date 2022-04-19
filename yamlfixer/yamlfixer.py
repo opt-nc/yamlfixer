@@ -156,7 +156,8 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                     availablefixers.append(prob)
         self.info("Fixers:")
         for fixstr in sorted(availablefixers):
-            self.info(f"  - {fixstr}")
+            if ((not fixstr.startswith("syntax error")) or (not self.arguments.nosyntax)):
+                self.info(f"  - {fixstr}")
         return EXIT_OK
 
     def fix(self):
