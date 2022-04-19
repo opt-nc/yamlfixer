@@ -115,12 +115,11 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
         original = (self.shebang + (self.incontents or '')).splitlines()
         final = finalcontent.splitlines()
         if original != final:
-            relfname = os.path.relpath(self.filename)
-            relafter = f"{relfname}-after"
-            differences.append(f"diff -u {relfname} {relafter}")
+            relafter = f"{self.filename}-after"
+            differences.append(f"diff -u {self.filename} {relafter}")
             differences.extend(list(difflib.unified_diff(original,
                                                          final,
-                                                         fromfile=relfname,
+                                                         fromfile=self.filename,
                                                          tofile=relafter,
                                                          lineterm='')))
         return differences

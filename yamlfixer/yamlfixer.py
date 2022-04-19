@@ -47,25 +47,7 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
             = self.permerrors \
             = self.unknown = 0
         self.summary = []
-        # Generate the list of unique filenames we'll be working on
-        self.filenames = []
-        for name in self.arguments.filenames:
-            # os.path.isdir() returns False instead of raising an exception
-            # if we don't have sufficient permissions, so we have to do
-            # a workaround to skip such directories
-            try:
-                os.path.getsize(name)
-            except PermissionError:
-                pass
-            except FileNotFoundError:
-                if name == "-":  # For <stdin>
-                    self.filenames.append(name)
-            else:
-                if os.path.isdir(name):
-                    self.recurse(name)
-                else:
-                    self.filenames.append(os.path.abspath(name))
-        self.filenames = sorted(set(self.filenames))
+        self.filenames = self.generate_unique_filenames(self.arguments.filenames)
 
     def info(self, message):  # pylint: disable=no-self-use
         """Output an informational message to stderr."""
@@ -87,7 +69,7 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                 return True
         return False
 
-    def recurse(self, path, level=0):
+    def recurse(self, path, fnmapping, level=0):
         """Find all files in a directory recursively."""
         self.debug(f"SCAN [{path}] at level {level} with limit {self.arguments.recurse}\n")
         if (self.arguments.recurse < 0) or (level <= self.arguments.recurse):
@@ -95,11 +77,34 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                 for entry in dircontents:
                     try:
                         if entry.is_file() and self.matchesext(entry.name):
-                            self.filenames.append(os.path.abspath(entry.path))
+                            # Ensures uniqueness based on absolute path
+                            fnmapping[os.path.abspath(entry.path)] = entry.path
                         elif entry.is_dir(follow_symlinks=False):
-                            self.recurse(entry.path, level+1)
+                            self.recurse(entry.path, fnmapping, level+1)
                     except PermissionError:
                         pass
+
+    def generate_unique_filenames(self, fnames):
+        """Generate a list of unique filenames."""
+        fnmapping = {}
+        for name in fnames:
+            # os.path.isdir() returns False instead of raising an exception
+            # if we don't have sufficient permissions, so we have to do
+            # a workaround to skip such directories
+            try:
+                os.path.getsize(name)
+            except PermissionError:
+                pass
+            except FileNotFoundError:
+                if name == '-':  # For <stdin>
+                    fnmapping[name] = name
+            else:
+                if os.path.isdir(name):
+                    self.recurse(name, fnmapping)
+                else:
+                    # Ensures uniqueness based on absolute path
+                    fnmapping[os.path.abspath(name)] = name
+        return sorted(fnmapping.values())
 
     def statistics(self):
         """Output some statistics."""
@@ -159,11 +164,11 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
         with open(self.arguments.diffto, 'w', encoding='utf-8') as diffto:
             for filename in self.filenames:
                 if filename == '-':
-                    absfilename = '<stdin>'
+                    uifilename = '<stdin>'
                 else:
-                    absfilename = filename
+                    uifilename = filename
                 filetofix = FileFixer(self, filename)
-                self.debug(f"Fixing {absfilename} ... ")
+                self.debug(f"Fixing {uifilename} ... ")
                 (status, unidiff) = filetofix.fix()
                 diffto.writelines([f"{line}\n" for line in unidiff])
                 if status == FIX_PASSEDLINTER:
@@ -191,7 +196,7 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                     txtstatus = " UNKNOWN"
                     self.unknown += 1
                 self.summary.append((txtstatus,
-                                     absfilename,
+                                     uifilename,
                                      filetofix.issues,
                                      filetofix.issueshandled))
 
