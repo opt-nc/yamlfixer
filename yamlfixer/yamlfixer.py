@@ -158,7 +158,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                 filetofix = FileFixer(self.arguments, filename)
                 self.debug(f"Fixing {uifilename} ... ")
                 (status, unidiff) = filetofix.fix()
-                diffto.writelines([f"{line}\n" for line in unidiff])
+                diffto.writelines(unidiff)
                 if status == FIX_PASSEDLINTER:
                     self.debug("passed linter's strict mode.")
                     txtstatus = "  PASSED"

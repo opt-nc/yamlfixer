@@ -113,16 +113,18 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
     def diff(self, finalcontent):
         """Returns a unified diff of original content to final one."""
         differences = []
-        original = (self.shebang + (self.incontents or '')).splitlines()
-        final = finalcontent.splitlines()
+        original = (self.shebang + (self.incontents or '')).splitlines(keepends=True)
+        final = finalcontent.splitlines(keepends=True)
         if original != final:
             relafter = f"{self.filename}-after"
-            differences.append(f"diff -u {self.filename} {relafter}")
+            differences.append(f"diff -u {self.filename} {relafter}\n")
             differences.extend(list(difflib.unified_diff(original,
                                                          final,
                                                          fromfile=self.filename,
-                                                         tofile=relafter,
-                                                         lineterm='')))
+                                                         tofile=relafter)))
+        if not original[-1].endswith("\n"):
+            # No newline at EOF
+            differences.insert(-1, "\n\\ No newline at end of file\n")
         return differences
 
     def dump(self, outcontents):
