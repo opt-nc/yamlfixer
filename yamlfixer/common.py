@@ -20,19 +20,46 @@
 
 import sys
 
+COLORS = {"black": (0, 0, 0),
+          "white": (255, 255, 255),
+          "red": (255, 0, 0),
+          "lime": (0, 255, 0),
+          "blue": (0, 0, 255),
+          "yellow": (255, 255, 0),
+          "cyan": (0, 255, 255),
+          "magenta": (255, 0, 255),
+          "silver": (192, 192, 192),
+          "gray": (128, 128, 128),
+          "maroon": (128, 0, 0),
+          "olive": (128, 128, 0),
+          "green": (0, 128, 0),
+          "purple": (128, 0, 128),
+          "teal": (0, 128, 128),
+          "navy": (0, 0, 128),
+          "gold": (255, 215, 0),
+          "darkorange": (255, 140, 0)}
+
+LEVELS = {"ERROR": "red",
+          "WARNING": "darkorange",
+          "DEBUG": "gray"}
+
 
 class YAMLFixerBase:
     """Base class for yamlfixer."""
     def __init__(self, arguments):
         """Saves command line arguments."""
         self._out = sys.stderr
-        self.outisatty = self._out.isatty()
+        self._outisatty = self._out.isatty()
         self.arguments = arguments
 
     def _output(self, message, level=None):
         """Output a message with optional level to stderr."""
         if level is not None:
-            self._out.write(f"{level}: ")
+            message = f"{level}: {message}"
+        try:
+            message = self.colorize(message, LEVELS[level])
+        except KeyError:
+            pass
         self._out.write(f"{message}\n")
 
     def debug(self, message):
@@ -51,3 +78,12 @@ class YAMLFixerBase:
     def info(self, message):
         """Output an informational message."""
         self._output(message)
+
+    def colorize(self, message, color):
+        """Returns a colorized message if output stream is a tty."""
+        if self._outisatty:
+            try:
+                message = f"\033[38;2;{';'.join([str(s) for s in COLORS[color]])}m{message}\033[0m"
+            except KeyError:
+                pass
+        return message

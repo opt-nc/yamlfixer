@@ -27,12 +27,12 @@ from .common import YAMLFixerBase
 from .filefixer import FileFixer
 from .problemfixer import ProblemFixer
 
-COLORSEQ = {"PASSED": "38;2;0;255;0m",
-            "MODIFIED": "38;2;0;0;255m",
-            "FIXED": "38;2;0;255;0m",
-            "SKIPPED": "38;2;255;0;255m",
-            "ERROR": "38;2;255;0;0m",
-            "UNKNOWN": "38;2;255;255;0m"}
+STATUSCOLORS = {"PASSED": "green",
+                "MODIFIED": "blue",
+                "FIXED": "lime",
+                "SKIPPED": "magenta",
+                "ERROR": "red",
+                "UNKNOWN": "yellow"}
 
 
 class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
@@ -108,15 +108,18 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                     msg = f" (handled {handled}/{issues})"
                 else:
                     msg = ""
-                if self.arguments.summary and self.outisatty:
-                    status = f"\033[{COLORSEQ.get(status.strip(), '0m')}{status}\033[0m"
+                if self.arguments.summary:
+                    try:
+                        status = self.colorize(status, STATUSCOLORS[status.strip()])
+                    except KeyError:
+                        pass
                 self.info(f"{status} {filename}{msg}")
             if self.arguments.nochange:
-                message = "WARNING: No file was modified per user's request !"
-                if self.arguments.summary and self.outisatty:
-                    self.info(f"\033[38;2;255;0;0m{message}\033[0m")
+                message = "No file was modified per user's request !"
+                if self.arguments.summary:
+                    self.warning(message)
                 else:
-                    self.info(f"{message}")
+                    self.info(f"WARNING: {message}")  # Ensure it's not colored
         elif self.arguments.jsonsummary:
             summarymapping = {"filestofix": len(self.filenames),
                               "passedstrictmode": self.passed,
