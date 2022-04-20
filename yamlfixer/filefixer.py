@@ -122,9 +122,13 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                                                          final,
                                                          fromfile=self.filename,
                                                          tofile=relafter)))
-        if not original[-1].endswith("\n"):
-            # No newline at EOF
-            differences.insert(-1, "\n\\ No newline at end of file\n")
+        try:
+            if not original[-1].endswith("\n"):
+                # No newline at EOF
+                differences.insert(-1, "\n\\ No newline at end of file\n")
+        except IndexError:
+            # Original file was empty
+            pass
         return differences
 
     def dump(self, outcontents):
