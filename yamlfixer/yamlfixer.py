@@ -18,12 +18,12 @@
 
 """yamlfixer's main class."""
 
-import sys
 import os
 import json
 
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import EXIT_OK, EXIT_NOK
+from .common import YAMLFixerBase
 from .filefixer import FileFixer
 from .problemfixer import ProblemFixer
 
@@ -35,11 +35,11 @@ COLORSEQ = {"PASSED": "38;2;0;255;0m",
             "UNKNOWN": "38;2;255;255;0m"}
 
 
-class YAMLFixer:  # pylint: disable=too-many-instance-attributes
+class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
     """To hold files fixing logic."""
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
-        self.arguments = arguments
+        super().__init__(arguments)
         self.extensions = [f".{e.strip()}" for e in self.arguments.ext.split(",")]
         self.passed = self.modified \
             = self.fixed \
@@ -48,19 +48,6 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
             = self.unknown = 0
         self.summary = []
         self.filenames = self.generate_unique_filenames(self.arguments.filenames)
-
-    def info(self, message):  # pylint: disable=no-self-use
-        """Output an informational message to stderr."""
-        sys.stderr.write(f"{message}\n")
-
-    def debug(self, message):
-        """Output a debug message to stderr if debug mode is active."""
-        if self.arguments.debug:
-            sys.stderr.write(f"DEBUG: {message}\n")
-
-    def error(self, message):  # pylint: disable=no-self-use
-        """Output an error message to stderr."""
-        sys.stderr.write(f"ERROR: {message}\n")
 
     def matchesext(self, filename):
         """Returns True if filename matches the set of extensions, else False."""
@@ -71,18 +58,18 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
 
     def recurse(self, path, fnmapping, level=0):
         """Find all files in a directory recursively."""
-        self.debug(f"SCAN [{path}] at level {level} with limit {self.arguments.recurse}\n")
+        self.debug(f"SCAN [{path}] at level {level} with limit {self.arguments.recurse}")
         if (self.arguments.recurse < 0) or (level <= self.arguments.recurse):
-            with os.scandir(path) as dircontents:
-                for entry in dircontents:
-                    try:
+            try:
+                with os.scandir(path) as dircontents:
+                    for entry in dircontents:
                         if entry.is_file() and self.matchesext(entry.name):
                             # Ensures uniqueness based on absolute path
                             fnmapping[os.path.abspath(entry.path)] = entry.path
                         elif entry.is_dir(follow_symlinks=False):
                             self.recurse(entry.path, fnmapping, level+1)
-                    except PermissionError:
-                        pass
+            except PermissionError:
+                pass
 
     def generate_unique_filenames(self, fnames):
         """Generate a list of unique filenames."""
@@ -121,12 +108,12 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                     msg = f" (handled {handled}/{issues})"
                 else:
                     msg = ""
-                if self.arguments.summary and sys.stderr.isatty():
+                if self.arguments.summary and self.outisatty:
                     status = f"\033[{COLORSEQ.get(status.strip(), '0m')}{status}\033[0m"
                 self.info(f"{status} {filename}{msg}")
             if self.arguments.nochange:
                 message = "WARNING: No file was modified per user's request !"
-                if self.arguments.summary and sys.stderr.isatty():
+                if self.arguments.summary and self.outisatty:
                     self.info(f"\033[38;2;255;0;0m{message}\033[0m")
                 else:
                     self.info(f"{message}")
@@ -168,7 +155,7 @@ class YAMLFixer:  # pylint: disable=too-many-instance-attributes
                     uifilename = '<stdin>'
                 else:
                     uifilename = filename
-                filetofix = FileFixer(self, filename)
+                filetofix = FileFixer(self.arguments, filename)
                 self.debug(f"Fixing {uifilename} ... ")
                 (status, unidiff) = filetofix.fix()
                 diffto.writelines([f"{line}\n" for line in unidiff])

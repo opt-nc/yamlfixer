@@ -19,14 +19,16 @@
 """yamlfixer's ProblemFixer class."""
 
 from .constants import FIXER_HANDLED, FIXER_UNHANDLED
+from .common import YAMLFixerBase
 
 
-class ProblemFixer:
+class ProblemFixer(YAMLFixerBase):
     """To hold problem fixing logic."""
     fixers = {}
 
     def __init__(self, filefixer, linenum, colnum, problem):
         """Intializes a problem fixer."""
+        super().__init__(filefixer.arguments)
         self.ffixer = filefixer
         self.linenum = linenum + self.ffixer.loffset - 1
         self.colnum = colnum + self.ffixer.coffset - 1
@@ -35,7 +37,7 @@ class ProblemFixer:
             for methodname in [m for m in dir(self) if m.startswith('fix_')]:
                 docstring = getattr(self, methodname).__doc__
                 for prob in [pb.strip()[2:] for pb in docstring.splitlines()[1:]]:
-                    if prob and ((not prob.startswith("syntax error")) or (not self.ffixer.yfixer.arguments.nosyntax)):
+                    if prob and ((not prob.startswith("syntax error")) or (not self.arguments.nosyntax)):
                         self.fixers[prob] = methodname
 
     def __call__(self):
@@ -48,10 +50,10 @@ class ProblemFixer:
                     line = self.ffixer.lines[-1]
                 left = line[:self.colnum]
                 right = line[self.colnum:]
-                self.ffixer.yfixer.debug(f'Calling {methodname}("{left}", "{right}")')
+                self.debug(f'Calling {methodname}("{left}", "{right}")')
                 getattr(self, methodname)(left, right)
                 return FIXER_HANDLED
-        self.ffixer.yfixer.debug("No handler found")
+        self.debug("No handler found")
         return FIXER_UNHANDLED
 
     def get_indentation(self, offset=0):
@@ -150,7 +152,7 @@ class ProblemFixer:
              - syntax error: found character '\\t' that cannot start any token (syntax)
         """
         line = self.ffixer.lines[self.linenum][:]
-        self.ffixer.lines[self.linenum] = line.expandtabs(self.ffixer.yfixer.arguments.tabsize)
+        self.ffixer.lines[self.linenum] = line.expandtabs(self.arguments.tabsize)
         self.ffixer.coffset += len(self.ffixer.lines[self.linenum]) - len(line)
 
     def fix_missingspace(self, left, right):

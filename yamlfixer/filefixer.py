@@ -26,6 +26,7 @@ import difflib
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
 from .constants import EXIT_PROBLEM
+from .common import YAMLFixerBase
 from .problemfixer import ProblemFixer
 
 LINTERCOMMAND = 'yamllint --format parsable --strict -'
@@ -37,11 +38,11 @@ ALLOWEDMIMETYPES = ["text/plain",
                     "application/x-yaml"]
 
 
-class FileFixer:  # pylint: disable=too-many-instance-attributes
+class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
     """To hold file fixing logic."""
-    def __init__(self, yamlfixer, filename):
+    def __init__(self, arguments, filename):
         """Initialize a file to fix."""
-        self.yfixer = yamlfixer
+        super().__init__(arguments)
         self.filename = filename
         self.loffset = self.coffset = 0
         self.shebang = ''
@@ -98,16 +99,16 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                 try:
                     self.incontents = sys.stdin.read()
                 except KeyboardInterrupt:
-                    self.yfixer.error("\nInterrupted at user's request.")
+                    self.error("\nInterrupted at user's request.")
                     self.incontents = ""  # Initialized but empty
             else:
                 try:
                     with open(self.filename, 'r', encoding='utf-8') as yamlfile:
                         self.incontents = yamlfile.read()
                 except (FileNotFoundError, PermissionError) as msg:
-                    self.yfixer.error(f"{msg}")
+                    self.error(f"{msg}")
         except (UnicodeDecodeError, IsADirectoryError) as msg:
-            self.yfixer.error(f"{self.filename} doesn't seem to be YAML : {msg}")
+            self.error(f"{self.filename} doesn't seem to be YAML : {msg}")
 
     def diff(self, finalcontent):
         """Returns a unified diff of original content to final one."""
@@ -131,7 +132,7 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
         else:
             retcode = FIX_MODIFIED
         finaloutput = self.shebang + (outcontents or '')
-        if self.yfixer.arguments.nochange:
+        if self.arguments.nochange:
             # We don't want to modify anything
             if self.filename == '-':  # Always dump original input to stdout in this case
                 sys.stdout.write(self.shebang + (self.incontents or ''))
@@ -143,18 +144,18 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
                 sys.stdout.flush()
             elif retcode == FIX_MODIFIED:  # Don't write unnecessarily
                 try:
-                    if self.yfixer.arguments.backup:  # pylint: disable=no-member
+                    if self.arguments.backup:
                         # Try to make a backup of the original file
                         try:
                             os.replace(self.filename,
-                                       f"{self.filename}{self.yfixer.arguments.backupsuffix}")
+                                       f"{self.filename}{self.arguments.backupsuffix}")
                         except PermissionError as msg:
-                            self.yfixer.error(f"impossible to create a backup : {msg}")
+                            self.error(f"impossible to create a backup : {msg}")
                     # Overwrite the original file with the new contents
                     with open(self.filename, 'w', encoding='utf-8') as yamlfile:
                         yamlfile.write(finaloutput)
                 except PermissionError as msg:
-                    self.yfixer.error(f"impossible to save modified contents : {msg}")
+                    self.error(f"impossible to save modified contents : {msg}")
                     retcode = FIX_PERMERROR
 
         # We've successfully modified the file, so we lint its new contents
@@ -181,7 +182,7 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
             (_, differences) = self.dump(self.incontents)
             return (FIX_PASSEDLINTER, differences)
         if ltexitcode == 127:  # yamllint not found !
-            self.yfixer.error("yamllint is not in your PATH, please ensure it's installed.")
+            self.error("yamllint is not in your PATH, please ensure it's installed.")
             sys.exit(EXIT_PROBLEM)
 
         # Organize the set of problems to fix
@@ -193,11 +194,11 @@ class FileFixer:  # pylint: disable=too-many-instance-attributes
             self.coffset = 0
             for colnumber in sorted(linestofix[linenumber].keys()):
                 for problem in linestofix[linenumber][colnumber]:
-                    self.yfixer.debug(f"({linenumber}+{self.loffset}, {colnumber}+{self.coffset}) => [{problem}]")
+                    self.debug(f"({linenumber}+{self.loffset}, {colnumber}+{self.coffset}) => [{problem}]")
                     handled = ProblemFixer(self, linenumber, colnumber, problem)()
                     if handled == FIXER_HANDLED:
                         self.issueshandled += 1
-                        self.yfixer.debug(f"HANDLED: #{self.issueshandled}")
+                        self.debug(f"HANDLED: #{self.issueshandled}")
                     else:
-                        self.yfixer.debug("UNHANDLED")
+                        self.debug("UNHANDLED")
         return self.dump('\n'.join(self.lines) + '\n')
