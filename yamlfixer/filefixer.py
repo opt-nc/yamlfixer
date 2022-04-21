@@ -116,16 +116,23 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
         original = (self.shebang + (self.incontents or '')).splitlines(keepends=True)
         final = finalcontent.splitlines(keepends=True)
         if original != final:
-            relafter = f"{self.filename}-after"
-            differences.append(f"diff -u {self.filename} {relafter}\n")
+            relbefore = f'"{self.filename}"'
+            relafter = f'"{self.filename}-after"'
+            differences.append(f"diff -u {relbefore} {relafter}\n")
             differences.extend(list(difflib.unified_diff(original,
                                                          final,
-                                                         fromfile=self.filename,
+                                                         fromfile=relbefore,
                                                          tofile=relafter)))
         try:
             if not original[-1].endswith("\n"):
                 # No newline at EOF
-                differences.insert(-1, "\n\\ No newline at end of file\n")
+                # We know differences won't be empty then
+                nbplus = 0
+                diffix = len(differences)
+                while (diffix > 0) and differences[diffix-1].startswith("+"):
+                    nbplus += 1
+                    diffix -= 1
+                differences.insert(-nbplus, "\n\\ No newline at end of file\n")
         except IndexError:
             # Original file was empty
             pass
