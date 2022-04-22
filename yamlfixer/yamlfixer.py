@@ -40,7 +40,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
         super().__init__(arguments)
-        self.debug(f"arguments={repr(self.arguments)}")
+        self.debug(f"arguments={repr(arguments)}")
         self.extensions = [f".{e.strip()}" for e in self.arguments.ext.split(",")]
         self.passed = self.modified \
             = self.fixed \

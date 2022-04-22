@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021-2022 OPT-NC
@@ -29,7 +30,7 @@ from .constants import EXIT_PROBLEM
 from .common import YAMLFixerBase
 from .problemfixer import ProblemFixer
 
-LINTERCOMMAND = 'yamllint --format parsable --strict -'
+LINTERCOMMAND = 'yamllint --format parsable --strict'
 ALLOWEDMIMETYPES = ["text/plain",
                     "text/vnd.yaml",
                     "text/yaml",
@@ -83,11 +84,15 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
            Returns the (linter's exitcode, linter's stdout) tuple.
         """
         command = LINTERCOMMAND
-        if self.arguments.config_data and self.arguments.config_data.strip():
-            command = f"{command[:-1]} --config-data {self.arguments.config_data.strip()} -"
-        elif self.arguments.config_file and self.arguments.config_file.strip():
-            command = f"{command[:-1]} --config-file {self.arguments.config_file.strip()} -"
-        linter = subprocess.run(command,
+        if self.arguments.config_data:
+            confdata = self.arguments.config_data.strip()
+            if confdata:
+                command = f"{command} --config-data {confdata}"
+        elif self.arguments.config_file:
+            conffile = self.arguments.config_file.strip()
+            if conffile:
+                command = f"{command} --config-file {conffile}"
+        linter = subprocess.run(f"{command} -",
                                 shell=True,
                                 capture_output=True,
                                 text=True,
