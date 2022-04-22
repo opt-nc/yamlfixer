@@ -113,6 +113,15 @@ def run():
                          default=2,
                          help="sets the number of spaces to replace tabs "
                          "with, default is `%(default)i`.")
+    mutuallyexclusive = cmdline.add_mutually_exclusive_group()
+    mutuallyexclusive.add_argument("-c", "--config-file",
+                                   metavar="CONFIG_FILE",
+                                   default=None,
+                                   help="path to yamllint's custom configuration file, none by default.")
+    mutuallyexclusive.add_argument("-C", "--config-data",
+                                   metavar="CONFIG_DATA",
+                                   default=None,
+                                   help="custom configuration for yamllint as YAML source, none by default.")
     cmdline.add_argument("filenames",
                          nargs="*",
                          metavar="FILE_or_DIR",

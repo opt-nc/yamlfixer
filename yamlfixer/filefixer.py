@@ -77,13 +77,17 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
 
         return problemlines
 
-    @staticmethod
-    def lint(contents):
+    def lint(self, contents):
         """Launches the linter on a file's contents.
 
            Returns the (linter's exitcode, linter's stdout) tuple.
         """
-        linter = subprocess.run(LINTERCOMMAND,
+        command = LINTERCOMMAND
+        if self.arguments.config_data and self.arguments.config_data.strip():
+            command = f"{command[:-1]} --config-data {self.arguments.config_data.strip()} -"
+        elif self.arguments.config_file and self.arguments.config_file.strip():
+            command = f"{command[:-1]} --config-file {self.arguments.config_file.strip()} -"
+        linter = subprocess.run(command,
                                 shell=True,
                                 capture_output=True,
                                 text=True,

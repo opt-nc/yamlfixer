@@ -106,6 +106,10 @@ optional arguments:
                         output is identical to --plainsummary.
   -t TABSIZE, --tabsize TABSIZE
                         sets the number of spaces to replace tabs with, default is `2`.
+  -c CONFIG_FILE, --config-file CONFIG_FILE
+                        path to yamllint's custom configuration file, none by default.
+  -C CONFIG_DATA, --config-data CONFIG_DATA
+                        custom configuration for yamllint as YAML source, none by default.
 ```
 
 yamlfixer launches `yamllint` on each specified filename, then parses
