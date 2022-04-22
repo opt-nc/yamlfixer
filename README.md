@@ -72,8 +72,9 @@ This software automatically fixes some errors and warnings reported by
 `yamllint`.
 
 ```shell
-usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-e EXTENSIONS] [-l] [-n] [-r LEVEL]
-                 [-j | -p | -s] [-t TABSIZE]
+usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-D DIFF_FILE] [-e EXTENSIONS] [-l] [-N] [-n]
+                 [-r LEVEL] [-j | -p | -s] [-t TABSIZE]
+                 [-c CONFIG_FILE | -C CONFIG_DATA]
                  [FILE_or_DIR [FILE_or_DIR ...]]
 
 Fix formatting problems in YAML documents. If no file is specified, then reads input from `stdin`.
