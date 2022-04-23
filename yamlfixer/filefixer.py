@@ -23,6 +23,7 @@ import sys
 import os
 import subprocess
 import difflib
+import shlex
 
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
@@ -87,18 +88,21 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
         if self.arguments.config_data:
             confdata = self.arguments.config_data.strip()
             if confdata:
-                command = f"{command} --config-data {confdata}"
+                command = f"{command} --config-data {shlex.quote(confdata)}"
         elif self.arguments.config_file:
             conffile = self.arguments.config_file.strip()
             if conffile:
-                command = f"{command} --config-file {conffile}"
-        linter = subprocess.run(f"{command} -",
+                command = f"{command} --config-file {shlex.quote(conffile)}"
+        command = f"{command} -"
+        self.debug(f"Executing linter with {repr(command)}")
+        linter = subprocess.run(command,
                                 shell=True,
                                 capture_output=True,
                                 text=True,
                                 check=False,
                                 input=contents,
                                 encoding='utf-8')
+        self.debug(f"Linter's exit code is {repr(linter.returncode)}")
         return (linter.returncode, linter.stdout)
 
     def load(self):
