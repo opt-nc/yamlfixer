@@ -42,7 +42,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 
-def run():
+def run(argv=None):
     """Main function."""
     # Ensure we read from stdin in case it's redirected
     # We add some additional checks because GitHub actions don't
@@ -130,7 +130,7 @@ def run():
                          help="the YAML files to fix. Use `-` to read from `stdin`.")
     if cmdline.prog == "__main__.py":
         cmdline.prog = "yamlfixer"
-    arguments = cmdline.parse_args()
+    arguments = cmdline.parse_args(argv)
     if arguments.tabsize < 1:
         sys.stderr.write(f"Invalid tabsize [{arguments.tabsize}]\n")
         return EXIT_CMDLINEERROR
