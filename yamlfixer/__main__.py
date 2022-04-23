@@ -23,6 +23,7 @@ import os
 import argparse
 
 from . import __version__, __copyright__
+from .constants import EXIT_CMDLINEERROR
 from .yamlfixer import YAMLFixer
 
 GPLBLURB = """
@@ -130,6 +131,9 @@ def run():
     if cmdline.prog == "__main__.py":
         cmdline.prog = "yamlfixer"
     arguments = cmdline.parse_args()
+    if arguments.tabsize < 1:
+        sys.stderr.write(f"Invalid tabsize [{arguments.tabsize}]\n")
+        return EXIT_CMDLINEERROR
     yfixer = YAMLFixer(arguments)
     if arguments.listfixers:
         return yfixer.listfixers()
