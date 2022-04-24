@@ -16,6 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""Tests invocation from the command line."""
+
 from io import StringIO
 import sys
 import unittest
