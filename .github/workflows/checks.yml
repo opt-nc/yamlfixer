@@ -33,7 +33,48 @@ jobs:
       - name: lint Python code through pylint
         run: pylint yamlfixer
 
-      # ATTENTION : No workflow will be run on main :-(
+  tests:
+    name: Tests
+    needs: [lint]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.6'
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Append GitHub Actions system path
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: install coveralls
+        run: pip install coveralls
+
+      - name: install yamlfixer
+        run: pip install .
+
+      - name: launch tests
+        run: coverage run --source=yamlfixer -m unittest discover
+
+  automerge:
+    name: AutoMerge
+    needs: [lint, tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Create Pull Request
         id: createpr
         uses: repo-sync/pull-request@v2
@@ -42,7 +83,6 @@ jobs:
           destination_branch: "main"  # If blank, default: master
           github_token: ${{secrets.GITHUB_TOKEN}}
 
-      # ATTENTION : No workflow will be run on main :-(
       # Activate auto merge
       - if: steps.createpr.outputs.pr_number != 0
         name: Enable Pull Request Automerge
