@@ -41,8 +41,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 
-def run(argv=None):
-    """Main function."""
+def parse_commandline(argv=None):
+    """Parse the command line and return the parsed arguments."""
     # Ensure we read from stdin in case it's redirected
     # We add some additional checks because GitHub actions don't
     # provide a TTY
@@ -132,6 +132,12 @@ def run(argv=None):
     arguments = cmdline.parse_args(argv)
     if arguments.tabsize < 1:
         cmdline.error(f"invalid tabsize value '{arguments.tabsize}'")
+    return arguments
+
+
+def run(argv=None):
+    """Main function."""
+    arguments = parse_commandline(argv)
     yfixer = YAMLFixer(arguments)
     if arguments.listfixers:
         return yfixer.listfixers()
