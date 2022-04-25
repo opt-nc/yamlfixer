@@ -25,7 +25,7 @@ import unittest
 from yamlfixer.__main__ import run
 
 
-class RunContext(object):
+class RunContext():
     """Context manager for ``run()`` to capture streams."""
     def __init__(self, case):
         self.stdout = self.stderr = None
