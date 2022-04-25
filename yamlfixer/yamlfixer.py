@@ -111,7 +111,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                     msg = ""
                 if self.arguments.summary:
                     try:
-                        status = self.colorize(status, STATUSCOLORS[status.strip()])
+                        status = self.colorize(status.rjust(8), STATUSCOLORS[status])
                     except KeyError:
                         pass
                 self.info(f"{status} {filename}{msg}")
@@ -132,7 +132,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                               "details": {},
                               "nochangemode": self.arguments.nochange}
             for (status, filename, issues, handled) in self.summary:
-                summarymapping["details"][filename] = {"status": status.strip(),
+                summarymapping["details"][filename] = {"status": status,
                                                        "issues": issues,
                                                        "handled": handled}
             self.info(json.dumps(summarymapping, indent=4))
@@ -165,7 +165,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                 diffto.writelines(unidiff)
                 if status == FIX_PASSEDLINTER:
                     self.debug("passed linter's strict mode.")
-                    txtstatus = "  PASSED"
+                    txtstatus = "PASSED"
                     self.passed += 1
                 elif status == FIX_MODIFIED:
                     self.debug("was modified.")
@@ -173,19 +173,19 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                     self.modified += 1
                 elif status == FIX_FIXED:
                     self.debug("was fixed.")
-                    txtstatus = "   FIXED"
+                    txtstatus = "FIXED"
                     self.fixed += 1
                 elif status == FIX_SKIPPED:
                     self.debug("was skipped.")
-                    txtstatus = " SKIPPED"
+                    txtstatus = "SKIPPED"
                     self.skipped += 1
                 elif status == FIX_PERMERROR:
                     self.debug("was not writeable.")
-                    txtstatus = "   ERROR"
+                    txtstatus = "ERROR"
                     self.permerrors += 1
                 else:
                     self.error(f"unknown fixing status [{status}]")
-                    txtstatus = " UNKNOWN"
+                    txtstatus = "UNKNOWN"
                     self.unknown += 1
                 self.summary.append((txtstatus,
                                      uifilename,
