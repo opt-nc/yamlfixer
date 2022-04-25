@@ -129,8 +129,8 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                               "skipped": self.skipped,
                               "notwriteable": self.permerrors,
                               "unknown": self.unknown,
-                              "details": {},
-                              "nochangemode": self.arguments.nochange}
+                              "nochangemode": self.arguments.nochange,
+                              "details": {}}
             for (status, filename, issues, handled) in self.summary:
                 summarymapping["details"][filename] = {"status": status,
                                                        "issues": issues,
