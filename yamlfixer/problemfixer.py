@@ -24,6 +24,7 @@ from .common import YAMLFixerBase
 
 class ProblemFixer(YAMLFixerBase):
     """To hold problem fixing logic."""
+
     fixers = {}
 
     def __init__(self, filefixer, linenum, colnum, problem):
@@ -57,11 +58,11 @@ class ProblemFixer(YAMLFixerBase):
         return FIXER_UNHANDLED
 
     def get_indentation(self, offset=0):
-        """Returns the indentation of the current (possibly offset) line."""
+        """Return the indentation of the current (possibly offset) line."""
         lnum = self.linenum
         nblines = len(self.ffixer.lines)
         if offset:
-            direction = int(offset/abs(offset))
+            direction = int(offset / abs(offset))
             lnum += direction
             while offset:
                 while (0 < lnum < nblines) and not self.ffixer.lines[lnum].strip():
@@ -87,27 +88,27 @@ class ProblemFixer(YAMLFixerBase):
     def fix_missing_docstart(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - missing document start
-        """
+        """  # noqa: D205, D208, D400
         self.ffixer.lines.insert(0, '---')
         self.ffixer.loffset += 1
 
     def fix_expected_docstart(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - syntax error: expected '<document start>', but found '<stream end>' (syntax)
-        """
+        """  # noqa: D205, D208, D400
         self.ffixer.lines.insert(self.linenum, '---')
         self.ffixer.loffset += 1
 
     def fix_newlineateof(self, left, right):  # pylint: disable=unused-argument,no-self-use
         """Fix:
              - no new line character at the end of file
-        """
+        """  # noqa: D205, D208, D400
         # We simply ignore it, because we always add \n when dumping.
 
     def fix_truthy(self, left, right):
         """Fix:
              - truthy value should be one of [false, true] (truthy)
-        """
+        """  # noqa: D205, D208, D400
         for trueval in ('on', 'yes', 'true'):
             if right.lower().startswith(trueval):
                 self.ffixer.lines[self.linenum] = left + 'true' + right[len(trueval):]
@@ -122,7 +123,7 @@ class ProblemFixer(YAMLFixerBase):
     def fix_toofew_spacesbefore(self, left, right):
         """Fix:
              - too few spaces before comment (comments)
-        """
+        """  # noqa: D205, D208, D400
         spaces = ' '
         if left[-1] != ' ':
             spaces += ' '
@@ -132,14 +133,14 @@ class ProblemFixer(YAMLFixerBase):
     def fix_trailingspaces(self, left, right):
         """Fix:
              - trailing spaces (trailing-spaces)
-        """
+        """  # noqa: D205, D208, D400
         # No need to adjust coffset because we are at EOL by definition
         self.ffixer.lines[self.linenum] = (left + right).rstrip()
 
     def fix_toomany_blanklines(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - too many blank lines
-        """
+        """  # noqa: D205, D208, D400
         parts = self.problem.split()
         blanklines = int(parts[4][1:])
         maxblanklines = int(parts[6].split(')')[0])
@@ -148,9 +149,9 @@ class ProblemFixer(YAMLFixerBase):
         self.ffixer.loffset -= nblines
 
     def fix_syntax_tabchar(self, left, right):  # pylint: disable=unused-argument
-        """Fix:
-             - syntax error: found character '\\t' that cannot start any token (syntax)
-        """
+        r"""Fix:
+             - syntax error: found character '\t' that cannot start any token (syntax)
+        """  # noqa: D205, D208, D400
         line = self.ffixer.lines[self.linenum][:]
         self.ffixer.lines[self.linenum] = line.expandtabs(self.arguments.tabsize)
         self.ffixer.coffset += len(self.ffixer.lines[self.linenum]) - len(line)
@@ -159,7 +160,7 @@ class ProblemFixer(YAMLFixerBase):
         """Fix:
              - missing starting space in comment (comments)
              - too few spaces after comma (commas)
-        """
+        """  # noqa: D205, D208, D400
         self.ffixer.lines[self.linenum] = left + ' ' + right
         self.ffixer.coffset += 1
 
@@ -168,7 +169,7 @@ class ProblemFixer(YAMLFixerBase):
              - too many spaces after colon (colons)
              - too many spaces after comma (commas)
              - too many spaces after hyphen (hyphens)
-        """
+        """  # noqa: D205, D208, D400
         pos = self.colnum
         while (pos > 0) and (left[pos - 1] == ' '):
             pos -= 1
@@ -182,7 +183,7 @@ class ProblemFixer(YAMLFixerBase):
              - too many spaces inside empty brackets (brackets)
              - too many spaces before comma (commas)
              - too many spaces before colon (colons)
-        """
+        """  # noqa: D205, D208, D400
         pos = self.colnum
         while (pos > 0) and (left[pos - 1] == ' '):
             pos -= 1
@@ -192,7 +193,7 @@ class ProblemFixer(YAMLFixerBase):
     def fix_comment_notindentedlike(self, left, right):
         """Fix:
              - comment not indented like content (comments-indentation)
-        """
+        """  # noqa: D205, D208, D400
         if self.linenum > 0:
             indentation = self.get_indentation(-1)
             # If previous line is similarly indented then use indentation of next line
@@ -206,7 +207,7 @@ class ProblemFixer(YAMLFixerBase):
     def fix_wrong_indentation(self, left, right):
         """Fix:
              - wrong indentation: expected
-        """
+        """  # noqa: D205, D208, D400
         # TODO: yamllint only reports the first faulty line in a block :-(
         # TODO: see https://github.com/adrienverge/yamllint/issues/427
         # TODO: we fix anyway, knowing that we may need to launch the command
@@ -225,7 +226,7 @@ class ProblemFixer(YAMLFixerBase):
     def fix_linetoolong(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - line too long
-        """
+        """  # noqa: D205, D208, D400
         # TODO: currently we fix this by disabling the error in yamllint, it's the easiest way
         self.ffixer.lines.insert(self.linenum, ' ' * self.get_indentation()
                                  + '# yamllint disable-line rule:line-length')
@@ -237,14 +238,14 @@ class ProblemFixer(YAMLFixerBase):
              - syntax error: expected <block end>, but found '<block mapping start>'
              - syntax error: expected <block end>, but found '<block sequence start>' (syntax)
              - syntax error: expected <block end>, but found '?'
-        """
+        """  # noqa: D205, D208, D400
         indentation = self.get_indentation()
         previndentation = self.get_indentation(-1)
         if not right.startswith("-"):
-            if self.ffixer.lines[self.linenum-1][previndentation:].startswith("- "):
+            if self.ffixer.lines[self.linenum - 1][previndentation:].startswith("- "):
                 # if previous line is a list item, indent like item itself
                 previndentation += 2
-            elif self.ffixer.lines[self.linenum-1][previndentation:].startswith("-"):
+            elif self.ffixer.lines[self.linenum - 1][previndentation:].startswith("-"):
                 # same as above, because yamllint allows no space before item
                 previndentation += 1
         self.ffixer.lines[self.linenum] = ' ' * previndentation + (left + right).lstrip()

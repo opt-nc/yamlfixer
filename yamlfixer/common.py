@@ -19,6 +19,7 @@
 """yamlfixer's base class."""
 
 import sys
+from contextlib import suppress
 
 COLORS = {"black": (0, 0, 0),
           "white": (255, 255, 255),
@@ -46,8 +47,9 @@ LEVELS = {"ERROR": "red",
 
 class YAMLFixerBase:
     """Base class for yamlfixer."""
+
     def __init__(self, arguments):
-        """Saves command line arguments."""
+        """Save command line arguments."""
         self._out = sys.stderr
         self._outisatty = self._out.isatty() or arguments.forcecolors
         self.arguments = arguments
@@ -56,10 +58,8 @@ class YAMLFixerBase:
         """Output a message with optional level to stderr."""
         if level is not None:
             message = f"{level}: {message}"
-        try:
+        with suppress(KeyError):
             message = self.colorize(message, LEVELS[level])
-        except KeyError:
-            pass
         self._out.write(f"{message}\n")
 
     def debug(self, message):
@@ -80,10 +80,8 @@ class YAMLFixerBase:
         self._output(message)
 
     def colorize(self, message, color):
-        """Returns a colorized message if output stream is a tty."""
+        """Return a colorized message if output stream is a tty."""
         if self._outisatty:
-            try:
+            with suppress(KeyError):
                 message = f"\033[38;2;{';'.join([str(s) for s in COLORS[color]])}m{message}\033[0m"
-            except KeyError:
-                pass
         return message

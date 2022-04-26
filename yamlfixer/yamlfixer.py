@@ -20,6 +20,7 @@
 
 import os
 import json
+from contextlib import suppress
 
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import EXIT_OK, EXIT_NOK
@@ -37,6 +38,7 @@ STATUSCOLORS = {"PASSED": "green",
 
 class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
     """To hold files fixing logic."""
+
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
         super().__init__(arguments)
@@ -51,26 +53,20 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
         self.filenames = self.generate_unique_filenames(self.arguments.filenames)
 
     def matchesext(self, filename):
-        """Returns True if filename matches the set of extensions, else False."""
-        for ext in self.extensions:
-            if filename.endswith(ext):
-                return True
-        return False
+        """Return True if filename matches the set of extensions, else False."""
+        return any(filename.endswith(ext) for ext in self.extensions)
 
     def recurse(self, path, fnmapping, level=0):
         """Find all files in a directory recursively."""
         self.debug(f"SCAN [{path}] at level {level} with limit {self.arguments.recurse}")
         if (self.arguments.recurse < 0) or (level <= self.arguments.recurse):
-            try:
-                with os.scandir(path) as dircontents:
-                    for entry in dircontents:
-                        if entry.is_file() and self.matchesext(entry.name):
-                            # Ensures uniqueness based on absolute path
-                            fnmapping[os.path.abspath(entry.path)] = entry.path
-                        elif entry.is_dir(follow_symlinks=False):
-                            self.recurse(entry.path, fnmapping, level+1)
-            except PermissionError:
-                pass
+            with suppress(PermissionError), os.scandir(path) as dircontents:
+                for entry in dircontents:
+                    if entry.is_file() and self.matchesext(entry.name):
+                        # Ensures uniqueness based on absolute path
+                        fnmapping[os.path.abspath(entry.path)] = entry.path
+                    elif entry.is_dir(follow_symlinks=False):
+                        self.recurse(entry.path, fnmapping, level + 1)
 
     def generate_unique_filenames(self, fnames):
         """Generate a list of unique filenames."""
@@ -110,10 +106,8 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                 else:
                     msg = ""
                 if self.arguments.summary:
-                    try:
+                    with suppress(KeyError):
                         status = self.colorize(status.rjust(8), STATUSCOLORS[status])
-                    except KeyError:
-                        pass
                 self.info(f"{status} {filename}{msg}")
             if self.arguments.nochange:
                 message = "No file was modified per user's request !"

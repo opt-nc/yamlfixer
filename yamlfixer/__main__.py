@@ -140,7 +140,7 @@ def parse_commandline(argv=None):
 
 
 def run(argv=None):
-    """Main function."""
+    """Run the program with an optional list of command line arguments."""
     arguments = parse_commandline(argv)
     yfixer = YAMLFixer(arguments)
     if arguments.listfixers:

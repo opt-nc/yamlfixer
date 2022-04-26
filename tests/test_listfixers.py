@@ -30,6 +30,7 @@ from yamlfixer.yamlfixer import YAMLFixer
 
 class ListFixersTestCase(unittest.TestCase):
     """Tests the --listfixers command line option."""
+
     def test_listfixers(self):
         """\
         Fixers:
@@ -58,11 +59,13 @@ class ListFixersTestCase(unittest.TestCase):
           - trailing spaces (trailing-spaces)
           - truthy value should be one of [false, true] (truthy)
           - wrong indentation: expected
-        """
+        """  # noqa: D205, D208, D210, D301, D400
         sys.stderr = StringIO()
         yfixer = YAMLFixer(parse_commandline(["yamlfixer", "--listfixers"]))
-        retcode = yfixer.listfixers()
+
+        retcode = yfixer.listfixers()  # act
+
         output = sys.stderr.getvalue()
         sys.stderr = sys.__stderr__
-        self.assertEqual(retcode, EXIT_OK)
-        self.assertEqual(output, dedent(self.test_listfixers.__doc__))
+        assert retcode == EXIT_OK
+        assert output == dedent(self.test_listfixers.__doc__)
