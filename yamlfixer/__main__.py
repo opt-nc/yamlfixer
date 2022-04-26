@@ -83,7 +83,7 @@ def parse_commandline(argv=None):
                          "directories for YAML files. Defaults to `%(default)s`.")
     cmdline.add_argument("-f", "--forcecolors",
                          action="store_true",
-                         help="force colored output even if stream is not a TTY.")
+                         help="force colorized output even if stream is not a TTY.")
     cmdline.add_argument("-l", "--listfixers",
                          action="store_true",
                          help="output the list of available fixers.")
@@ -109,8 +109,9 @@ def parse_commandline(argv=None):
                                    help="output plain text summary to stderr.")
     mutuallyexclusive.add_argument("-s", "--summary",
                                    action="store_true",
-                                   help="output colored plain text summary to stderr. "
-                                   "If stderr is not a TTY output is identical to --plainsummary.")
+                                   help="output colorized plain text summary to stderr. "
+                                   "If stderr is not a TTY output is identical to --plainsummary "
+                                   "unless --forcecolors is also used.")
     cmdline.add_argument("-t", "--tabsize",
                          type=int,
                          default=2,
