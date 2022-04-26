@@ -120,7 +120,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                 if self.arguments.summary:
                     self.warning(message)
                 else:
-                    self.info(f"WARNING: {message}")  # Ensure it's not colored
+                    self.info(f"WARNING: {message}")  # Ensure it's not colorized
         elif self.arguments.jsonsummary:
             summarymapping = {"filestofix": len(self.filenames),
                               "passedstrictmode": self.passed,

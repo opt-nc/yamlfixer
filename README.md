@@ -95,7 +95,7 @@ optional arguments:
   -e EXTENSIONS, --ext EXTENSIONS
                         comma separated list of acceptable extensions when searching directories
                         for YAML files. Defaults to `yaml,yml,yamllint`.
-  -f, --forcecolors     force colored output even if stream is not a TTY.
+  -f, --forcecolors     force colorized output even if stream is not a TTY.
   -l, --listfixers      output the list of available fixers.
   -N, --nosyntax        don't try to fix syntax errors.
   -n, --nochange        don't modify anything.
@@ -104,8 +104,8 @@ optional arguments:
                         no recursion, and any negative value means no limit.
   -j, --jsonsummary     output JSON summary to stderr.
   -p, --plainsummary    output plain text summary to stderr.
-  -s, --summary         output colored plain text summary to stderr. If stderr is not a TTY
-                        output is identical to --plainsummary.
+  -s, --summary         output colorized plain text summary to stderr. If stderr is not a TTY
+                        output is identical to --plainsummary unless --forcecolors is also used.
   -t TABSIZE, --tabsize TABSIZE
                         sets the number of spaces to replace tabs with, default is `2`.
   -c CONFIG_FILE, --config-file CONFIG_FILE
@@ -210,7 +210,7 @@ Most of use love short and efficient command lines. Here are some ready to use o
 yamlfixer --jsonsummary bad.yml 2>&1 | jq
 ```
 
-So you can get a nicely colored (and validated `json` output) : 
+So you can get a nicely colorized (and validated `json` output) : 
 
 ```json
   "filestofix": 1,
@@ -220,14 +220,14 @@ So you can get a nicely colored (and validated `json` output) :
   "skipped": 0,
   "notwriteable": 0,
   "unknown": 0,
+  "nochangemode": false,
   "details": {
     "/home/jerome/yamlfixer/bad.yml": {
       "status": "PASSED",
       "issues": 0,
       "handled": 0
     }
-  },
-  "nochangemode": false
+  }
 }
 ```
 
