@@ -27,46 +27,57 @@ from yamlfixer.__main__ import run
 
 class RunContext():
     """Context manager for ``run()`` to capture streams."""
+
     def __init__(self, case):
+        """Initialize context manager."""
         self.stdout = self.stderr = None
-        self._raises_ctx = case.assertRaises(SystemExit)
+        self.outstream = self.errstream = None
+        self._raises_ctx = case.assertRaises(SystemExit)  # noqa: PT009, T003
 
     def __enter__(self):
+        """Enter context."""
         self._raises_ctx.__enter__()
         sys.stdout = self.outstream = StringIO()
         sys.stderr = self.errstream = StringIO()
         return self
 
     def __exit__(self, *exc_info):
+        """Exit context."""
         self.stdout, sys.stdout = self.outstream.getvalue(), sys.__stdout__
         self.stderr, sys.stderr = self.errstream.getvalue(), sys.__stderr__
         return self._raises_ctx.__exit__(*exc_info)
 
     @property
     def returncode(self):
+        """Fake property."""
         return self._raises_ctx.exception.code
 
 
 class CommandLineTestCase(unittest.TestCase):
+    """Test suite for the command line."""
+
     @classmethod
     def setUpClass(cls):
+        """Set up, empty for now."""
         super(CommandLineTestCase, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
+        """Tear down, empty for now."""
         super(CommandLineTestCase, cls).tearDownClass()
 
     def test_run_with_bad_arguments(self):
+        """Test launching yamlfixer with incorrect arguments."""
         with RunContext(self) as ctx:
             run(('--unknown-arg', ))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(ctx.stderr, r'^usage')
 
         with RunContext(self) as ctx:
             run(('-c', './conf.yaml', '-C', 'relaxed', 'file'))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'error: argument -C\/--config-data: '
@@ -75,8 +86,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             run(('-b', '-n'))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'error: argument -n\/--nochange: '
@@ -85,8 +96,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             run(('-j', '-s'))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'error: argument -s\/--summary: '
@@ -95,8 +106,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             run(('-p', '-s'))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'error: argument -s\/--summary: '
@@ -105,8 +116,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             run(('-p', '-j'))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'error: argument -j\/--jsonsummary: '
@@ -115,8 +126,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             run(('-p', '-j'))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'error: argument -j\/--jsonsummary: '
@@ -125,8 +136,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             run(('-r', '3.5'))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'error: argument -r\/--recurse: invalid int value: \'3.5\'$'
@@ -134,8 +145,8 @@ class CommandLineTestCase(unittest.TestCase):
 
         with RunContext(self) as ctx:
             run(('-t', '-3'))
-        self.assertEqual(ctx.returncode, 2)
-        self.assertEqual(ctx.stdout, '')
+        assert ctx.returncode == 2
+        assert ctx.stdout == ''
         self.assertRegex(
             ctx.stderr.splitlines()[-1],
             r'error: invalid tabsize value \'-3\'$'

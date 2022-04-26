@@ -16,8 +16,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""yamlfixer automates the fixing of problems reported by yamllint
-by feeding it with files and parsing its output."""
+"""yamlfixer automates the fixing of problems reported by yamllint.
+
+yamlfixer passes files through yamllint and parses its output
+to try to fix each of the reported problems.
+"""
 
 import time
 

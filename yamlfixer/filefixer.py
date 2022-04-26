@@ -24,6 +24,7 @@ import os
 import subprocess
 import difflib
 import shlex
+from contextlib import suppress
 
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import FIXER_HANDLED
@@ -42,6 +43,7 @@ ALLOWEDMIMETYPES = ["text/plain",
 
 class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
     """To hold file fixing logic."""
+
     def __init__(self, arguments, filename):
         """Initialize a file to fix."""
         super().__init__(arguments)
@@ -79,10 +81,10 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
 
         return problemlines
 
-    def lint(self, contents):
-        """Launches the linter on a file's contents.
+    def lint(self, content):
+        """Launch the linter on a file's content.
 
-           Returns the (linter's exitcode, linter's stdout) tuple.
+        Returns the (linter's exitcode, linter's stdout) tuple.
         """
         command = LINTERCOMMAND
         if self.arguments.config_data:
@@ -100,13 +102,13 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                                 capture_output=True,
                                 text=True,
                                 check=False,
-                                input=contents,
+                                input=content,
                                 encoding='utf-8')
         self.debug(f"Linter's exit code is {repr(linter.returncode)}")
         return (linter.returncode, linter.stdout)
 
     def load(self):
-        """Loads the input file's contents."""
+        """Load the input file's content."""
         try:
             if self.filename == '-':
                 try:
@@ -124,7 +126,7 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
             self.error(f"{self.filename} doesn't seem to be YAML : {msg}")
 
     def diff(self, finalcontent):
-        """Returns a unified diff of original content to final one."""
+        """Return a unified diff of original content to final one."""
         differences = []
         original = (self.shebang + (self.incontents or '')).splitlines(keepends=True)
         final = finalcontent.splitlines(keepends=True)
@@ -136,23 +138,20 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                                                          final,
                                                          fromfile=relbefore,
                                                          tofile=relafter)))
-        try:
+        with suppress(IndexError):  # would be raised if original file was empty
             if not original[-1].endswith("\n"):
                 # No newline at EOF
                 # We know differences won't be empty then
                 nbplus = 0
                 diffix = len(differences)
-                while (diffix > 0) and differences[diffix-1].startswith("+"):
+                while (diffix > 0) and differences[diffix - 1].startswith("+"):
                     nbplus += 1
                     diffix -= 1
                 differences.insert(-nbplus, "\n\\ No newline at end of file\n")
-        except IndexError:
-            # Original file was empty
-            pass
         return differences
 
     def dump(self, outcontents):
-        """Dumps the new file's contents."""
+        """Dump the new file's contents."""
         if (self.incontents is None) or (outcontents == self.incontents):
             retcode = FIX_SKIPPED
         else:
