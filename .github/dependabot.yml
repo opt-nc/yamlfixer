@@ -5,7 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-      time: "14:30"
+      time: "04:00"
       timezone: "Pacific/Noumea"
     assignees:
       - "tamere-allo-peter"
