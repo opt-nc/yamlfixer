@@ -22,6 +22,7 @@ import os
 import json
 from contextlib import suppress
 
+from . import __version__
 from .constants import FIX_PASSEDLINTER, FIX_MODIFIED, FIX_FIXED, FIX_SKIPPED, FIX_PERMERROR
 from .constants import EXIT_OK, EXIT_NOK
 from .common import YAMLFixerBase
@@ -42,6 +43,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
     def __init__(self, arguments):
         """Initialize the fixer for all files."""
         super().__init__(arguments)
+        self.debug(f"yamlfixer v{__version__}")
         self.debug(f"arguments={repr(arguments)}")
         self.extensions = [f".{e.strip()}" for e in self.arguments.ext.split(",")]
         self.passed = self.modified \
