@@ -49,7 +49,7 @@ class YAMLFixerBase:
     def __init__(self, arguments):
         """Saves command line arguments."""
         self._out = sys.stderr
-        self._outisatty = self._out.isatty()
+        self._outisatty = self._out.isatty() or arguments.forcecolors
         self.arguments = arguments
 
     def _output(self, message, level=None):
