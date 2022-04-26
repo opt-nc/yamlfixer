@@ -67,9 +67,9 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                     if entry.is_file() and self.matchesext(entry.name):
                         # Ensures uniqueness based on absolute path
                         fnmapping[os.path.abspath(entry.path)] = entry.path
-                    elif entry.is_dir(follow_symlinks=False):
-                        if (self.arguments.recurse < 0) or (level < self.arguments.recurse):
-                            self.recurse(entry.path, fnmapping, level + 1)
+                    elif entry.is_dir(follow_symlinks=False) and ((self.arguments.recurse < 0)
+                                                                  or (level < self.arguments.recurse)):
+                        self.recurse(entry.path, fnmapping, level + 1)
 
     def generate_unique_filenames(self, fnames):
         """Generate a list of unique filenames."""
