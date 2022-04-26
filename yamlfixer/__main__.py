@@ -81,6 +81,9 @@ def parse_commandline(argv=None):
                          default="yaml,yml,yamllint",
                          help="comma separated list of acceptable extensions when searching "
                          "directories for YAML files. Defaults to `%(default)s`.")
+    cmdline.add_argument("-f", "--forcecolors",
+                         action="store_true",
+                         help="force colored output even if stream is not a TTY.")
     cmdline.add_argument("-l", "--listfixers",
                          action="store_true",
                          help="output the list of available fixers.")
