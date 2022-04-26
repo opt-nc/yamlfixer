@@ -1,0 +1,15 @@
+---
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "14:30"
+      timezone: "Pacific/Noumea"
+    assignees:
+      - "tamere-allo-peter"
+    open-pull-requests-limit: 10
+    rebase-strategy: "disabled"
+    allow:
+      - dependency-type: "all"
