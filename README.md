@@ -1,4 +1,3 @@
-
 ![GitHub](https://img.shields.io/github/license/opt-nc/yamlfixer)
 
 [![Docker Image](https://img.shields.io/badge/docker-homepage-blue)](https://hub.docker.com/r/optnc/yamlfixer)
