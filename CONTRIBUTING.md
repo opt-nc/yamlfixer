@@ -10,14 +10,15 @@
 # How to contribute to yamlfixer
 
 Be sure that we will welcome all contributions to `yamlfixer`,
-provided they met the following requirements :
+provided they meet the following requirements :
 
 * Each contribution must be licensed under very same terms as
-  yamlfixer itself, i.e. the [GNU General Public License](COPYING)
+  yamlfixer itself, i.e. the
+  [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html)
   version 3, or (at your option) any later version.
   
-* Each contribution should be kept as simple as possible, and be
-  specific to a particular bug, issue, or feature. For example,
+* Each contribution should be kept as simple as possible, and should
+  be specific to a particular bug, issue, or feature. For example,
   instead of sending a huge contribution that both fixes an existing
   issue and adds a new feature, please send two smaller contributions
   instead : one which fixes the issue, and the other one which adds
@@ -26,7 +27,7 @@ provided they met the following requirements :
 * Each contribution must not make yamlfixer stop to work as expected.
 
 * Each contribution must not make any linter or test suite fail (see
-  [Code Quality](#Code Quality) below.
+  **Code Quality** below.
 
 * If possible, each contribution should come with a modification to
   yamlfixer's test suite ensuring this contribution works as expected.
@@ -45,7 +46,9 @@ Simply install them with [pip](https://pip.pypa.io/en/stable/), this
 has to be done only once.
 
 ```shell
-python -m pip install 
+python -m pip install \
+    coverage \
+    pytest \
     yamllint \
     pylint \
     flake8 \
@@ -76,9 +79,9 @@ python -m pip install
 
 ### Lint, install and test your code
 
-You must then verify that your code works and doesn't break either the
-linting process or the testing process. You can do this each time with 
-the commands below.
+You must then verify that your code works as expected, and doesn't
+break either the linting process or the testing process. You can do
+this each time with the commands below.
 
 ```shell
 cd yamlfixer
