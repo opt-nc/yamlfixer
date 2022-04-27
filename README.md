@@ -274,6 +274,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ```
 
+# Contributing
+
+You can contribute to this project by [filing an issue](https://github.com/opt-nc/yamlfixer/issues)
+or by [sending a pull request](https://github.com/opt-nc/yamlfixer/pulls)
+
+Please read our [contributing guidelines](https://github.com/opt-nc/yamlfixer/blob/main/CONTRIBUTING.md)
+before.
+
+
 # 🧑‍🤝‍🧑 Contact
 
 To contact the [authors](AUTHORS.md) of this software, simply fill an
