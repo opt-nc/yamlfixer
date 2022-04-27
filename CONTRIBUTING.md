@@ -27,7 +27,7 @@ provided they meet the following requirements :
 * Each contribution must not make yamlfixer stop to work as expected.
 
 * Each contribution must not make any linter or test suite fail (see
-  **Code Quality** below.
+  **Code Quality** below).
 
 * If possible, each contribution should come with a modification to
   yamlfixer's test suite ensuring this contribution works as expected.
