@@ -72,7 +72,7 @@ This software automatically fixes some errors and warnings reported by
 
 ```shell
 usage: yamlfixer [-h] [-v] [-b] [-B BACKUPSUFFIX] [-d] [-D DIFF_FILE] [-e EXTENSIONS] [-f]
-                 [-l] [-N] [-n] [-r LEVEL] [-j | -p | -s] [-t TABSIZE]
+                 [-F] [-l] [-N] [-n] [-r LEVEL] [-j | -p | -s] [-t TABSIZE]
                  [-c CONFIG_FILE | -C CONFIG_DATA]
                  [FILE_or_DIR [FILE_or_DIR ...]]
 
@@ -95,6 +95,7 @@ optional arguments:
                         comma separated list of acceptable extensions when searching directories
                         for YAML files. Defaults to `yaml,yml,yamllint`.
   -f, --forcecolors     force colorized output even if stream is not a TTY.
+  -F, --followsymlinks  follow symbolic links when recursing directories.
   -l, --listfixers      output the list of available fixers.
   -N, --nosyntax        don't try to fix syntax errors.
   -n, --nochange        don't modify anything.

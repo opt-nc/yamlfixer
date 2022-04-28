@@ -84,6 +84,9 @@ def parse_commandline(argv=None):
     cmdline.add_argument("-f", "--forcecolors",
                          action="store_true",
                          help="force colorized output even if stream is not a TTY.")
+    cmdline.add_argument("-F", "--followsymlinks",
+                         action="store_true",
+                         help="follow symbolic links when recursing directories.")
     cmdline.add_argument("-l", "--listfixers",
                          action="store_true",
                          help="output the list of available fixers.")
