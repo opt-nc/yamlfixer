@@ -29,12 +29,21 @@ from .common import YAMLFixerBase
 from .filefixer import FileFixer
 from .problemfixer import ProblemFixer
 
-STATUSCOLORS = {"PASSED": "green",
-                "MODIFIED": "blue",
-                "FIXED": "lime",
-                "SKIPPED": "magenta",
-                "ERROR": "red",
-                "UNKNOWN": "yellow"}
+STATUSES = {FIX_PASSEDLINTER: {"msg": "passed linter's strict mode",
+                               "counter": "passed",
+                               "color": "green"},
+            FIX_MODIFIED: {"msg": "was modified",
+                           "counter": "modified",
+                           "color": "blue"},
+            FIX_FIXED: {"msg": "was fixed",
+                        "counter": "fixed",
+                        "color": "lime"},
+            FIX_SKIPPED: {"msg": "was skipped",
+                          "counter": "skipped",
+                          "color": "magenta"},
+            FIX_PERMERROR: {"msg": "was not writable",
+                            "counter": "notwritable",
+                            "color": "red"}}
 
 
 class YAMLFixer(YAMLFixerBase):
@@ -106,16 +115,19 @@ class YAMLFixer(YAMLFixerBase):
             self.info(f"{self.summary['skipped']} files were skipped")
             self.info(f"{self.summary['notwritable']} files were not writable")
             self.info(f"{self.summary['unknown']} files with unknown status")
+            rjustifyto = max([len(STATUSES.get(s, {"counter": "unknown"})["counter"])
+                              for s in (list(STATUSES.keys()) + ["unknownstatusvalue"])])
             for filename in self.summary["details"]:
                 filedetails = self.summary["details"][filename]
-                status = filedetails["status"].rjust(8)
+                status = filedetails["status"].rjust(rjustifyto)
                 if filedetails["issues"]:
                     msg = f" (handled {filedetails['handled']}/{filedetails['issues']})"
                 else:
                     msg = ""
                 if self.arguments.summary:
                     with suppress(KeyError):
-                        status = self.colorize(status, STATUSCOLORS[status.strip()])
+                        # Yellow for unknown status
+                        status = self.colorize(status, STATUSES[filedetails["numericstatus"]].get("color", "yellow"))
                 self.info(f"{status} {filename}{msg}")
             if self.arguments.nochange:
                 message = "No file was modified per user's request !"
@@ -152,35 +164,17 @@ class YAMLFixer(YAMLFixerBase):
                 self.debug(f"Fixing {uifilename} ... ")
                 (status, unidiff) = filetofix.fix()
                 diffto.writelines(unidiff)
-                if status == FIX_PASSEDLINTER:
-                    self.debug("passed linter's strict mode.")
-                    txtstatus = "PASSED"
-                    result = "passed"
-                elif status == FIX_MODIFIED:
-                    self.debug("was modified.")
-                    txtstatus = "MODIFIED"
-                    result = "modified"
-                elif status == FIX_FIXED:
-                    self.debug("was fixed.")
-                    txtstatus = "FIXED"
-                    result = "fixed"
-                elif status == FIX_SKIPPED:
-                    self.debug("was skipped.")
-                    txtstatus = "SKIPPED"
-                    result = "skipped"
-                elif status == FIX_PERMERROR:
-                    self.debug("was not writable.")
-                    txtstatus = "ERROR"
-                    result = "notwritable"
+                result = STATUSES.get(status, {"msg": f"unknown fixing status [{status}]",
+                                               "counter": "unknown"})
+                if status not in STATUSES:
+                    self.error(f"{result['msg']}")
                 else:
-                    self.error(f"unknown fixing status [{status}]")
-                    txtstatus = "UNKNOWN"
-                    result = "unknown"
-                self.summary[result] += 1
-                self.summary["details"][uifilename] = {"status": txtstatus,
+                    self.debug(f"{result['msg']}")
+                self.summary[result["counter"]] += 1
+                self.summary["details"][uifilename] = {"numericstatus": status,
+                                                       "status": result["counter"].upper(),
                                                        "issues": filetofix.issues,
                                                        "handled": filetofix.issueshandled}
-
         self._statistics()
         if (self.summary["passed"] + self.summary["skipped"] + self.summary["fixed"]) == self.summary["filestofix"]:
             return EXIT_OK
