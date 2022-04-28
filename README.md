@@ -157,6 +157,11 @@ circumstances.
 
 ⚠️**Use at your own risk, you have been warned...** ⚠️
 
+# GitHub Action
+
+You can now use this software as a GitHub Action, available from https://github.com/opt-nc/yamlfixer-action .
+This GitHub Action will automatically create Pull Requests to your repository with the changes made by yamlfixer.
+
 # Fixers
 
 yamlfixer currently (as of 0.6.4) can fix the following problems as reported by `yamllint` :
@@ -286,11 +291,6 @@ $
 But of course, it would have been simpler to not use the `--nochange`
 command line option in the first place, so that the file would have
 been fixed automatically.
-
-### GitHub Action
-
-You can now use this software as a GitHub Action, available from https://github.com/opt-nc/yamlfixer-action .
-This GitHub Action will automatically create Pull Requests to your repository with the changes made by yamlfixer.
 
 # 🧰 Single purpose tools worth knowing
 
