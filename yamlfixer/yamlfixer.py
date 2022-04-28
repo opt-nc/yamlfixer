@@ -37,7 +37,7 @@ STATUSCOLORS = {"PASSED": "green",
                 "UNKNOWN": "yellow"}
 
 
-class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
+class YAMLFixer(YAMLFixerBase):
     """To hold files fixing logic."""
 
     def __init__(self, arguments):
@@ -46,32 +46,35 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
         self.debug(f"yamlfixer v{__version__}")
         self.debug(f"arguments={repr(arguments)}")
         self.extensions = [f".{e.strip()}" for e in self.arguments.ext.split(",")]
-        self.passed = self.modified \
-            = self.fixed \
-            = self.skipped \
-            = self.permerrors \
-            = self.unknown = 0
-        self.summary = []
-        self.filenames = self.generate_unique_filenames(self.arguments.filenames)
+        self.filenames = self._generate_unique_filenames(self.arguments.filenames)
+        self.summary = {"filestofix": len(self.filenames),
+                        "passed": 0,
+                        "modified": 0,
+                        "fixed": 0,
+                        "skipped": 0,
+                        "notwritable": 0,
+                        "unknown": 0,
+                        "nochangemode": self.arguments.nochange,
+                        "details": {}}
 
-    def matchesext(self, filename):
+    def _matchesext(self, filename):
         """Return True if filename matches the set of extensions, else False."""
         return any(filename.endswith(ext) for ext in self.extensions)
 
-    def recurse(self, path, fnmapping, level=0):
+    def _recurse(self, path, fnmapping, level=0):
         """Find all files in a directory recursively."""
         self.debug(f"SCAN [{path}] at level {level} with limit {self.arguments.recurse}")
         if (self.arguments.recurse < 0) or (level <= self.arguments.recurse):
             with suppress(PermissionError), os.scandir(path) as dircontents:
                 for entry in dircontents:
-                    if entry.is_file() and self.matchesext(entry.name):
+                    if entry.is_file() and self._matchesext(entry.name):
                         # Ensures uniqueness based on absolute path
                         fnmapping[os.path.abspath(entry.path)] = entry.path
                     elif (entry.is_dir(follow_symlinks=self.arguments.followsymlinks)
                           and ((self.arguments.recurse < 0) or (level < self.arguments.recurse))):
-                        self.recurse(entry.path, fnmapping, level + 1)
+                        self._recurse(entry.path, fnmapping, level + 1)
 
-    def generate_unique_filenames(self, fnames):
+    def _generate_unique_filenames(self, fnames):
         """Generate a list of unique filenames."""
         fnmapping = {}
         for name in fnames:
@@ -87,30 +90,32 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                     fnmapping[name] = name
             else:
                 if os.path.isdir(name):
-                    self.recurse(name, fnmapping)
+                    self._recurse(name, fnmapping)
                 else:
                     # Ensures uniqueness based on absolute path
                     fnmapping[os.path.abspath(name)] = name
         return sorted(fnmapping.values())
 
-    def statistics(self):
+    def _statistics(self):
         """Output some statistics."""
         if self.arguments.summary or self.arguments.plainsummary:
-            self.info(f"Files to fix: {len(self.filenames)}")
-            self.info(f"{self.passed} files were already correct before")
-            self.info(f"{self.modified} files were modified but problems remain")
-            self.info(f"{self.fixed} files were entirely fixed")
-            self.info(f"{self.skipped} files were skipped")
-            self.info(f"{self.permerrors} files were not writeable")
-            self.info(f"{self.unknown} files with unknown status")
-            for (status, filename, issues, handled) in self.summary:
-                if issues:
-                    msg = f" (handled {handled}/{issues})"
+            self.info(f"Files to fix: {self.summary['filestofix']}")
+            self.info(f"{self.summary['passed']} files were already correct before")
+            self.info(f"{self.summary['modified']} files were modified but problems remain")
+            self.info(f"{self.summary['fixed']} files were entirely fixed")
+            self.info(f"{self.summary['skipped']} files were skipped")
+            self.info(f"{self.summary['notwritable']} files were not writable")
+            self.info(f"{self.summary['unknown']} files with unknown status")
+            for filename in self.summary["details"]:
+                filedetails = self.summary["details"][filename]
+                status = filedetails["status"].rjust(8)
+                if filedetails["issues"]:
+                    msg = f" (handled {filedetails['handled']}/{filedetails['issues']})"
                 else:
                     msg = ""
                 if self.arguments.summary:
                     with suppress(KeyError):
-                        status = self.colorize(status.rjust(8), STATUSCOLORS[status])
+                        status = self.colorize(status, STATUSCOLORS[status.strip()])
                 self.info(f"{status} {filename}{msg}")
             if self.arguments.nochange:
                 message = "No file was modified per user's request !"
@@ -119,20 +124,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                 else:
                     self.info(f"WARNING: {message}")  # Ensure it's not colorized
         elif self.arguments.jsonsummary:
-            summarymapping = {"filestofix": len(self.filenames),
-                              "passedstrictmode": self.passed,
-                              "modified": self.modified,
-                              "fixed": self.fixed,
-                              "skipped": self.skipped,
-                              "notwriteable": self.permerrors,
-                              "unknown": self.unknown,
-                              "nochangemode": self.arguments.nochange,
-                              "details": {}}
-            for (status, filename, issues, handled) in self.summary:
-                summarymapping["details"][filename] = {"status": status,
-                                                       "issues": issues,
-                                                       "handled": handled}
-            self.info(json.dumps(summarymapping, indent=4))
+            self.info(json.dumps(self.summary, indent=4))
 
     def listfixers(self):
         """List all the available fixers."""
@@ -163,33 +155,33 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                 if status == FIX_PASSEDLINTER:
                     self.debug("passed linter's strict mode.")
                     txtstatus = "PASSED"
-                    self.passed += 1
+                    result = "passed"
                 elif status == FIX_MODIFIED:
                     self.debug("was modified.")
                     txtstatus = "MODIFIED"
-                    self.modified += 1
+                    result = "modified"
                 elif status == FIX_FIXED:
                     self.debug("was fixed.")
                     txtstatus = "FIXED"
-                    self.fixed += 1
+                    result = "fixed"
                 elif status == FIX_SKIPPED:
                     self.debug("was skipped.")
                     txtstatus = "SKIPPED"
-                    self.skipped += 1
+                    result = "skipped"
                 elif status == FIX_PERMERROR:
-                    self.debug("was not writeable.")
+                    self.debug("was not writable.")
                     txtstatus = "ERROR"
-                    self.permerrors += 1
+                    result = "notwritable"
                 else:
                     self.error(f"unknown fixing status [{status}]")
                     txtstatus = "UNKNOWN"
-                    self.unknown += 1
-                self.summary.append((txtstatus,
-                                     uifilename,
-                                     filetofix.issues,
-                                     filetofix.issueshandled))
+                    result = "unknown"
+                self.summary[result] += 1
+                self.summary["details"][uifilename] = {"status": txtstatus,
+                                                       "issues": filetofix.issues,
+                                                       "handled": filetofix.issueshandled}
 
-        self.statistics()
-        if (self.passed + self.skipped + self.fixed) == len(self.filenames):
+        self._statistics()
+        if (self.summary["passed"] + self.summary["skipped"] + self.summary["fixed"]) == self.summary["filestofix"]:
             return EXIT_OK
         return EXIT_NOK

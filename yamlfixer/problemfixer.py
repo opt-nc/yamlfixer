@@ -57,7 +57,7 @@ class ProblemFixer(YAMLFixerBase):
         self.debug("No handler found")
         return FIXER_UNHANDLED
 
-    def get_indentation(self, offset=0):
+    def _get_indentation(self, offset=0):
         """Return the indentation of the current (possibly offset) line."""
         lnum = self.linenum
         nblines = len(self.ffixer.lines)
@@ -195,12 +195,12 @@ class ProblemFixer(YAMLFixerBase):
              - comment not indented like content (comments-indentation)
         """  # noqa: D205, D208, D400
         if self.linenum > 0:
-            indentation = self.get_indentation(-1)
+            indentation = self._get_indentation(-1)
             # If previous line is similarly indented then use indentation of next line
             if indentation == self.colnum:
-                indentation = self.get_indentation(+1)
+                indentation = self._get_indentation(+1)
         else:
-            indentation = self.get_indentation(+1)
+            indentation = self._get_indentation(+1)
         self.ffixer.lines[self.linenum] = ' ' * indentation + (left + right).lstrip()
         self.ffixer.coffset += (indentation - self.colnum)
 
@@ -228,7 +228,7 @@ class ProblemFixer(YAMLFixerBase):
              - line too long
         """  # noqa: D205, D208, D400
         # TODO: currently we fix this by disabling the error in yamllint, it's the easiest way
-        self.ffixer.lines.insert(self.linenum, ' ' * self.get_indentation()
+        self.ffixer.lines.insert(self.linenum, ' ' * self._get_indentation()
                                  + '# yamllint disable-line rule:line-length')
         self.ffixer.loffset += 1
 
@@ -239,8 +239,8 @@ class ProblemFixer(YAMLFixerBase):
              - syntax error: expected <block end>, but found '<block sequence start>' (syntax)
              - syntax error: expected <block end>, but found '?'
         """  # noqa: D205, D208, D400
-        indentation = self.get_indentation()
-        previndentation = self.get_indentation(-1)
+        indentation = self._get_indentation()
+        previndentation = self._get_indentation(-1)
         if not right.startswith("-"):
             if self.ffixer.lines[self.linenum - 1][previndentation:].startswith("- "):
                 # if previous line is a list item, indent like item itself

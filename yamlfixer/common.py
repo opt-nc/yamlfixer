@@ -51,7 +51,7 @@ class YAMLFixerBase:
     def __init__(self, arguments):
         """Save command line arguments."""
         self._out = sys.stderr
-        self._outisatty = self._out.isatty() or arguments.forcecolors
+        self._outwantscolors = self._out.isatty() or arguments.forcecolors
         self.arguments = arguments
 
     def _output(self, message, level=None):
@@ -81,7 +81,7 @@ class YAMLFixerBase:
 
     def colorize(self, message, color):
         """Return a colorized message if output stream is a tty."""
-        if self._outisatty:
+        if self._outwantscolors:
             with suppress(KeyError):
                 message = f"\033[38;2;{';'.join([str(s) for s in COLORS[color]])}m{message}\033[0m"
         return message
