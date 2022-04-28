@@ -213,6 +213,7 @@ yamlfixer --jsonsummary good.yml 2>&1 | jq
 So you can get a nicely colorized (and validated `json` output) : 
 
 ```json
+{
   "filestofix": 1,
   "passed": 1,
   "modified": 0,
@@ -238,7 +239,7 @@ See how to produce a patch file without modifying the original one,
 and get the exit code so you can go further in automation :
 
 ```shell
-$ yamlfixer --summary --nochange --diffto my.patch examples/bad.yml
+$ yamlfixer --nochange --summary --diffto my.patch examples/bad.yml
 Files to fix: 1
 0 files were already correct before
 0 files were modified but problems remain
@@ -270,12 +271,26 @@ diff -u "examples/bad.yml" "examples/bad.yml-after"
 -
 -
 +        run: mvn package
+$ 
+```
+
+You can then manually apply the patch file to modify `examples/bad.yml` if
+that's what you want to do :
+
+```shell
+$ patch -p0 <my.patch
+patching file examples/bad.yml
 $
 ```
+
+But of course, it would have been simpler to not use the `--nochange`
+command line option in the first place, so that the file would have
+been fixed automatically.
 
 ### GitHub Action
 
 You can now use this software as a GitHub Action, available from https://github.com/opt-nc/yamlfixer-action .
+This GitHub Action will automatically create Pull Requests to your repository with the changes made by yamlfixer.
 
 # 🧰 Single purpose tools worth knowing
 
