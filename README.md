@@ -212,7 +212,7 @@ Most of us love short and efficient command lines. Here are some ready to use on
 ### Piping `json` summary through `jq`
 
 ```
-yamlfixer --jsonsummary good.yml 2>&1 | jq
+yamlfixer --jsonsummary examples/good.yml 2>&1 | jq
 ```
 
 So you can get a nicely colorized (and validated `json` output) : 
@@ -228,7 +228,7 @@ So you can get a nicely colorized (and validated `json` output) :
   "unknown": 0,
   "nochangemode": false,
   "details": {
-    "/home/jerome/yamlfixer/good.yml": {
+    "examples/good.yml": {
       "numericstatus": 0,
       "status": "PASSED",
       "issues": 0,
