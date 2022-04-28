@@ -202,27 +202,28 @@ Don't find the usecase you're looking for ➡️ [🎫 Fill a dedicated issue so
 
 ## ⏩ One liners
 
-Most of use love short and efficient command lines. Here are some ready to use ones : 
+Most of us love short and efficient command lines. Here are some ready to use ones : 
 
-### Piping `json`  summary through `jq`
+### Piping `json` summary through `jq`
 
 ```
-yamlfixer --jsonsummary bad.yml 2>&1 | jq
+yamlfixer --jsonsummary good.yml 2>&1 | jq
 ```
 
 So you can get a nicely colorized (and validated `json` output) : 
 
 ```json
   "filestofix": 1,
-  "passedstrictmode": 1,
+  "passed": 1,
   "modified": 0,
   "fixed": 0,
   "skipped": 0,
-  "notwriteable": 0,
+  "notwritable": 0,
   "unknown": 0,
   "nochangemode": false,
   "details": {
-    "/home/jerome/yamlfixer/bad.yml": {
+    "/home/jerome/yamlfixer/good.yml": {
+      "numericstatus": 0,
       "status": "PASSED",
       "issues": 0,
       "handled": 0
@@ -233,13 +234,49 @@ So you can get a nicely colorized (and validated `json` output) :
 
 ### Check if `yamlfixer` could fix a `yaml` and get the exit code
 
-See how piping fixing and linting can be interesting... and get exit code
-so you can go further in automation :
+See how to produce a patch file without modifying the original one,
+and get the exit code so you can go further in automation :
 
+```shell
+$ yamlfixer --summary --nochange --diffto my.patch examples/bad.yml
+Files to fix: 1
+0 files were already correct before
+0 files were modified but problems remain
+1 files were entirely fixed
+0 files were skipped
+0 files were not writable
+0 files with unknown status
+      FIXED examples/bad.yml (handled 4/4)
+WARNING: No file was modified per user's request !
+
+$ echo $?
+0
+
+$ cat my.patch
+diff -u "examples/bad.yml" "examples/bad.yml-after"
+--- "examples/bad.yml"
++++ "examples/bad.yml-after"
+@@ -1,4 +1,4 @@
+-
++---
+ name: Build HelloYaml
+
+ # yamllint disable-line rule:truthy
+@@ -17,6 +17,4 @@
+           cache: 'maven'
+
+       - name: Build with Maven
+-          run: mvn package
+-
+-
++        run: mvn package
+$
 ```
-yamlfixer <bad.yml | yamllint --format parsable --strict -
-echo $?
-```
+
+### GitHub Action
+
+You can now use this software as a GitHub Action, available from https://github.com/opt-nc/yamlfixer-action .
+
 # 🧰 Single purpose tools worth knowing
 
 - [`ytt`](https://carvel.dev/ytt/) : _"YAML templating tool that works on YAML structure (instead of text)."_
