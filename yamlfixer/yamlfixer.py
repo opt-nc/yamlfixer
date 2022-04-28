@@ -52,26 +52,26 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
             = self.permerrors \
             = self.unknown = 0
         self.summary = []
-        self.filenames = self.generate_unique_filenames(self.arguments.filenames)
+        self.filenames = self._generate_unique_filenames(self.arguments.filenames)
 
-    def matchesext(self, filename):
+    def _matchesext(self, filename):
         """Return True if filename matches the set of extensions, else False."""
         return any(filename.endswith(ext) for ext in self.extensions)
 
-    def recurse(self, path, fnmapping, level=0):
+    def _recurse(self, path, fnmapping, level=0):
         """Find all files in a directory recursively."""
         self.debug(f"SCAN [{path}] at level {level} with limit {self.arguments.recurse}")
         if (self.arguments.recurse < 0) or (level <= self.arguments.recurse):
             with suppress(PermissionError), os.scandir(path) as dircontents:
                 for entry in dircontents:
-                    if entry.is_file() and self.matchesext(entry.name):
+                    if entry.is_file() and self._matchesext(entry.name):
                         # Ensures uniqueness based on absolute path
                         fnmapping[os.path.abspath(entry.path)] = entry.path
                     elif (entry.is_dir(follow_symlinks=self.arguments.followsymlinks)
                           and ((self.arguments.recurse < 0) or (level < self.arguments.recurse))):
-                        self.recurse(entry.path, fnmapping, level + 1)
+                        self._recurse(entry.path, fnmapping, level + 1)
 
-    def generate_unique_filenames(self, fnames):
+    def _generate_unique_filenames(self, fnames):
         """Generate a list of unique filenames."""
         fnmapping = {}
         for name in fnames:
@@ -87,13 +87,13 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                     fnmapping[name] = name
             else:
                 if os.path.isdir(name):
-                    self.recurse(name, fnmapping)
+                    self._recurse(name, fnmapping)
                 else:
                     # Ensures uniqueness based on absolute path
                     fnmapping[os.path.abspath(name)] = name
         return sorted(fnmapping.values())
 
-    def statistics(self):
+    def _statistics(self):
         """Output some statistics."""
         if self.arguments.summary or self.arguments.plainsummary:
             self.info(f"Files to fix: {len(self.filenames)}")
@@ -189,7 +189,7 @@ class YAMLFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
                                      filetofix.issues,
                                      filetofix.issueshandled))
 
-        self.statistics()
+        self._statistics()
         if (self.passed + self.skipped + self.fixed) == len(self.filenames):
             return EXIT_OK
         return EXIT_NOK
