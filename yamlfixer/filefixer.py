@@ -32,7 +32,10 @@ from .constants import EXIT_PROBLEM
 from .common import YAMLFixerBase
 from .problemfixer import ProblemFixer
 
-LINTERCOMMAND = 'yamllint --format parsable --strict'
+# Base YAML linting command
+LINTERCOMMAND = "yamllint --format parsable --strict"
+
+# Just in case we reintroduce a check later on...
 ALLOWEDMIMETYPES = ["text/plain",
                     "text/vnd.yaml",
                     "text/yaml",
@@ -54,7 +57,7 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
         self.lines = []
         self.issues = self.issueshandled = 0
 
-    def canonicalizeproblems(self, linteroutput):
+    def _canonicalizeproblems(self, linteroutput):
         """Create a nested mapping of lines and columns to fix."""
         problemlines = {}
         for line in linteroutput.splitlines():
@@ -211,7 +214,7 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
             sys.exit(EXIT_PROBLEM)
 
         # Organize the set of problems to fix
-        linestofix = self.canonicalizeproblems(ltstdout)
+        linestofix = self._canonicalizeproblems(ltstdout)
 
         # Now handle each of the problems reported by yamllint
         self.lines = self.incontents.splitlines()
