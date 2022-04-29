@@ -3,7 +3,7 @@ name: Docker Image CI
 
 on:  # yamllint disable-line rule:truthy
   push:
-    branches: main
+    branches: [main, devel]
   release:
     types: [published]
 
@@ -31,14 +31,11 @@ jobs:
         with:
           username: ${{secrets.OPT_DOCKERHUB_LOGIN}}
           password: ${{secrets.OPT_DOCKERHUB_PASSWORD}}
-      - name: Build and push from main
-        id: docker_build_main
+      - name: Build and push
+        id: docker_build
         uses: docker/build-push-action@v2.8.0
         with:
           context: .
           file: ./Dockerfile
           push: true
           tags: ${{ steps.prep.outputs.tags }}
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
