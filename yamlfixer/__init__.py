@@ -24,7 +24,7 @@ to try to fix each of the reported problems.
 
 import time
 
-__version__ = "0.9.2"
+__version__ = "0.9.3"
 __author__ = "OPT-NC"
 __license__ = "GPLv3+"
 __year__ = time.strftime("%Y", time.localtime(time.time()))

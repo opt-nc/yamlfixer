@@ -154,28 +154,31 @@ class YAMLFixer(YAMLFixerBase):
 
     def fix(self):
         """Fix all files."""
-        with open(self.arguments.diffto, 'w', encoding='utf-8') as diffto:
-            for filename in self.filenames:
-                if filename == '-':
-                    uifilename = '<stdin>'
-                else:
-                    uifilename = filename
-                filetofix = FileFixer(self.arguments, filename)
-                self.debug(f"Fixing {uifilename} ... ")
-                (status, unidiff) = filetofix.fix()
-                diffto.writelines(unidiff)
-                result = STATUSES.get(status, {"msg": f"unknown fixing status [{status}]",
-                                               "counter": "unknown"})
-                if status not in STATUSES:
-                    self.error(f"{result['msg']}")
-                else:
-                    self.debug(f"{result['msg']}")
-                self.summary[result["counter"]] += 1
-                self.summary["details"][uifilename] = {"numericstatus": status,
-                                                       "status": result["counter"].upper(),
-                                                       "issues": filetofix.issues,
-                                                       "handled": filetofix.issueshandled}
-        self._statistics()
-        if (self.summary["passed"] + self.summary["skipped"] + self.summary["fixed"]) == self.summary["filestofix"]:
-            return EXIT_OK
+        try:
+            with open(self.arguments.diffto, 'w', encoding='utf-8') as diffto:
+                for filename in self.filenames:
+                    if filename == '-':
+                        uifilename = '<stdin>'
+                    else:
+                        uifilename = filename
+                    filetofix = FileFixer(self.arguments, filename)
+                    self.debug(f"Fixing {uifilename} ... ")
+                    (status, unidiff) = filetofix.fix()
+                    diffto.writelines(unidiff)
+                    result = STATUSES.get(status, {"msg": f"unknown fixing status [{status}]",
+                                                   "counter": "unknown"})
+                    if status not in STATUSES:
+                        self.error(f"{result['msg']}")
+                    else:
+                        self.debug(f"{result['msg']}")
+                    self.summary[result["counter"]] += 1
+                    self.summary["details"][uifilename] = {"numericstatus": status,
+                                                           "status": result["counter"].upper(),
+                                                           "issues": filetofix.issues,
+                                                           "handled": filetofix.issueshandled}
+            self._statistics()
+            if (self.summary["passed"] + self.summary["skipped"] + self.summary["fixed"]) == self.summary["filestofix"]:
+                return EXIT_OK
+        except PermissionError as msg:
+            self.error(msg)
         return EXIT_NOK
