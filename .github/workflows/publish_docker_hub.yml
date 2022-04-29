@@ -4,8 +4,8 @@ name: Docker Image CI
 on:  # yamllint disable-line rule:truthy
   push:
     branches: main
-    tags: '*.*.*'
-
+  release:
+    types: [published]
 
 jobs:
   build_and_publish_on_docker_hub:
@@ -21,7 +21,7 @@ jobs:
           VERSION=noop
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            TAGS="${DOCKER_IMAGE}:latest,${DOCKER_IMAGE}:${VERSION}"
+            TAGS="${DOCKER_IMAGE}:latest,${DOCKER_IMAGE}:stable,${DOCKER_IMAGE}:${VERSION}"
           else
             TAGS="${DOCKER_IMAGE}:latest"
           fi
