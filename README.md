@@ -1,4 +1,4 @@
-![GitHub](https://img.shields.io/github/license/opt-nc/yamlfixer)
+![License](https://img.shields.io/github/license/opt-nc/yamlfixer) ![Build](https://img.shields.io/github/workflow/status/opt-nc/yamlfixer/Checks)
 
 [![Docker Image](https://img.shields.io/badge/docker-homepage-blue)](https://hub.docker.com/r/optnc/yamlfixer)
 [![Katacoda scenario](https://img.shields.io/badge/katacoda-homepage-blue)](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer)
