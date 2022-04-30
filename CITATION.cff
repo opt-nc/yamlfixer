@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "Automates the fixing of problems reported by yamllint by parsing its output ."
+type: software
+authors:
+- family-names: "ALET"
+  given-names: "Jérôme"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "SALES"
+  given-names: "Adrien"
+  orcid: "https://orcid.org/0000-0002-3171-7229"
+title: "yamlfixer"
+version: 1.0.0
+doi: 10.5281/zenodo.1234
+date-released: 2022-04-29
+url: "https://github.com/opt-nc/yamlfixer"
+license: GNU General Public License v3.0
