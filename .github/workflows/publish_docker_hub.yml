@@ -1,5 +1,5 @@
 ---
-name: Docker Image CI
+name: 🐳 Docker Image CI
 
 on:  # yamllint disable-line rule:truthy
   push:
@@ -9,7 +9,7 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   build_and_publish_on_docker_hub:
-    name: Push Docker image to Docker Hub
+    name: 🐳 Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
