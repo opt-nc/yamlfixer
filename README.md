@@ -194,6 +194,9 @@ yamlfixer currently (as of 0.6.4) can fix the following problems as reported by 
 
 An always up-to-date list of fixers can be obtained with `yamlfixer --listfixers`.
 
+Please read our [TODO list](https://github.com/opt-nc/yamlfixer/blob/main/TODO.md)
+to see which problems are still unsupported but which we plan to support some day.
+
 **IMPORTANT : fixing syntax errors is done on a best effort basis and
 may work only partially or not at all for you. Use the -N|--nosyntax
 command line switch do prevent `yamlfixer` from trying to fix syntax
