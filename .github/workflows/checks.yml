@@ -93,28 +93,3 @@ jobs:
 
       - name: launch tests
         run: coverage run --source=yamlfixer -m unittest discover
-
-  automerge:
-    name: AutoMerge
-    needs: [lint, tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Create Pull Request
-        id: createpr
-        uses: repo-sync/pull-request@v2
-        with:
-          source_branch: ""  # If blank, default: triggered branch
-          destination_branch: "main"  # If blank, default: master
-          github_token: ${{secrets.GITHUB_TOKEN}}
-
-      # Activate auto merge
-      - if: steps.createpr.outputs.pr_number != 0
-        name: Enable Pull Request Automerge
-        uses: peter-evans/enable-pull-request-automerge@v1
-        with:
-          pull-request-number: ${{steps.createpr.outputs.pr_number}}
-          merge-method: merge  # merge, squash, rebase
-          token: ${{secrets.GITHUB_TOKEN}}  # Works despite what the documentation says
