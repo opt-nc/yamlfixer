@@ -93,6 +93,21 @@ class ProblemFixer(YAMLFixerBase):
         self.ffixer.lines.insert(self.linenum, '---')
         self.ffixer.loffset += 1
 
+    def fix_missing_docend(self, left, right):  # pylint: disable=unused-argument
+        """Fix:
+             - missing document end
+        """  # noqa: D205, D208, D400
+        self.ffixer.lines.insert(self.linenum + 1, '...')
+        self.ffixer.loffset += 1
+
+    def fix_forbidden_docstartend(self, left, right):  # pylint: disable=unused-argument
+        """Fix:
+             - found forbidden document end
+             - found forbidden document start
+        """  # noqa: D205, D208, D400
+        del self.ffixer.lines[self.linenum]
+        self.ffixer.loffset -= 1
+
     def fix_newlineateof(self, left, right):  # pylint: disable=unused-argument,no-self-use
         r"""Fix:
              - no new line character at the end of file

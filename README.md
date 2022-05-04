@@ -164,10 +164,13 @@ This GitHub Action will automatically create Pull Requests to your repository wi
 
 # Fixers
 
-yamlfixer currently (as of 0.6.4) can fix the following problems as reported by `yamllint` :
+yamlfixer currently (as of 0.9.6) can fix the following problems as reported by `yamllint` :
 
   - comment not indented like content (comments-indentation)
+  - found forbidden document end
+  - found forbidden document start
   - line too long
+  - missing document end
   - missing document start
   - missing starting space in comment (comments)
   - no new line character at the end of file
