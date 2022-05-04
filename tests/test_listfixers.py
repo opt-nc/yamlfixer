@@ -50,6 +50,8 @@ class ListFixersTestCase(unittest.TestCase):
           - syntax error: mapping values are not allowed here
           - too few spaces after comma (commas)
           - too few spaces before comment (comments)
+          - too few spaces inside brackets (brackets)
+          - too few spaces inside empty brackets (brackets)
           - too many blank lines
           - too many spaces after colon (colons)
           - too many spaces after comma (commas)

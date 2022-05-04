@@ -116,6 +116,7 @@ class ProblemFixer(YAMLFixerBase):
         """  # noqa: D205, D208, D400
         # We simply ignore it, because we always add \n when dumping
         # and rely on universal newlines to handle them correctly.
+        # FIXME : doesn't work when transcoding files for another OS.
 
     def fix_truthy(self, left, right):
         """Fix:
@@ -136,6 +137,7 @@ class ProblemFixer(YAMLFixerBase):
         """Fix:
              - too few spaces before comment (comments)
         """  # noqa: D205, D208, D400
+        # TODO : read correct value from yamllint's config
         spaces = ' '
         if left[-1] != ' ':
             spaces += ' '
@@ -172,9 +174,13 @@ class ProblemFixer(YAMLFixerBase):
         """Fix:
              - missing starting space in comment (comments)
              - too few spaces after comma (commas)
+             - too few spaces inside brackets (brackets)
+             - too few spaces inside empty brackets (brackets)
         """  # noqa: D205, D208, D400
-        self.ffixer.lines[self.linenum] = left + ' ' + right
-        self.ffixer.coffset += 1
+        # TODO : read correct value from yamllint's config
+        spaces = ' '
+        self.ffixer.lines[self.linenum] = left + spaces + right
+        self.ffixer.coffset += len(spaces)
 
     def fix_toomany_spacesafter(self, left, right):
         """Fix:
@@ -182,6 +188,7 @@ class ProblemFixer(YAMLFixerBase):
              - too many spaces after comma (commas)
              - too many spaces after hyphen (hyphens)
         """  # noqa: D205, D208, D400
+        # TODO : read correct value from yamllint's config
         pos = self.colnum
         while (pos > 0) and (left[pos - 1] == ' '):
             pos -= 1
@@ -196,6 +203,7 @@ class ProblemFixer(YAMLFixerBase):
              - too many spaces before comma (commas)
              - too many spaces before colon (colons)
         """  # noqa: D205, D208, D400
+        # TODO : read correct value from yamllint's config
         pos = self.colnum
         while (pos > 0) and (left[pos - 1] == ' '):
             pos -= 1
