@@ -35,6 +35,8 @@ class ListFixersTestCase(unittest.TestCase):
         """\
         Fixers:
           - comment not indented like content (comments-indentation)
+          - found forbidden document end
+          - found forbidden document start
           - line too long
           - missing document end
           - missing document start
