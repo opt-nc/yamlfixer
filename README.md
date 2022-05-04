@@ -182,6 +182,8 @@ yamlfixer currently (as of 0.9.6) can fix the following problems as reported by 
   - syntax error: mapping values are not allowed here
   - too few spaces after comma (commas)
   - too few spaces before comment (comments)
+  - too few spaces inside empty brackets (brackets)
+  - too few spaces inside brackets
   - too many blank lines
   - too many spaces after colon (colons)
   - too many spaces after comma (commas)
