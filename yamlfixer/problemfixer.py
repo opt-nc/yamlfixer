@@ -94,10 +94,13 @@ class ProblemFixer(YAMLFixerBase):
         self.ffixer.loffset += 1
 
     def fix_newlineateof(self, left, right):  # pylint: disable=unused-argument,no-self-use
-        """Fix:
+        r"""Fix:
              - no new line character at the end of file
+             - wrong new line character: expected \r\n
+             - wrong new line character: expected \n
         """  # noqa: D205, D208, D400
-        # We simply ignore it, because we always add \n when dumping.
+        # We simply ignore it, because we always add \n when dumping
+        # and rely on universal newlines to handle them correctly.
 
     def fix_truthy(self, left, right):
         """Fix:

@@ -10,8 +10,6 @@ release :
 * missing document end "..."
 * found forbidden document end "..."
 * found forbidden document start "---"
-* wrong new line character: expected \\r\\n
-* wrong new line character: expected \\n
 * forbidden implicit octal value "%s"
 * forbidden explicit octal value "%s"
 * string value is not quoted with %s quotes

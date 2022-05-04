@@ -191,6 +191,8 @@ yamlfixer currently (as of 0.6.4) can fix the following problems as reported by 
   - trailing spaces (trailing-spaces)
   - truthy value should be one of [false, true] (truthy)
   - wrong indentation: expected
+  - wrong new line character: expected \\n
+  - wrong new line character: expected \\r\\n
 
 An always up-to-date list of fixers can be obtained with `yamlfixer --listfixers`.
 
