@@ -2,13 +2,15 @@
 name: 🐳 Docker Image CI
 
 on:  # yamllint disable-line rule:truthy
-  push:
+  pull_request:
     branches: [main]
     tags: '*.*.*'
+    types: [closed]
 
 jobs:
   build_and_publish_on_docker_hub:
     name: 🐳 Push Docker image to Docker Hub
+    if: github.event.pull_request.merged
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
