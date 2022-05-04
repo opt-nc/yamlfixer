@@ -88,12 +88,6 @@ class ProblemFixer(YAMLFixerBase):
     def fix_missing_docstart(self, left, right):  # pylint: disable=unused-argument
         """Fix:
              - missing document start
-        """  # noqa: D205, D208, D400
-        self.ffixer.lines.insert(0, '---')
-        self.ffixer.loffset += 1
-
-    def fix_expected_docstart(self, left, right):  # pylint: disable=unused-argument
-        """Fix:
              - syntax error: expected '<document start>', but found '<stream end>' (syntax)
         """  # noqa: D205, D208, D400
         self.ffixer.lines.insert(self.linenum, '---')
