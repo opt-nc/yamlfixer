@@ -59,6 +59,8 @@ class ListFixersTestCase(unittest.TestCase):
           - trailing spaces (trailing-spaces)
           - truthy value should be one of [false, true] (truthy)
           - wrong indentation: expected
+          - wrong new line character: expected \\n
+          - wrong new line character: expected \\r\\n
         """  # noqa: D205, D208, D210, D301, D400
         sys.stderr = StringIO()
         yfixer = YAMLFixer(parse_commandline(["yamlfixer", "--listfixers"]))
