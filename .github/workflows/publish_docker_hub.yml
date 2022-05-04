@@ -26,7 +26,7 @@ jobs:
           fi
           echo ::set-output name=tags::${TAGS}
       - name: Login to DockerHub
-        uses: docker/login-action@v1.12.0
+        uses: docker/login-action@v1.14.1
         with:
           username: ${{secrets.OPT_DOCKERHUB_LOGIN}}
           password: ${{secrets.OPT_DOCKERHUB_PASSWORD}}
