@@ -15,7 +15,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags')  # Upload to PyPi only if commit is tagged
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Initialize Python 3.8
         uses: actions/setup-python@v1
