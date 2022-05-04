@@ -7,7 +7,6 @@ release :
 * too few spaces inside brackets
 * too few spaces inside empty brackets
 * too many spaces after question mark
-* missing document end "..."
 * found forbidden document end "..."
 * found forbidden document start "---"
 * forbidden implicit octal value "%s"

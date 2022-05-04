@@ -168,6 +168,7 @@ yamlfixer currently (as of 0.6.4) can fix the following problems as reported by 
 
   - comment not indented like content (comments-indentation)
   - line too long
+  - missing document end
   - missing document start
   - missing starting space in comment (comments)
   - no new line character at the end of file
