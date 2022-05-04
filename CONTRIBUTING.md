@@ -32,6 +32,11 @@ provided they meet the following requirements :
 * If possible, each contribution should come with a modification to
   yamlfixer's test suite ensuring this contribution works as expected.
 
+## Generic guidelines
+
+Please read [this guide](https://www.dataschool.io/how-to-contribute-on-github/)
+on how to contribute to a project on GitHub.
+
 ## Code Quality
 
 To make the quality of yamlfixer's code improve over time, we currently rely
