@@ -1,4 +1,4 @@
-FROM python:3.11.0a3-alpine
+FROM python:3.11.0a7-alpine
 LABEL maintainer="michele.barre@opt.nc, jerome.alet@opt.nc, adrien.sales@opt.nc"
 
 

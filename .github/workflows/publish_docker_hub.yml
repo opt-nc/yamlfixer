@@ -4,8 +4,7 @@ name: 🐳 Docker Image CI
 on:  # yamllint disable-line rule:truthy
   push:
     branches: [main]
-  release:
-    types: [published]
+    tags: '*.*.*'
 
 jobs:
   build_and_publish_on_docker_hub:
@@ -13,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Prepare tags
         id: prep
         run: |
