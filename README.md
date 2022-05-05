@@ -164,7 +164,7 @@ This GitHub Action will automatically create Pull Requests to your repository wi
 
 # Fixers
 
-yamlfixer currently (as of 0.9.6) can fix the following problems as reported by `yamllint` :
+yamlfixer currently (as of 0.9.11) can fix the following problems as reported by `yamllint` :
 
   - comment not indented like content (comments-indentation)
   - found forbidden document end
@@ -174,6 +174,7 @@ yamlfixer currently (as of 0.9.6) can fix the following problems as reported by 
   - missing document start
   - missing starting space in comment (comments)
   - no new line character at the end of file
+  - syntax error: could not find expected ':' (syntax)
   - syntax error: expected `'<document start>'`, but found `'<stream end>'` (syntax)
   - syntax error: expected `<block end>`, but found `'<block mapping start>'`
   - syntax error: expected `<block end>`, but found `'<block sequence start>'` (syntax)

@@ -170,6 +170,15 @@ class ProblemFixer(YAMLFixerBase):
         self.ffixer.lines[self.linenum] = line.expandtabs(self.arguments.tabsize)
         self.ffixer.coffset += len(self.ffixer.lines[self.linenum]) - len(line)
 
+    def fix_syntax_missingcolon(self, left, right):  # pylint: disable=unused-argument
+        """Fix:
+             - syntax error: could not find expected ':' (syntax)
+        """  # noqa: D205, D208, D400
+        # TODO : read correct value from yamllint's config
+        lnum = max(0, self.linenum - 1)
+        self.ffixer.lines[lnum] = self.ffixer.lines[lnum] + ':'
+        # No need to adjust coffset because we are at EOL by definition
+
     def fix_missingspace(self, left, right):
         """Fix:
              - missing starting space in comment (comments)
