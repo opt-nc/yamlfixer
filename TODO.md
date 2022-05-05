@@ -7,7 +7,8 @@ release :
 - too many spaces after question mark
 - forbidden implicit octal value "%s"
 - forbidden explicit octal value "%s"
-- forbidden flow sequence (brackets)
+- forbidden flow mapping
+- forbidden flow sequence
 - string value is not quoted with %s quotes
 - string value is not quoted
 - string value is redundantly quoted with %s quotes
