@@ -43,18 +43,18 @@ class ProblemFixer(YAMLFixerBase):
 
     def __call__(self):
         """Make it callable."""
+        try:
+            line = self.ffixer.lines[self.linenum]
+        except IndexError:
+            line = self.ffixer.lines[-1]
+        left = line[:self.colnum]
+        right = line[self.colnum:]
         for (fixerkey, methodname) in self.fixers.items():
             if self.problem.startswith(fixerkey):
-                try:
-                    line = self.ffixer.lines[self.linenum]
-                except IndexError:
-                    line = self.ffixer.lines[-1]
-                left = line[:self.colnum]
-                right = line[self.colnum:]
                 self.debug(f'Calling {methodname}("{left}", "{right}")')
                 getattr(self, methodname)(left, right)
                 return FIXER_HANDLED
-        self.debug("No handler found")
+        self.debug(f'No handler found for ("{left}", "{right}")')
         return FIXER_UNHANDLED
 
     def _get_indentation(self, offset=0):
