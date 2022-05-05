@@ -16,11 +16,11 @@ of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
-# 🎬 Demo
+# 🖼️  Screenshot
 
-Click on the white triangle in the image below to view a short video demonstration:
+Here'a screenshot of yamlfixer launched on [yaml-test-suite](https://github.com/yaml/yaml-test-suite) :
 
-[![asciicast](https://asciinema.org/a/478928.svg)](https://asciinema.org/a/478928)
+![yamlfixer's screenshot](https://github.com/opt-nc/yamlfixer/blob/main/images/screenshot-manyfiles.png)
 
 # 📑 Installation
 
@@ -37,7 +37,7 @@ below.
 python3 -m pip install yamlfixer-opt-nc
 ```
 
-## 🪟 Windows install
+## 🪟  Windows install
 
 ```shell
 python -m pip install yamlfixer-opt-nc
@@ -208,6 +208,12 @@ to see which problems are still unsupported but which we plan to support some da
 may work only partially or not at all for you. Use the -N|--nosyntax
 command line switch do prevent `yamlfixer` from trying to fix syntax
 errors.**
+
+# 🎬 Demo
+
+Click on the white triangle in the image below to view a short video demonstration:
+
+[![asciicast](https://asciinema.org/a/478928.svg)](https://asciinema.org/a/478928)
 
 # 💪 Tips and tricks
 
