@@ -42,6 +42,7 @@ class ListFixersTestCase(unittest.TestCase):
           - missing document start
           - missing starting space in comment (comments)
           - no new line character at the end of file
+          - syntax error: could not find expected ':' (syntax)
           - syntax error: expected '<document start>', but found '<stream end>' (syntax)
           - syntax error: expected <block end>, but found '<block mapping start>'
           - syntax error: expected <block end>, but found '<block sequence start>' (syntax)

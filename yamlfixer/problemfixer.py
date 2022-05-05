@@ -43,18 +43,18 @@ class ProblemFixer(YAMLFixerBase):
 
     def __call__(self):
         """Make it callable."""
+        try:
+            line = self.ffixer.lines[self.linenum]
+        except IndexError:
+            line = self.ffixer.lines[-1]
+        left = line[:self.colnum]
+        right = line[self.colnum:]
         for (fixerkey, methodname) in self.fixers.items():
             if self.problem.startswith(fixerkey):
-                try:
-                    line = self.ffixer.lines[self.linenum]
-                except IndexError:
-                    line = self.ffixer.lines[-1]
-                left = line[:self.colnum]
-                right = line[self.colnum:]
                 self.debug(f'Calling {methodname}("{left}", "{right}")')
                 getattr(self, methodname)(left, right)
                 return FIXER_HANDLED
-        self.debug("No handler found")
+        self.debug(f'No handler found for ("{left}", "{right}")')
         return FIXER_UNHANDLED
 
     def _get_indentation(self, offset=0):
@@ -169,6 +169,15 @@ class ProblemFixer(YAMLFixerBase):
         line = self.ffixer.lines[self.linenum][:]
         self.ffixer.lines[self.linenum] = line.expandtabs(self.arguments.tabsize)
         self.ffixer.coffset += len(self.ffixer.lines[self.linenum]) - len(line)
+
+    def fix_syntax_missingcolon(self, left, right):  # pylint: disable=unused-argument
+        """Fix:
+             - syntax error: could not find expected ':' (syntax)
+        """  # noqa: D205, D208, D400
+        # TODO : read correct value from yamllint's config
+        lnum = max(0, self.linenum - 1)
+        self.ffixer.lines[lnum] = self.ffixer.lines[lnum] + ':'
+        # No need to adjust coffset because we are at EOL by definition
 
     def fix_missingspace(self, left, right):
         """Fix:
