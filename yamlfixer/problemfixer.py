@@ -111,12 +111,18 @@ class ProblemFixer(YAMLFixerBase):
     def fix_newlineateof(self, left, right):  # pylint: disable=unused-argument,no-self-use
         r"""Fix:
              - no new line character at the end of file
-             - wrong new line character: expected \r\n
              - wrong new line character: expected \n
         """  # noqa: D205, D208, D400
         # We simply ignore it, because we always add \n when dumping
         # and rely on universal newlines to handle them correctly.
         # FIXME : doesn't work when transcoding files for another OS.
+
+    def fix_nocrateof(self, left, right):
+        r"""Fix:
+             - wrong new line character: expected \r\n
+        """  # noqa: D205, D208, D400
+        # Here we simply add '\r', because we always add \n when dumping
+        self.ffixer.lines[self.linenum] = left + right + '\r'
 
     def fix_truthy(self, left, right):
         """Fix:
