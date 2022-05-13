@@ -1,0 +1,20 @@
+---
+name: yamlfixer-opt-nc
+base: core20
+version: '0.9.12'
+summary: automates the fixing of problems reported by yamllint
+description: |
+  yamlfixer automates the fixing of problems reported by
+  yamllint by parsing its output.
+grade: stable
+confinement: strict
+
+apps:
+  yamlfixer:
+    command: bin/yamlfixer
+    plugs: [home]
+parts:
+  yamlfixer:
+    source: .
+    plugin: python
+    python-packages: [yamllint]
