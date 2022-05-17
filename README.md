@@ -16,13 +16,6 @@ of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
-
-# ✍️ Blogging
-
-You can find dedicated ressources on `yamlfixer` on : 
-
-- [Dedicated series on DEV.to](https://dev.to/adriens/series/18168)
-
 # 🖼️  Screenshot
 
 Here'a screenshot of yamlfixer launched on [yaml-test-suite](https://github.com/yaml/yaml-test-suite) :
@@ -164,52 +157,59 @@ circumstances.
 
 ⚠️**Use at your own risk, you have been warned...** ⚠️
 
-# GitHub Action
+# ✍️ Blogging
+
+You can find dedicated ressources on `yamlfixer` on : 
+
+- [Dedicated series on DEV.to](https://dev.to/adriens/series/18168)
+
+# :octocat: GitHub Action
 
 You can now use this software as a GitHub Action, available from https://github.com/opt-nc/yamlfixer-action .
 This GitHub Action will automatically create Pull Requests to your repository with the changes made by yamlfixer.
 
-# Fixers
+# ✔️ Fixers
 
-yamlfixer currently (as of 0.9.11) can fix the following problems as reported by `yamllint` :
+`yamlfixer` currently (as of [`0.9.11`](https://github.com/opt-nc/yamlfixer/releases/tag/0.9.11)) can fix
+the following problems as reported by `yamllint` :
 
-  - comment not indented like content (comments-indentation)
-  - found forbidden document end
-  - found forbidden document start
-  - line too long
-  - missing document end
-  - missing document start
-  - missing starting space in comment (comments)
-  - no new line character at the end of file
-  - syntax error: could not find expected ':' (syntax)
-  - syntax error: expected `'<document start>'`, but found `'<stream end>'` (syntax)
-  - syntax error: expected `<block end>`, but found `'<block mapping start>'`
-  - syntax error: expected `<block end>`, but found `'<block sequence start>'` (syntax)
-  - syntax error: expected `<block end>`, but found `'?'`
-  - syntax error: found character '\t' that cannot start any token (syntax)
-  - syntax error: mapping values are not allowed here
-  - too few spaces after comma (commas)
-  - too few spaces before comment (comments)
-  - too few spaces inside empty brackets (brackets)
-  - too few spaces inside brackets
-  - too many blank lines
-  - too many spaces after colon (colons)
-  - too many spaces after comma (commas)
-  - too many spaces after hyphen (hyphens)
-  - too many spaces before colon (colons)
-  - too many spaces before comma (commas)
-  - too many spaces inside braces (braces)
-  - too many spaces inside brackets (brackets)
-  - too many spaces inside empty brackets (brackets)
-  - trailing spaces (trailing-spaces)
-  - truthy value should be one of [false, true] (truthy)
-  - wrong indentation: expected
-  - wrong new line character: expected \\n
-  - wrong new line character: expected \\r\\n
+- comment not indented like content (comments-indentation)
+- found forbidden document end
+- found forbidden document start
+- line too long
+- missing document end
+- missing document start
+- missing starting space in comment (comments)
+- no new line character at the end of file
+- syntax error: could not find expected ':' (syntax)
+- syntax error: expected `'<document start>'`, but found `'<stream end>'` (syntax)
+- syntax error: expected `<block end>`, but found `'<block mapping start>'`
+- syntax error: expected `<block end>`, but found `'<block sequence start>'` (syntax)
+- syntax error: expected `<block end>`, but found `'?'`
+- syntax error: found character '\t' that cannot start any token (syntax)
+- syntax error: mapping values are not allowed here
+- too few spaces after comma (commas)
+- too few spaces before comment (comments)
+- too few spaces inside empty brackets (brackets)
+- too few spaces inside brackets
+- too many blank lines
+- too many spaces after colon (colons)
+- too many spaces after comma (commas)
+- too many spaces after hyphen (hyphens)
+- too many spaces before colon (colons)
+- too many spaces before comma (commas)
+- too many spaces inside braces (braces)
+- too many spaces inside brackets (brackets)
+- too many spaces inside empty brackets (brackets)
+- trailing spaces (trailing-spaces)
+- truthy value should be one of [false, true] (truthy)
+- wrong indentation: expected
+- wrong new line character: expected \\n
+- wrong new line character: expected \\r\\n
 
 An always up-to-date list of fixers can be obtained with `yamlfixer --listfixers`.
 
-Please read our [TODO list](https://github.com/opt-nc/yamlfixer/blob/main/TODO.md)
+☝️ Please read our [TODO list](https://github.com/opt-nc/yamlfixer/blob/main/TODO.md)
 to see which problems are still unsupported but which we plan to support some day.
 
 **IMPORTANT : fixing syntax errors is done on a best effort basis and
@@ -351,7 +351,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ```
 
-# Contributing
+# 🧑‍🤝‍🧑 Contributing
 
 You can contribute to this project by [filing an issue](https://github.com/opt-nc/yamlfixer/issues)
 or by [sending a pull request](https://github.com/opt-nc/yamlfixer/pulls)
