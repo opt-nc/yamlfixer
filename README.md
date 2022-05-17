@@ -16,6 +16,13 @@ of problems reported by
 [yamllint](https://github.com/adrienverge/yamllint) by parsing its
 output.
 
+
+# ✍️ Blogging
+
+You can find dedicated ressources on `yamlfixer` on : 
+
+- [Dedicated series on DEV.to](https://dev.to/adriens/series/18168)
+
 # 🖼️  Screenshot
 
 Here'a screenshot of yamlfixer launched on [yaml-test-suite](https://github.com/yaml/yaml-test-suite) :
