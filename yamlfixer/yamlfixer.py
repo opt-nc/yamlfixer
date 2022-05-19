@@ -176,6 +176,13 @@ class YAMLFixer(YAMLFixerBase):
                                                            "status": result["counter"].upper(),
                                                            "issues": filetofix.issues,
                                                            "handled": filetofix.issueshandled}
+
+            # Remove diffto file if it's empty.
+            if (not os.path.getsize(self.arguments.diffto)) and (self.arguments.diffto != os.devnull):
+                self.debug(f"Removing empty --diffto file {self.arguments.diffto} ...")
+                os.remove(self.arguments.diffto)
+                self.debug(f"Empty --diffto file {self.arguments.diffto} removed.")
+
             self._statistics()
             if (self.summary["passed"] + self.summary["skipped"] + self.summary["fixed"]) == self.summary["filestofix"]:
                 return EXIT_OK
