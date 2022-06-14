@@ -115,6 +115,7 @@ class YAMLFixer(YAMLFixerBase):
             self.info(f"{self.summary['skipped']} files were skipped")
             self.info(f"{self.summary['notwritable']} files were not writable")
             self.info(f"{self.summary['unknown']} files with unknown status")
+            # pylint: disable=consider-using-generator
             rjustifyto = max([len(STATUSES.get(s, {"counter": "unknown"})["counter"])
                               for s in (list(STATUSES.keys()) + ["unknownstatusvalue"])])
             for filename in self.summary["details"]:
