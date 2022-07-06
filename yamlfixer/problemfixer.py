@@ -113,7 +113,12 @@ class ProblemFixer(YAMLFixerBase):
              - no new line character at the end of file
              - wrong new line character: expected \n
         """  # noqa: D205, D208, D400
-        # We simply ignore it, because we always add \n when dumping
+        if not (left or right):
+            # We came here because last line contained only trailing spaces
+            del self.ffixer.lines[self.linenum]
+            self.ffixer.loffset -= 1
+
+        # Else we simply ignore it, because we always add \n when dumping
         # and rely on universal newlines to handle them correctly.
         # FIXME : doesn't work when transcoding files for another OS.
 
