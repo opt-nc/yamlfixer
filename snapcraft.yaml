@@ -1,7 +1,7 @@
 ---
 name: yamlfixer-opt-nc
 base: core20
-version: '0.9.13'
+version: '0.9.14'
 summary: automates the fixing of problems reported by yamllint
 description: |
   yamlfixer automates the fixing of problems reported by
