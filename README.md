@@ -24,8 +24,6 @@ Here'a screenshot of yamlfixer launched on [yaml-test-suite](https://github.com/
 
 # 📑 Installation
 
-💡 **You can try the install process online thanks to the dedicated [Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
-
 The easiest way to install `yamlfixer` is from
 [pypi](https://pypi.org/project/yamlfixer-opt-nc/), as described
 below.
