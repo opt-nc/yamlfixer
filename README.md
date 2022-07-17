@@ -1,7 +1,6 @@
 ![License](https://img.shields.io/github/license/opt-nc/yamlfixer) ![Build](https://img.shields.io/github/workflow/status/opt-nc/yamlfixer/Checks)
 
 [![Docker Image](https://img.shields.io/badge/docker-homepage-blue)](https://hub.docker.com/r/optnc/yamlfixer)
-[![Katacoda scenario](https://img.shields.io/badge/katacoda-homepage-blue)](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer)
 
 ![PyPI](https://img.shields.io/pypi/v/yamlfixer-opt-nc)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/yamlfixer-opt-nc)
@@ -23,8 +22,6 @@ Here'a screenshot of yamlfixer launched on [yaml-test-suite](https://github.com/
 ![yamlfixer's screenshot](https://github.com/opt-nc/yamlfixer/blob/main/images/screenshot-manyfiles.png)
 
 # 📑 Installation
-
-💡 **You can try the install process online thanks to the dedicated [Katacoda scenario](https://www.katacoda.com/opt-labs/courses/devops-tools/yamlfixer).**
 
 The easiest way to install `yamlfixer` is from
 [pypi](https://pypi.org/project/yamlfixer-opt-nc/), as described
