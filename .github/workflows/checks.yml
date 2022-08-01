@@ -28,9 +28,9 @@ jobs:
       - name: Install linters
         run: >-
             python -m pip install --upgrade
-            yamllint
+            "yamllint>=1.27.1"
             pylint
-            flake8
+            "flake8>=4.0.0"
             flake8-aaa
             flake8-bugbear
             flake8-comprehensions
