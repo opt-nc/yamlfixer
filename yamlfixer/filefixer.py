@@ -52,7 +52,6 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
         super().__init__(arguments)
         self.filename = filename
         self.loffset = self.coffset = 0
-        self.shebang = ''
         self.incontents = None
         self.lines = []
         self.issues = self.issueshandled = 0
@@ -68,20 +67,6 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
             coltofix = colstofix.setdefault(int(colnumber), [])
             coltofix.append(msg)
             self.issues += 1
-
-        # If there's a shebang line we ignore it and any problem reported on it
-        if (self.incontents is not None) and self.incontents.startswith('#!'):
-            eolpos = self.incontents.find('\n') + 1
-            self.shebang = self.incontents[:eolpos]
-            self.incontents = self.incontents[eolpos:]
-            try:
-                del problemlines[1]
-                self.issues -= 1
-            except KeyError:
-                pass  # No problem reported on shebang line by yamllint
-            # This line won't ever see the fixer so all subsequent lines must be offset by -1
-            self.loffset = -1
-
         return problemlines
 
     def lint(self, content):
@@ -131,7 +116,7 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
     def diff(self, finalcontent):
         """Return a unified diff of original content to final one."""
         differences = []
-        original = (self.shebang + (self.incontents or '')).splitlines(keepends=True)
+        original = (self.incontents or '').splitlines(keepends=True)
         final = finalcontent.splitlines(keepends=True)
         if original != final:
             relbefore = f'"{self.filename}"'
@@ -159,11 +144,11 @@ class FileFixer(YAMLFixerBase):  # pylint: disable=too-many-instance-attributes
             retcode = FIX_SKIPPED
         else:
             retcode = FIX_MODIFIED
-        finaloutput = self.shebang + (outcontents or '')
+        finaloutput = outcontents or ''
         if self.arguments.nochange:
             # We don't want to modify anything
             if self.filename == '-':  # Always dump original input to stdout in this case
-                sys.stdout.write(self.shebang + (self.incontents or ''))
+                sys.stdout.write(self.incontents or '')
                 sys.stdout.flush()
         else:
             # It seems we really want to fix things.
