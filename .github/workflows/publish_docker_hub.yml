@@ -34,7 +34,7 @@ jobs:
           password: ${{secrets.OPT_DOCKERHUB_PASSWORD}}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           file: ./Dockerfile
