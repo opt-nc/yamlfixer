@@ -253,8 +253,12 @@ class ProblemFixer(YAMLFixerBase):
         # TODO: we fix anyway, knowing that we may need to launch the command
         # TODO: several times to finally fix the problem.
         parts = self.problem.split()
-        expected = int(parts[3])
-        found = int(parts[6])
+        if parts[3] == "at" and parts[4] == "least":
+            expected = int(parts[5])
+            found = 0
+        else:
+            expected = int(parts[3])
+            found = int(parts[6])
         offset = expected - found
         if expected > found:
             self.ffixer.lines[self.linenum] = (' ' * offset) + left + right
