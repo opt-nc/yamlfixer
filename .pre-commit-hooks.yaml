@@ -1,0 +1,7 @@
+---
+- id: yamlfixer
+  name: yamlfixer
+  entry: yamlfixer
+  language: python
+  language_version: python3
+  types: [yaml]
