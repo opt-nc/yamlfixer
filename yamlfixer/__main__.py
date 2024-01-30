@@ -43,15 +43,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 def parse_commandline(argv=None):
     """Parse the command line and return the parsed arguments."""
-    # Ensure we read from stdin in case it's redirected
-    # We add some additional checks because GitHub actions don't
-    # provide a TTY
-    if ("-" not in sys.argv[1:]) \
-       and not sys.stdin.isatty() \
-       and not os.environ.get("GITHUB_ACTIONS") \
-       and not os.environ.get("CI"):
-        sys.argv.append("-")
-
     # Parse the command line arguments
     cmdline = argparse.ArgumentParser(description="Fix formatting problems in YAML documents. "
                                       "If no file is specified, then reads input from `stdin`.",
