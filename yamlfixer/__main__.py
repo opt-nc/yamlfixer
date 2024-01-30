@@ -43,7 +43,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 def parse_commandline(argv=None):
     """Parse the command line and return the parsed arguments."""
-
     # Parse the command line arguments
     cmdline = argparse.ArgumentParser(description="Fix formatting problems in YAML documents. "
                                       "If no file is specified, then reads input from `stdin`.",
